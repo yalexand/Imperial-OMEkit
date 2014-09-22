@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ic_converter_settings>
+<DefaultDataDirectory>C:\Users\yalexand\omero_YA\OPT_examples\fluor</DefaultDataDirectory>
+<Modulo>ModuloAlongZ</Modulo>
+<Variable>angle</Variable>
+<Units>degree</Units>
+<FLIM_mode>none</FLIM_mode>
+<Extension>tif</Extension>
+<SPW_mode>0</SPW_mode>
+<excel_path>c:\Program Files (x86)\Microsoft Office\Office14\</excel_path>
+</ic_converter_settings>
