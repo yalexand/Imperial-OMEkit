@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
+  <configuration target="target.ezdeploy.standalone" target-name="MATLAB Compiler for Standalone Applications" name="ic_converter_PCWIN64" location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd" file="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\ic_converter_PCWIN64.prj" preferred-package-type="package.type.exe" build-checksum="1628369296" preferred-package-location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_converter_PCWIN64\for_redistribution">
+    <param.appname>ic_converter_PCWIN64</param.appname>
+    <param.authnamewatermark />
+    <param.email />
+    <param.company />
+    <param.icon />
+    <param.icons />
+    <param.summary />
+    <param.description />
+    <param.screenshot />
+    <param.version>1.0</param.version>
+    <param.namespace>ic_converter_PCWIN64</param.namespace>
+    <param.guid />
+    <param.installpath.string>\ic_converter_PCWIN64\</param.installpath.string>
+    <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
+    <param.logo />
+    <param.install.notes />
+    <param.intermediate>${PROJECT_ROOT}\DeployFiles\ic_converter_PCWIN64\for_testing</param.intermediate>
+    <param.output>${PROJECT_ROOT}\DeployFiles\ic_converter_PCWIN64\for_redistribution</param.output>
+    <param.embed.ctf>true</param.embed.ctf>
+    <param.target.type>subtarget.standalone</param.target.type>
+    <param.classorg />
+    <param.web.mcr>true</param.web.mcr>
+    <param.package.mcr>true</param.package.mcr>
+    <param.no.mcr>false</param.no.mcr>
+    <param.web.mcr.name>ic_converter_Installer_web</param.web.mcr.name>
+    <param.package.mcr.name>ic_converter_Installer_mcr</param.package.mcr.name>
+    <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
+    <param.user.defined.mcr.options />
+    <param.windows.command.prompt>true</param.windows.command.prompt>
+    <param.user.only.registration>false</param.user.only.registration>
+    <param.mads.no.java>false</param.mads.no.java>
+    <param.mads.exclusive.mcr>false</param.mads.exclusive.mcr>
+    <param.net.framework>option.net.framework.default</param.net.framework>
+    <param.assembly.type>false</param.assembly.type>
+    <param.encryption.key.file />
+    <param.net.enable.remoting>false</param.net.enable.remoting>
+    <param.net.tsa.enable>false</param.net.tsa.enable>
+    <param.net.tsa.assembly />
+    <param.net.tsa.interface />
+    <param.net.tsa.namespace>ic_converter_PCWIN64</param.net.tsa.namespace>
+    <param.net.tsa.superclass />
+    <param.net.tsa.metadata />
+    <param.net.tsa.metadata.assembly>C:\Users\yalexand\Documents\MATLAB</param.net.tsa.metadata.assembly>
+    <param.create.log>false</param.create.log>
+    <param.log.file />
+    <unset>
+      <param.authnamewatermark />
+      <param.email />
+      <param.company />
+      <param.icon />
+      <param.icons />
+      <param.summary />
+      <param.description />
+      <param.screenshot />
+      <param.version />
+      <param.namespace />
+      <param.guid />
+      <param.installpath.string />
+      <param.logo />
+      <param.install.notes />
+      <param.embed.ctf />
+      <param.target.type />
+      <param.classorg />
+      <param.web.mcr />
+      <param.no.mcr />
+      <param.no.mcr.name />
+      <param.windows.command.prompt />
+      <param.user.only.registration />
+      <param.mads.no.java />
+      <param.mads.exclusive.mcr />
+      <param.net.framework />
+      <param.assembly.type />
+      <param.encryption.key.file />
+      <param.net.enable.remoting />
+      <param.net.tsa.enable />
+      <param.net.tsa.assembly />
+      <param.net.tsa.interface />
+      <param.net.tsa.namespace />
+      <param.net.tsa.superclass />
+      <param.net.tsa.metadata />
+      <param.net.tsa.metadata.assembly />
+      <param.create.log />
+      <param.log.file />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}\ic_converter.m</file>
+    </fileset.main>
+    <fileset.resources>
+      <file>${PROJECT_ROOT}\addpath_OMEkit.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\bfCheckJavaMemory.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\bfCheckJavaPath.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\bfsave.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\createMinimalOMEXMLMetadata.m</file>
+      <file>${PROJECT_ROOT}\Classes\@ic_converter_impl\ic_converter_impl.m</file>
+      <file>${PROJECT_ROOT}\Classes\profile_controller.m</file>
+      <file>${PROJECT_ROOT}\FileWriteSPW\dist\FileWriteSPW.jar</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\commonsubstring.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\doubleops_PCWIN64\@double\plus.mexw64</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\genops.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\getapplicationdatadir.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Box.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\BoxPanel.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\ButtonBox.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\calculatePixelSizes.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\callCallback.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\CardPanel.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\ChildEvent.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Container.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\DecoratedPanel.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Empty.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\findArg.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\get.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Grid.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\GridFlex.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\HBox.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\HBoxFlex.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\HButtonBox.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\interpretColor.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\loadLayoutIcon.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\makeFlexDivider.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\MousePointerHandler.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Panel.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\panelClose.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\panelDock.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\panelHelp.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\panelMaximize.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\panelMinimize.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\panelUndock.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\tab_Background_NotSelected.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\tab_Background_Selected.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\tab_NoEdge_NotSelected.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\tab_NoEdge_Selected.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\tab_NotSelected_NoEdge.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\tab_NotSelected_NotSelected.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\tab_NotSelected_Selected.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\tab_Selected_NoEdge.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Resources\tab_Selected_NotSelected.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\set.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\TabPanel.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\unset.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\VBox.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\VBoxFlex.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\VButtonBox.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\install.bat</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\install.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\about.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\atoz.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\AxesExample.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\BoxPanelFancyStuff.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Compiling.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\demoBrowserCreateInterface.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\demoBrowserOnListSelection.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\demoBrowserRun.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\demoBrowserScalability.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\demoBrowserStructure.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\demoBrowserUpdateInterface.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\doc.css</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\doc.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\EnableExample.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\ExampleApp.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Examples.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\FigureDefaults.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\frames.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference1_1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference1_2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference1_3.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference1_4.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference2_1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference2_2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference2_3.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference2_4.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference2_5.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference2_6.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference3_1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference3_2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference4_1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference4_2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference4_3.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference4_4.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Function reference4_5.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Getting Started.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Getting Started1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Getting Started2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Getting Started3.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Getting Started4.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Getting Started5.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\GUI Layout.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\HeirarchyExample.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\helpsearch\_1q.cfs</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\helpsearch\deletable</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\helpsearch\segments</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\helptoc.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\axes_inner.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\axes_layout_example_1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\axes_layout_example_2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\axes_layout_example_3.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\axes_outer.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\basics_example1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\basics_example2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\basics_example3.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\basics_example4.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\basics_example5.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\basics_example6.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\basics_example_tab.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\basics_example_vbox.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_BorderLayout.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_BoxPanel.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_CardPanel.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_Grid.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_GridFlex.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_HBox.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_HBoxFlex.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_HButtonBox.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_Panel.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_TabPanel.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_VBox.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_VBoxFlex.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bigicon_VButtonBox.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\bookicon.gif</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\Border.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxInBox.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxPanel.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxPanel2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxPanelDockExample1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxPanelDockExample2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxPanelDockExample3.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxPanelDockExample4.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxPanelHelpExample.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxPanelMinimizeExample1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxPanelMinimizeExample2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\BoxPanelMinimizeExample3.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\CardPanel.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\CombineBoxes.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\DefaultsFigure.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\DefaultsSystem1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\DefaultsSystem2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\demoBrowser1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\demoBrowser2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\demoBrowser3.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\demoBrowser4.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\demoicon.gif</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\deploy.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\Empty.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\EnableExample1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\EnableExample2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\EnableExample3.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\greenarrowicon.gif</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\Grid.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\GridFlex.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\guide1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\guide2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\HBox.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\HBoxFlex.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\HButtonBox.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\header.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\headerBG.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\help_ex.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\help_fx.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\help_gs.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\help_rn.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\help_ug.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\leftarrow.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\pageicon.gif</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\pagesicon.gif</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\Panel.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\Panel2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\panelDock.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\panelHelp.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\panelMaximize.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\panelMinimize.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\panelUndock.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\reficon.gif</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\rightarrow.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\TabPanel.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\titleimage.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\uparrow.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\VBox.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\VBoxFlex.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\VButtonBox.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\VisibleExample1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\VisibleExample2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\VisibleExample3.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\why_fixed1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\why_fixed2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\why_layout0_1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\why_layout0_2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\why_layout1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\why_layout2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\why_layout_anno1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\why_layout_anno2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\why_normalized1.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\Images\why_normalized2.png</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\index.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\layout.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\layoutRoot.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\layouts.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\LayoutsGUIDE.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\layoutVersion.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\PanelDock.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\PanelHelp.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\PanelMinimize.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\releasenotes.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\SystemDefaults.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.BoxPanel.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.CardPanel.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.Empty.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.get.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.Grid.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.GridFlex.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.HBox.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.HBoxFlex.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.HButtonBox.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.Panel.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.set.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.TabPanel.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.VBox.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.VBoxFlex.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\uiextras.VButtonBox.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide1_1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide1_2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide1_3.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide1_4.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide1_5.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide2_1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide2_2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide3.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide3_1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide3_2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide4.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide4_1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide4_2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide5.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide5_1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide5_2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide5_3.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide6.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide7.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide8.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide8_1.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide8_2.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide8_3.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide8_4.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide8_5.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\User guide8_6.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutHelp\VisibleExample.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutRoot.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\layoutVersion.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\license.txt</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\Patch\getpixelposition.p</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\Patch\isHGUsingMATLABClasses.p</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\starthere.html</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\uninstall.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\makegenops.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\propertiesGUI.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\sort_nat.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\substrings.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\xml_io_toos\xml_read.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\xml_io_toos\xml_write.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\xml_io_toos\xmlwrite_xerces.m</file>
+      <file>${PROJECT_ROOT}\ICUtilities\load_PicoQuant_bin.m</file>
+      <file>${PROJECT_ROOT}\ICUtilities\parse_DIFN_format1.m</file>
+      <file>${PROJECT_ROOT}\ICUtilities\parse_MultiChannel_WP_format.m</file>
+      <file>${PROJECT_ROOT}\ICUtilities\parse_WP_format.m</file>
+      <file>${PROJECT_ROOT}\ICUtilities\save_stack_as_OMEtiff.m</file>
+      <file>${PROJECT_ROOT}\InternalHelperFunctions\extract_metadata.m</file>
+      <file>${PROJECT_ROOT}\InternalHelperFunctions\load_flim_file.m</file>
+      <file>${PROJECT_ROOT}\InternalHelperFunctions\loadBHfileusingmeasDescBlock.m</file>
+      <file>${PROJECT_ROOT}\InternalHelperFunctions\split.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\toJavaList.m</file>
+    </fileset.resources>
+    <fileset.package />
+    <build-deliverables>
+      <file name="ic_converter_PCWIN64.exe" location="${PROJECT_ROOT}\DeployFiles\ic_converter_PCWIN64\for_testing" optional="false">C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_converter_PCWIN64\for_testing\ic_converter_PCWIN64.exe</file>
+      <file name="readme.txt" location="${PROJECT_ROOT}\DeployFiles\ic_converter_PCWIN64\for_testing" optional="true">C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_converter_PCWIN64\for_testing\readme.txt</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>C:\matlab\R2013b</root>
+      <toolboxes>
+        <toolbox name="fixedpoint" />
+      </toolboxes>
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>6.2</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
+
