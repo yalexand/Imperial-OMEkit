@@ -9,8 +9,7 @@ function save_stack_as_OMEtiff(folder, file_names, extension, dimension, FLIM_mo
             sizeT = 1;            
             
             try 
-                I = imread([folder filesep file_names{1}],extension); 
-                I = I'; % might fail if not single-plane data
+                I = (imread([folder filesep file_names{1}],extension))'; 
             catch err, 
                 msgbox(err.mesasge), 
                 return, 
@@ -32,81 +31,47 @@ function save_stack_as_OMEtiff(folder, file_names, extension, dimension, FLIM_mo
                     errordlg('wrong dimension specification'), return;
             end
 
-% verify that enough memory is allocated
-bfCheckJavaMemory();
-% Check for required jars in the Java path
-bfCheckJavaPath();
-        
-java.lang.System.setProperty('javax.xml.transform.TransformerFactory','com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');
+            % verify that enough memory is allocated
+            bfCheckJavaMemory();
+            % Check for required jars in the Java path
+            bfCheckJavaPath();
 
-% Create metadata
-toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
-OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
-metadata = OMEXMLService.createOMEXMLMetadata();
-metadata.createRoot();
+            java.lang.System.setProperty('javax.xml.transform.TransformerFactory','com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');
 
-metadata.setImageID('Image:0', 0);
-metadata.setPixelsID('Pixels:0', 0);
-metadata.setPixelsBinDataBigEndian(java.lang.Boolean.TRUE, 0, 0);
+            % Create metadata
+            toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
+            OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
+            metadata = OMEXMLService.createOMEXMLMetadata();
+            metadata.createRoot();
 
-% Set dimension order
-dimensionOrderEnumHandler = ome.xml.model.enums.handlers.DimensionOrderEnumHandler();
-dimensionOrder = dimensionOrderEnumHandler.getEnumeration('XYZCT');
-metadata.setPixelsDimensionOrder(dimensionOrder, 0);
+            metadata.setImageID('Image:0', 0);
+            metadata.setPixelsID('Pixels:0', 0);
+            metadata.setPixelsBinDataBigEndian(java.lang.Boolean.TRUE, 0, 0);
 
-% Set pixels type
-pixelTypeEnumHandler = ome.xml.model.enums.handlers.PixelTypeEnumHandler();
-if strcmp(class(I), 'single')
-    pixelsType = pixelTypeEnumHandler.getEnumeration('float');
-else
-    pixelsType = pixelTypeEnumHandler.getEnumeration(class(I));
-end
+            % Set dimension order
+            dimensionOrderEnumHandler = ome.xml.model.enums.handlers.DimensionOrderEnumHandler();
+            dimensionOrder = dimensionOrderEnumHandler.getEnumeration('XYZCT');
+            metadata.setPixelsDimensionOrder(dimensionOrder, 0);
 
-metadata.setPixelsType(pixelsType, 0);
+            % Set pixels type
+            pixelTypeEnumHandler = ome.xml.model.enums.handlers.PixelTypeEnumHandler();
+            if isa(I,'single')
+                pixelsType = pixelTypeEnumHandler.getEnumeration('float');
+            else
+                pixelsType = pixelTypeEnumHandler.getEnumeration(class(I));
+            end
 
-metadata.setPixelsSizeX(toInt(sizeX), 0);
-metadata.setPixelsSizeY(toInt(sizeY), 0);
-metadata.setPixelsSizeZ(toInt(sizeZ), 0);
-metadata.setPixelsSizeC(toInt(sizeC), 0);
-metadata.setPixelsSizeT(toInt(sizeT), 0);
+            metadata.setPixelsType(pixelsType, 0);
 
-toNNI = @(x) ome.xml.model.primitives.NonNegativeInteger(java.lang.Integer(x));
-    %
-    num_files = numel(file_names);
-                        %
-                       for i = 1:num_files
-% THIS WORKS BUT THIS SPECIFICATION IS PRESENTLY NOT USED                            
-                                z = 1;
-                                c = 1;
-                                t = 1;
-                                %
-                                switch dimension
-                                    case 'ModuloAlongC'
-                                        c = i;
-                                    case 'ModuloAlongZ'
-                                        z = i;
-                                    case 'ModuloAlongT'
-                                        t = i;
-                                end
-                                metadata.setPlaneTheZ(toNNI(z-1),0,i-1);
-                                metadata.setPlaneTheC(toNNI(c-1),0,i-1);
-                                metadata.setPlaneTheT(toNNI(t-1),0,i-1);
-% metadata.setPlaneAnnotationRef(['Annotation:' num2str(i-1)],0,i-1,0); %excessive + causes error (in the case of OPT) ...  
-                                metadata.setTiffDataIFD(toNNI(z-1),0,i-1);
-                                metadata.setTiffDataFirstZ(toNNI(z-1),0,i-1);
-                                metadata.setTiffDataFirstC(toNNI(c-1),0,i-1);
-                                metadata.setTiffDataFirstT(toNNI(t-1),0,i-1);                                                                                                
-                                %                                                                
-%                                 if ~(strcmp(FLIM_mode,'Time Gated') || strcmp(FLIM_mode,'Time Gated non-imaging'))                                                      
-%                                     metadata.setCommentAnnotationID(['Annotation:' num2str(i-1)],i-1);
-%                                     metadata.setCommentAnnotationValue(char(file_names{i}),i-1);
-%                                 end                                
-                        end                                                                                      
+            metadata.setPixelsSizeX(toInt(sizeX), 0);
+            metadata.setPixelsSizeY(toInt(sizeY), 0);
+            metadata.setPixelsSizeZ(toInt(sizeZ), 0);
+            metadata.setPixelsSizeC(toInt(sizeC), 0);
+            metadata.setPixelsSizeT(toInt(sizeT), 0);
                         %                                        
-                        if strcmp(FLIM_mode,'Time Gated') || strcmp(FLIM_mode,'Time Gated non-imaging')                      
-                            
-                                % MODULO   
-                                modlo = loci.formats.CoreMetadata();
+                        if strcmp(FLIM_mode,'Time Gated') || strcmp(FLIM_mode,'Time Gated non-imaging')                                                  
+                              % MODULO   
+                              modlo = loci.formats.CoreMetadata();
                             
                               % check if FLIM Modulo specification is available    
                               channels_names = cell(1,num_files);
@@ -121,7 +86,6 @@ toNNI = @(x) ome.xml.model.primitives.NonNegativeInteger(java.lang.Integer(x));
                               end                    
 
                               switch dimension
-
                                   case 'ModuloAlongZ'
                                       modlo.moduloZ.type = loci.formats.FormatTools.LIFETIME;
                                       modlo.moduloZ.unit = 'ps';
@@ -131,7 +95,6 @@ toNNI = @(x) ome.xml.model.primitives.NonNegativeInteger(java.lang.Integer(x));
                                       for i=1:length(delays)
                                         modlo.moduloT.labels(i)= java.lang.String(num2str(delays(i)));
                                       end                                                      
-
                                   case 'ModuloAlongC'
                                       modlo.moduloC.type = loci.formats.FormatTools.LIFETIME;
                                       modlo.moduloC.unit = 'ps';
@@ -141,7 +104,6 @@ toNNI = @(x) ome.xml.model.primitives.NonNegativeInteger(java.lang.Integer(x));
                                       for i=1:length(delays)
                                         modlo.moduloC.labels(i)= java.lang.String(num2str(delays(i)));
                                       end                                                      
-
                                   case 'ModuloAlongT'
                                       modlo.moduloT.type = loci.formats.FormatTools.LIFETIME;
                                       modlo.moduloT.unit = 'ps';
@@ -150,18 +112,11 @@ toNNI = @(x) ome.xml.model.primitives.NonNegativeInteger(java.lang.Integer(x));
                                       modlo.moduloT.labels = javaArray('java.lang.String',length(delays));                                  
                                       for i=1:length(delays)
                                         modlo.moduloT.labels(i)= java.lang.String(num2str(delays(i)));
-                                      end                                                      
-                              end
-
+                                      end                                                                                            
+                              end                              
                         end
                       
-if exist('modlo','var'), OMEXMLService.addModuloAlong(metadata, modlo, 0); end;                      
-
-% Set channels ID and samples per pixel
-for i = 1: sizeC
-    metadata.setChannelID(['Channel:0:' num2str(i-1)], 0, i-1);
-    metadata.setChannelSamplesPerPixel(toInt(1), 0, i-1);
-end
+        if exist('modlo','var'), OMEXMLService.addModuloAlong(metadata, modlo, 0); end;                      
 
         % DESCRIPTION - starts
         try
@@ -210,63 +165,86 @@ end
                     metadata.setXMLAnnotationValue(dscr,ann_ind);
                 end
             end
-
-            
-% THIS DOESN'T WORK!!!!!!!!!!!!!!!!!!!!!!            
-%             if ~(strcmp(FLIM_mode,'Time Gated') || strcmp(FLIM_mode,'Time Gated non-imaging'))                                                      
-%                 for i=1+ann_ind:34
-%                     metadata.setCommentAnnotationID(['Annotation:' num2str(i)],i);
-%                     metadata.setCommentAnnotationValue(char(file_names{i}),i);                    
-%                 end                
-%             end
-                        for k=0:num_files-1
-                     metadata.setCommentAnnotationID(['Annotation:' num2str(k)],k);
-                     metadata.setCommentAnnotationValue(char(file_names{k+1}),k);                    
-                        end
-            
             
        catch err
              display(err.message);
        end
        % DESCRIPTION - ends
-                       
-% Create ImageWriter
-writer = loci.formats.ImageWriter();
-writer.setWriteSequentially(true);
-writer.setMetadataRetrieve(metadata);
-writer.setCompression('LZW');
-writer.getWriter(ometiffilename).setBigTiff(true);
-writer.setId(ometiffilename);
+            
+%
+%            toNNI = @(x) ome.xml.model.primitives.NonNegativeInteger(java.lang.Integer(x));
+%                        for i = 1:num_files
+% % THIS WORKS BUT THIS SPECIFICATION IS PRESENTLY NOT USED                            
+%                                 z = 1;
+%                                 c = 1;
+%                                 t = 1;
+%                                 %
+%                                 switch dimension
+%                                     case 'ModuloAlongC'
+%                                         c = i;
+%                                     case 'ModuloAlongZ'
+%                                         z = i;
+%                                     case 'ModuloAlongT'
+%                                         t = i;
+%                                 end
+%                                 metadata.setPlaneTheZ(toNNI(z-1),0,i-1);
+%                                 metadata.setPlaneTheC(toNNI(c-1),0,i-1);
+%                                 metadata.setPlaneTheT(toNNI(t-1),0,i-1);
+% % metadata.setPlaneAnnotationRef(['Annotation:' num2str(i-1)],0,i-1,0); %excessive + causes error (in the case of OPT) ...  
+%                                 metadata.setTiffDataIFD(toNNI(z-1),0,i-1);
+%                                 metadata.setTiffDataFirstZ(toNNI(z-1),0,i-1);
+%                                 metadata.setTiffDataFirstC(toNNI(c-1),0,i-1);
+%                                 metadata.setTiffDataFirstT(toNNI(t-1),0,i-1);                                                                                                
+%                                 %                                                                
+% %                                 if ~(strcmp(FLIM_mode,'Time Gated') || strcmp(FLIM_mode,'Time Gated non-imaging'))                                                      
+% %                                     metadata.setCommentAnnotationID(['Annotation:' num2str(i-1)],i-1);
+% %                                     metadata.setCommentAnnotationValue(char(file_names{i}),i-1);
+% %                                 end                                
+%                         end                                                                                      
 
-% Load conversion tools for saving planes
-switch class(I)
-    case {'int8', 'uint8'}
-        getBytes = @(x) x(:);
-    case {'uint16','int16'}
-        getBytes = @(x) loci.common.DataTools.shortsToBytes(x(:), 0);
-    case {'uint32','int32'}
-        getBytes = @(x) loci.common.DataTools.intsToBytes(x(:), 0);
-    case {'single'}
-        getBytes = @(x) loci.common.DataTools.floatsToBytes(x(:), 0);
-    case 'double'
-        getBytes = @(x) loci.common.DataTools.doublesToBytes(x(:), 0);
-end
+            % .. ~ STANDARDS STUFF CONT'D - INHERITED FROM BFSAVE ETC.
 
-% Save planes to the writer
-hw = waitbar(0, 'Loading images...');
-nPlanes = sizeZ * sizeC * sizeT;
-for index = 1 : nPlanes
-    I = imread([folder filesep file_names{index}],extension);            
-    I = I';
-    writer.saveBytes(index-1, getBytes(I));
-waitbar(index/nPlanes,hw); drawnow;    
-end
-delete(hw); drawnow;
+            % Set channels ID and samples per pixel
+            for i = 1: sizeC
+                metadata.setChannelID(['Channel:0:' num2str(i-1)], 0, i-1);
+                metadata.setChannelSamplesPerPixel(toInt(1), 0, i-1);
+            end
 
-writer.close();
+            % Create ImageWriter
+            writer = loci.formats.ImageWriter();
+            writer.setWriteSequentially(true);
+            writer.setMetadataRetrieve(metadata);
+            writer.setCompression('LZW');
+            writer.getWriter(ometiffilename).setBigTiff(true);
+            writer.setId(ometiffilename);
 
-% xmlValidate = loci.formats.tools.XMLValidate();
-% comment = loci.formats.tiff.TiffParser(ometiffilename).getComment()
-% xmlValidate.process(ometiffilename, java.io.BufferedReader(java.io.StringReader(comment)));
+            % Load conversion tools for saving planes
+            switch class(I)
+                case {'int8', 'uint8'}
+                    getBytes = @(x) x(:);
+                case {'uint16','int16'}
+                    getBytes = @(x) loci.common.DataTools.shortsToBytes(x(:), 0);
+                case {'uint32','int32'}
+                    getBytes = @(x) loci.common.DataTools.intsToBytes(x(:), 0);
+                case {'single'}
+                    getBytes = @(x) loci.common.DataTools.floatsToBytes(x(:), 0);
+                case 'double'
+                    getBytes = @(x) loci.common.DataTools.doublesToBytes(x(:), 0);
+            end
 
+            % Save planes to the writer
+            hw = waitbar(0, 'Loading images...');
+            nPlanes = sizeZ * sizeC * sizeT;
+            for index = 1 : nPlanes
+                I = (imread([folder filesep file_names{index}],extension))';
+                writer.saveBytes(index-1, getBytes(I));
+            waitbar(index/nPlanes,hw); drawnow;    
+            end
+            delete(hw); drawnow;
+
+            writer.close();
+
+            % xmlValidate = loci.formats.tools.XMLValidate();
+            % comment = loci.formats.tiff.TiffParser(ometiffilename).getComment()
+            % xmlValidate.process(ometiffilename, java.io.BufferedReader(java.io.StringReader(comment)));
 end
