@@ -114,7 +114,9 @@ classdef ic_importer_impl < handle
     methods
 %-------------------------------------------------------------------------%      
         function obj = ic_importer_impl()
-                                               
+
+            bfCheckJavaPath(true); % will add dynamic path to bioformats if missing               
+                      
             wait = false;
             
             if isdeployed
@@ -192,11 +194,12 @@ classdef ic_importer_impl < handle
             %
             obj.enable_Attr_ZCT_management;            
             %
-            obj.load_omero;                                                
+            obj.load_omero;
             %
-            close all;            
+            close all;
             set(obj.window,'Visible','on');
-            set(obj.window,'CloseRequestFcn',@obj.close_request_fcn);                        
+            set(obj.window,'CloseRequestFcn',@obj.close_request_fcn);
+            %
             if wait
                 waitfor(obj.window);
             end
@@ -206,17 +209,17 @@ classdef ic_importer_impl < handle
         function handles = setup_menu(obj,handles)
             % + File menu
             menu_file = uimenu( obj.window, 'Label', 'File' );
-            handles. m1 = uimenu( menu_file, 'Label','Set data directory', 'Callback', @obj.onSetDirectory );        
-            handles. m2 = uimenu( menu_file, 'Label','Set list of data directories', 'Callback', @obj.onSetDirectoryList );        
-            handles. m3 = uimenu( menu_file,'Label','Set Image','Callback', @obj.onSetImageFile);                      
-            handles. m4 = uimenu( menu_file, 'Label', 'Exit', 'Callback', @obj.close_request_fcn,'Separator','on');        
+            handles. m1 = uimenu( menu_file, 'Label','Set data directory', 'Callback', @obj.onSetDirectory );
+            handles. m2 = uimenu( menu_file, 'Label','Set list of data directories', 'Callback', @obj.onSetDirectoryList );
+            handles. m3 = uimenu( menu_file,'Label','Set Image','Callback', @obj.onSetImageFile);
+            handles. m4 = uimenu( menu_file, 'Label', 'Exit', 'Callback', @obj.close_request_fcn,'Separator','on');
             % + Omero menu
             menu_omero = uimenu( obj.window, 'Label', 'OMERO' );
-            handles. m5 = uimenu( menu_omero, 'Label', 'Set logon default', 'Callback', @obj.onLogon );        
-            handles. m6 = uimenu( menu_omero, 'Label', 'Restore logon', 'Callback', @obj.onRestoreLogon );        
+            handles. m5 = uimenu( menu_omero, 'Label', 'Set logon default', 'Callback', @obj.onLogon );
+            handles. m6 = uimenu( menu_omero, 'Label', 'Restore logon', 'Callback', @obj.onRestoreLogon );
             handles. m7 = uimenu( menu_omero, 'Label','Set Project', 'Callback', @obj.onSetProject,'Separator','on' );
             handles. m8 = uimenu( menu_omero, 'Label','Set Dataset', 'Callback', @obj.onSetDataset );
-            handles. m9 = uimenu( menu_omero, 'Label','Set Screen', 'Callback', @obj.onSetScreen );                    
+            handles. m9 = uimenu( menu_omero, 'Label','Set Screen', 'Callback', @obj.onSetScreen );
         end
 %-------------------------------------------------------------------------%                
         function close_request_fcn(obj,~,~)            

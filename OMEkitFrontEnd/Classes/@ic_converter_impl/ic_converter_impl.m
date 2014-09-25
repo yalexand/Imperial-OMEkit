@@ -55,13 +55,15 @@ classdef ic_converter_impl < handle
     methods
 %-------------------------------------------------------------------------%      
     function obj = ic_converter_impl()
-                                               
+            %
+            bfCheckJavaPath(true); % will add dynamic path to bioformats if missing
+                                           
             wait = false;
             
-            if ~isdeployed
-                javaaddpath(fullfile([pwd filesep 'FileWriteSPW' filesep 'dist'],'FileWriteSPW.jar')); 
-            else
+            if isdeployed
                 wait = true;
+            else
+                javaaddpath(fullfile([pwd filesep 'FileWriteSPW' filesep 'dist'],'FileWriteSPW.jar'));
             end
     
             profile = profile_controller();
