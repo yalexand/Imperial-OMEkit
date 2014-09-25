@@ -141,7 +141,7 @@ classdef ic_converter_impl < handle
             handles. m4 = uimenu( menu_file, 'Label', 'Exit', 'Callback', @obj.close_request_fcn,'Separator','on'); % TO DO
             % + Settings menu
             menu_omero = uimenu( obj.window, 'Label', 'Settings' );
-            handles. m5 = uimenu( menu_omero, 'Label', 'Edit the list of source directories', 'Callback', @obj.onSrcListEdit );                    
+            handles. m5 = uimenu( menu_omero, 'Label', 'Edit src directory list', 'Callback', @obj.onSrcListEdit );                    
         end
 %-------------------------------------------------------------------------%                
     function close_request_fcn(obj,~,~)            
