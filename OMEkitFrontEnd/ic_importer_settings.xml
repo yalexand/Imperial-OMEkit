@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ic_importer_settings>
    <logon>
-      <item>cell.bioinformatics.ic.ac.uk</item>
+      <item>octopus.openmicroscopy.org</item>
       <item>4064</item>
-      <item>yalexand</item>
-      <item>London1012</item>
+      <item>ian</item>
+      <item>ome</item>
    </logon>
    <DefaultDataDirectory>C:\Users\yalexand\omero_YA\2010-11-17_17-03-50</DefaultDataDirectory>
    <Modulo>ModuloAlongT</Modulo>
