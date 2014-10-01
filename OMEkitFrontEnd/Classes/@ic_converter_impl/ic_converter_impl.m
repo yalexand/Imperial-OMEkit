@@ -56,7 +56,7 @@ classdef ic_converter_impl < handle
 %-------------------------------------------------------------------------%      
     function obj = ic_converter_impl()
             %
-            bfCheckJavaPath(true); % will add dynamic path to bioformats if missing
+            bfCheckJavaPath(true); % ehmmmm....
                                            
             wait = false;
             
@@ -345,7 +345,7 @@ classdef ic_converter_impl < handle
 %-------------------------------------------------------------------------%                    
     function onSetSrcDirectoryList(obj,~,~)
             % TO DO
-           [file,path] = uigetfile('*.xlsx;*.xls','Select a text file containing list of data directories',obj.DefaultDataDirectory);            
+           [file,path] = uigetfile('*.xlsx;*.xls','Select an Excel file containing list of data directories',obj.DefaultDataDirectory);            
            if 0 ~= file
                 obj.SrcList = [path file];
                 obj.Src = '???';
