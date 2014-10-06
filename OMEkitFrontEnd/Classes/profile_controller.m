@@ -31,20 +31,18 @@ classdef profile_controller
 %             % Export Preferences
 %             profile_def.Export.Plotter_Width_Px = 400;
         end
-
         
     end
-        
-    
+            
     methods
         
         function obj = profile_controller()
-            folder = getapplicationdatadir('FLIMfit',true,true);
+            folder = getapplicationdatadir('OMEkit',true,true);
             subfolder = [folder filesep 'Profiles']; 
             if ~exist(subfolder,'dir')
                 mkdir(subfolder)
             end
-            obj.profile_file = [ subfolder filesep 'FLIMfitPrefs.mat' ];
+            obj.profile_file = [ subfolder filesep 'OMEkitPrefs.mat' ];
         end
         
         function current_prof = get_profile(obj)
@@ -105,7 +103,7 @@ classdef profile_controller
 
             f = figure(56);
 
-            set(f,'Name','FLIMfit Preferences',...
+            set(f,'Name','OMEkitit Preferences',...
                   'NumberTitle', 'off', ...
                   'Toolbar','none',...
                   'MenuBar','none');

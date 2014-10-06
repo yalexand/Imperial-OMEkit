@@ -117,6 +117,9 @@ classdef ic_importer_impl < handle
 
             bfCheckJavaPath(true); % will add dynamic path to bioformats if missing               
                       
+            loci.common.DebugTools.enableLogging('INFO');
+            java.lang.System.setProperty('javax.xml.transform.TransformerFactory', 'com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');
+                        
             wait = false;
             
             if isdeployed
