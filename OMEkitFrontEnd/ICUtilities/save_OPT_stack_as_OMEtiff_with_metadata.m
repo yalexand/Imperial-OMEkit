@@ -1,4 +1,4 @@
-function save_OPT_stack_as_OMEtiff_with_metadata(folder, ometiffilename, ... 
+function speed = save_OPT_stack_as_OMEtiff_with_metadata(folder, ometiffilename, ... 
     physszX, physszY, zdim_label, zdim_unit, zdim_typeDescription, zdim_start, zdim_end, zdim_step)
 %{
 - single channel
@@ -8,7 +8,7 @@ function save_OPT_stack_as_OMEtiff_with_metadata(folder, ometiffilename, ...
 - LZW compression
 - xml file specifying custom metadata ("description") is in "folder" directory, or one level up if former not present
 %}
-addpath_OPTkit;
+addpath_OMEkit;
 
             extension  = 'tif';
             
@@ -41,7 +41,11 @@ addpath_OPTkit;
         bfCheckJavaMemory();
         % Check for required jars in the Java path
         bfCheckJavaPath();
-
+        
+        % ini logging
+        loci.common.DebugTools.enableLogging('INFO');
+        java.lang.System.setProperty('javax.xml.transform.TransformerFactory', 'com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');
+        
         % Create metadata
         toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
         OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
@@ -176,18 +180,24 @@ if exist('modlo','var') OMEXMLService.addModuloAlong(metadata, modlo, 0); end;
         end
 
         % Save planes to the writer
-        hw = waitbar(0, 'Loading images...');
+        hw = waitbar(0, 'Loading images...');        
         nPlanes = sizeZ * sizeC * sizeT;
+        acc = zeros(1,nPlanes);
         for index = 1 : nPlanes
+            t0 = tic;            
             I = imread([folder filesep file_names{index}],extension);            
             I = I';
+                %t0 = tic;
             writer.saveBytes(index-1, getBytes(I));
+            telapsed = toc(t0);
+            acc(index)=telapsed;            
         waitbar(index/nPlanes,hw); drawnow;    
         end
         delete(hw); drawnow;
 
         writer.close();
         
+        speed = mean(acc);
 % xmlValidate = loci.formats.tools.XMLValidate();
 % comment = loci.formats.tiff.TiffParser(ometiffilename).getComment()
 % xmlValidate.process(ometiffilename, java.io.BufferedReader(java.io.StringReader(comment)));

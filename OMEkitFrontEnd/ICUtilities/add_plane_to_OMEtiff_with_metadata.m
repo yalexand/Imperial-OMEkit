@@ -1,4 +1,4 @@
-function add_plane_to_OMEtiff_with_metadata(I, index, final_index, folder, ometiffilename, ... 
+function frame_time = add_plane_to_OMEtiff_with_metadata(I, index, final_index, folder, ometiffilename, ... 
     physszX, physszY, zdim_label, zdim_unit, zdim_typeDescription, zdim_start, zdim_end, zdim_step)
 
 global writer;
@@ -7,7 +7,7 @@ global hw;
 
 if 1 == index % make all setups
 
-        addpath_OPTkit;
+        addpath_OMEkit;
 
         [sizeX, sizeY] = size(I);
         sizeZ = final_index;
@@ -18,7 +18,11 @@ if 1 == index % make all setups
         bfCheckJavaMemory();
         % Check for required jars in the Java path
         bfCheckJavaPath();
-
+        
+        % ini logging
+        loci.common.DebugTools.enableLogging('INFO');
+        java.lang.System.setProperty('javax.xml.transform.TransformerFactory', 'com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');
+        
         % Create metadata
         toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
         OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
@@ -161,7 +165,9 @@ if exist('modlo','var') OMEXMLService.addModuloAlong(metadata, modlo, 0); end;
         hw = waitbar(0, 'Loading images...');
 end        
 
+t0 = tic;
 writer.saveBytes(index-1, getBytes(I));
+frame_time = toc(t0);
 waitbar(index/final_index,hw); drawnow;    
         
 if index == final_index

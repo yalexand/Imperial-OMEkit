@@ -1,0 +1,48 @@
+<?xml version='1.0' standalone='yes' ?>
+<LVData xmlns="http://www.ni.com/LVData">
+<Version>13.0</Version>
+<Cluster>
+<Name>Fish info cluster out</Name>
+<NumElts>10</NumElts>
+<String>
+<Name>Experiment description</Name>
+<Val>Doxycycline induced tumour fish</Val>
+</String>
+<String>
+<Name>Fish identifier</Name>
+<Val>Fish 3</Val>
+</String>
+<String>
+<Name>Procedure</Name>
+<Val>OPT imaging</Val>
+</String>
+<String>
+<Name>Time after treatment</Name>
+<Val>0 min</Val>
+</String>
+<String>
+<Name>Fish born on</Name>
+<Val>01/01/1904</Val>
+</String>
+<String>
+<Name>Fish owner</Name>
+<Val>Paul Frankel</Val>
+</String>
+<String>
+<Name>Institution</Name>
+<Val>UCL</Val>
+</String>
+<String>
+<Name>Experimentalist</Name>
+<Val>Sunil Kumar</Val>
+</String>
+<String>
+<Name>Fish genotype</Name>
+<Val>Tra/Nac with KDR-mCherry and gfp-KRasV12</Val>
+</String>
+<String>
+<Name>Project license number</Name>
+<Val>70/7472 [Maggie Dallman]</Val>
+</String>
+</Cluster>
+</LVData>

@@ -1,0 +1,883 @@
+<?xml version='1.0' standalone='yes' ?>
+<LVData xmlns="http://www.ni.com/LVData">
+<Version>13.0</Version>
+<Cluster>
+<Name>OPT metadata</Name>
+<NumElts>8</NumElts>
+<U8>
+<Name>Number of optical axes</Name>
+<Val>2</Val>
+</U8>
+<Cluster>
+<Name>Zyla properties</Name>
+<NumElts>24</NumElts>
+<I64>
+<Name>Sensor Y px</Name>
+<Val>2160</Val>
+</I64>
+<I64>
+<Name>Sensor X px</Name>
+<Val>2560</Val>
+</I64>
+<DBL>
+<Name>Exposure time [s]</Name>
+<Val>2.00000000000000</Val>
+</DBL>
+<String>
+<Name>Trigger mode</Name>
+<Val>External</Val>
+</String>
+<String>
+<Name>Binning</Name>
+<Val>1x1</Val>
+</String>
+<U16>
+<Name>Acquisition type</Name>
+<Val>2</Val>
+</U16>
+<U32>
+<Name>Number of frames in series</Name>
+<Val>160</Val>
+</U32>
+<I64>
+<Name>AOIheight</Name>
+<Val>1191</Val>
+</I64>
+<I64>
+<Name>AOIwidth</Name>
+<Val>2559</Val>
+</I64>
+<I64>
+<Name>AOIstride</Name>
+<Val>5120</Val>
+</I64>
+<Array>
+<Name>TLHW</Name>
+<Dimsize>4</Dimsize>
+<I64>
+<Name>Value</Name>
+<Val>485</Val>
+</I64>
+<I64>
+<Name>Value</Name>
+<Val>1</Val>
+</I64>
+<I64>
+<Name>Value</Name>
+<Val>1191</Val>
+</I64>
+<I64>
+<Name>Value</Name>
+<Val>2559</Val>
+</I64>
+</Array>
+<I64>
+<Name>#Xpx</Name>
+<Val>2560</Val>
+</I64>
+<I64>
+<Name>#Ypx</Name>
+<Val>2160</Val>
+</I64>
+<I32>
+<Name>Handle</Name>
+<Val>103</Val>
+</I32>
+<I64>
+<Name>Imagesize [bytes]</Name>
+<Val>6103040</Val>
+</I64>
+<String>
+<Name>CycleMode</Name>
+<Val>Fixed</Val>
+</String>
+<Boolean>
+<Name>Actively running?</Name>
+<Val>1</Val>
+</Boolean>
+<U32>
+<Name>Number of buffers</Name>
+<Val>160</Val>
+</U32>
+<String>
+<Name>Pixel Encoding</Name>
+<Val>Mono16</Val>
+</String>
+<Refnum>
+<Name>Live image ref</Name>
+<RefKind>Generic Tag By Ref Flatten</RefKind>
+<RefType>IMAQImage</RefType>
+<Val>0x00000000</Val>
+</Refnum>
+<Array>
+<Name>Created pointer array</Name>
+<Dimsize>160</Dimsize>
+<U64>
+<Name>Buffer out</Name>
+<Val>692650048</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>710082624</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>724369472</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>730529856</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>736690240</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>742850624</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>749011008</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>755171392</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>761331776</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>815071296</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>821231680</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>827392064</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>847511616</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>853672000</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>859832384</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>865992768</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>872153152</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>878313536</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>884473920</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>890634304</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>896794688</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>915079232</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>921239616</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>927400000</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>933560384</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>939720768</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>945881152</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>952041536</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>958201920</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>964362304</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>970522688</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>976683072</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>982843456</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>989003840</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>995164224</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1001324608</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1007484992</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1013645376</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1019805760</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1025966144</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1032126528</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1038286912</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1044447296</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1050607680</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1056768064</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1062928448</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1069088832</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1075249216</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1081409600</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1087569984</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1093730368</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1099890752</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1106051136</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1112211520</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1118371904</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1124532288</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1130692672</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1136853056</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1143013440</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1149173824</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1155334208</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1161494592</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1167654976</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1173815360</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1179975744</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1186136128</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1192296512</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1198456896</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1204617280</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1210777664</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1216938048</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1223098432</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1229258816</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1235419200</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1241579584</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1247739968</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1253900352</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1260060736</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1266221120</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1272381504</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1278541888</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1284702272</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1290862656</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1297023040</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1303183424</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1309343808</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1315504192</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1321664576</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1327824960</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1333985344</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1340145728</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1346306112</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1352466496</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1358626880</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1364787264</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1370947648</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1377108032</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1383268416</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1389428800</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1395589184</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1401749568</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1407909952</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1414070336</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1420230720</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1426391104</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1432551488</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1438711872</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1444872256</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1451032640</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1457193024</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1463353408</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1469513792</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1475674176</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1481834560</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1487994944</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1494155328</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1500315712</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1506476096</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1512636480</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1518796864</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1524957248</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1531117632</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1537278016</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1543438400</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1549598784</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1555759168</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1561919552</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1568079936</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1574240320</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1580400704</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1586561088</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1592721472</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1598881856</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1605042240</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1611202624</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1617363008</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1627979840</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1634140224</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1640300608</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1655701568</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1666646080</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1672806464</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1684209728</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1705508928</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1711669312</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1717829696</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1731067968</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1737228352</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1743388736</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1749549120</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1755709504</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1761869888</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1768030272</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1774190656</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1780351040</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1786511424</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1792671808</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1798832192</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1804992576</Val>
+</U64>
+<U64>
+<Name>Buffer out</Name>
+<Val>1811152960</Val>
+</U64>
+</Array>
+<DBL>
+<Name>Frame rate [Hz]</Name>
+<Val>0.10000000000000</Val>
+</DBL>
+<Boolean>
+<Name>Frame rate priority?</Name>
+<Val>0</Val>
+</Boolean>
+<DBL>
+<Name>Enforce revolution time if +ve</Name>
+<Val>-1.00000000000000</Val>
+</DBL>
+</Cluster>
+<Cluster>
+<Name>Zaber motor properties</Name>
+<NumElts>16</NumElts>
+<U32>
+<Name>Microsteps per revolution [X]</Name>
+<Val>12800</Val>
+</U32>
+<SGL>
+<Name>Speed resolution (deg/s)</Name>
+<Val>0.13180</Val>
+</SGL>
+<SGL>
+<Name>Max speed (deg/s)</Name>
+<Val>8640.00000</Val>
+</SGL>
+<SGL>
+<Name>Microstep size (deg) [M]</Name>
+<Val>2.81250E-2</Val>
+</SGL>
+<U32>
+<Name>Microstep resolution [R]</Name>
+<Val>64</Val>
+</U32>
+<Refnum>
+<Name>Zaber stage COM port</Name>
+<RefKind>VISA</RefKind>
+<Val>COM11</Val>
+</Refnum>
+<U16>
+<Name>Zaber motor size</Name>
+<Val>1</Val>
+</U16>
+<Boolean>
+<Name>Actively running?</Name>
+<Val>0</Val>
+</Boolean>
+<U16>
+<Name>Operation mode</Name>
+<Val>0</Val>
+</U16>
+<U16>
+<Name>Positions per revolution</Name>
+<Val>160</Val>
+</U16>
+<U32>
+<Name>Steps per revolution [S]</Name>
+<Val>200</Val>
+</U32>
+<U16>
+<Name>Device ID [temp]</Name>
+<Val>1</Val>
+</U16>
+<U32>
+<Name>Virtual home position</Name>
+<Val>4185600</Val>
+</U32>
+<SGL>
+<Name>Desired speed [deg/s]</Name>
+<Val>0.00000</Val>
+</SGL>
+<SGL>
+<Name>Total revolution time [s]</Name>
+<Val>0.00000</Val>
+</SGL>
+<U32>
+<Name>Last position read</Name>
+<Val>0</Val>
+</U32>
+</Cluster>
+<String>
+<Name>EX FW</Name>
+<Val>1 - GFP</Val>
+</String>
+<String>
+<Name>EM FW1</Name>
+<Val>2 - Red</Val>
+</String>
+<String>
+<Name>EM FW2</Name>
+<Val>2 - Red</Val>
+</String>
+<DBL>
+<Name>Fractional progress before abort</Name>
+<Val>1.00000000000000</Val>
+</DBL>
+<Cluster>
+<Name>OMERO settings</Name>
+<NumElts>6</NumElts>
+<String>
+<Name>Password</Name>
+<Val></Val>
+</String>
+<String>
+<Name>Username</Name>
+<Val></Val>
+</String>
+<String>
+<Name>Port</Name>
+<Val></Val>
+</String>
+<String>
+<Name>OMERO server</Name>
+<Val></Val>
+</String>
+<Boolean>
+<Name>Use OMERO?</Name>
+<Val>0</Val>
+</Boolean>
+<String>
+<Name>OMERO dataset #</Name>
+<Val></Val>
+</String>
+</Cluster>
+</Cluster>
+</LVData>
