@@ -3,7 +3,7 @@ folder = [pwd filesep 'TestData' filesep 'Fish 3 - Tumour'];
 ometiffilename = [pwd filesep 'TestData' filesep 'Fish 3 - Tumour.OME.tiff'];
 
 if exist(ometiffilename,'file')
-    delete(ometiffilename)
+    delete(ometiffilename);
 end;
 
 addpath_OMEkit;

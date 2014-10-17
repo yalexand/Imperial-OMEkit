@@ -9,7 +9,6 @@ if 1 == index % make all setups
 
         addpath_OMEkit;
 
-        [sizeX, sizeY] = size(I);
         sizeZ = final_index;
         sizeC = 1;
         sizeT = 1;        
@@ -22,42 +21,8 @@ if 1 == index % make all setups
         % ini logging
         loci.common.DebugTools.enableLogging('INFO');
         java.lang.System.setProperty('javax.xml.transform.TransformerFactory', 'com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');
-        
-        % Create metadata
-        toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
-        OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
-        metadata = OMEXMLService.createOMEXMLMetadata();
-        metadata.createRoot();
-        metadata.setImageID('Image:0', 0);
-        metadata.setPixelsID('Pixels:0', 0);
-        metadata.setPixelsBinDataBigEndian(java.lang.Boolean.TRUE, 0, 0);
 
-        % Set dimension order
-        dimensionOrderEnumHandler = ome.xml.model.enums.handlers.DimensionOrderEnumHandler();
-        dimensionOrder = dimensionOrderEnumHandler.getEnumeration('XYZCT');
-        metadata.setPixelsDimensionOrder(dimensionOrder, 0);
-
-        % Set pixels type
-        pixelTypeEnumHandler = ome.xml.model.enums.handlers.PixelTypeEnumHandler();
-        if strcmp(class(I), 'single')
-            pixelsType = pixelTypeEnumHandler.getEnumeration('float');
-        else
-            pixelsType = pixelTypeEnumHandler.getEnumeration(class(I));
-        end
-
-        metadata.setPixelsType(pixelsType, 0);
-
-        metadata.setPixelsSizeX(toInt(sizeX), 0);
-        metadata.setPixelsSizeY(toInt(sizeY), 0);
-        metadata.setPixelsSizeZ(toInt(sizeZ), 0);
-        metadata.setPixelsSizeC(toInt(sizeC), 0);
-        metadata.setPixelsSizeT(toInt(sizeT), 0);
-
-        % Set channels ID and samples per pixel
-        for i = 1: sizeC
-            metadata.setChannelID(['Channel:0:' num2str(i-1)], 0, i-1);
-            metadata.setChannelSamplesPerPixel(toInt(1), 0, i-1);
-        end
+        metadata = createMinimalOMEXMLMetadata(repmat(I, [1 1 sizeZ sizeC sizeT]));
 
 %%%%%%%%%%%%%%%%%%% set up Modulo XML description metadata if present - starts
 if nargin > 5
@@ -144,8 +109,10 @@ if exist('modlo','var') OMEXMLService.addModuloAlong(metadata, modlo, 0); end;
         writer = loci.formats.ImageWriter();
         writer.setWriteSequentially(true);
         writer.setMetadataRetrieve(metadata);
-        writer.setCompression('LZW');
+        
+        writer.setCompression('LZW'); % comment out to fix possible slowing down
         writer.getWriter(ometiffilename).setBigTiff(true);
+        
         writer.setId(ometiffilename);
 
         % Load conversion tools for saving planes
@@ -181,5 +148,3 @@ if index == final_index
 end;
                
 end
-
-        

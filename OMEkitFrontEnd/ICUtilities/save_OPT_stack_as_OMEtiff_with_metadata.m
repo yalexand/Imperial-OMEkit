@@ -33,8 +33,6 @@ addpath_OMEkit;
 
             try I = imread([folder filesep file_names{1}],extension); catch err, msgbox(err.mesasge), return, end;
             I = I';
-            sizeX = size(I,1);
-            sizeY = size(I,2);
             %
 
         % verify that enough memory is allocated
@@ -45,43 +43,9 @@ addpath_OMEkit;
         % ini logging
         loci.common.DebugTools.enableLogging('INFO');
         java.lang.System.setProperty('javax.xml.transform.TransformerFactory', 'com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');
+
+        metadata = createMinimalOMEXMLMetadata(repmat(I, [1 1 sizeZ sizeC sizeT]));        
         
-        % Create metadata
-        toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
-        OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
-        metadata = OMEXMLService.createOMEXMLMetadata();
-        metadata.createRoot();
-        metadata.setImageID('Image:0', 0);
-        metadata.setPixelsID('Pixels:0', 0);
-        metadata.setPixelsBinDataBigEndian(java.lang.Boolean.TRUE, 0, 0);
-
-        % Set dimension order
-        dimensionOrderEnumHandler = ome.xml.model.enums.handlers.DimensionOrderEnumHandler();
-        dimensionOrder = dimensionOrderEnumHandler.getEnumeration('XYZCT');
-        metadata.setPixelsDimensionOrder(dimensionOrder, 0);
-
-        % Set pixels type
-        pixelTypeEnumHandler = ome.xml.model.enums.handlers.PixelTypeEnumHandler();
-        if strcmp(class(I), 'single')
-            pixelsType = pixelTypeEnumHandler.getEnumeration('float');
-        else
-            pixelsType = pixelTypeEnumHandler.getEnumeration(class(I));
-        end
-
-        metadata.setPixelsType(pixelsType, 0);
-
-        metadata.setPixelsSizeX(toInt(sizeX), 0);
-        metadata.setPixelsSizeY(toInt(sizeY), 0);
-        metadata.setPixelsSizeZ(toInt(sizeZ), 0);
-        metadata.setPixelsSizeC(toInt(sizeC), 0);
-        metadata.setPixelsSizeT(toInt(sizeT), 0);
-                
-        % Set channels ID and samples per pixel
-        for i = 1: sizeC
-            metadata.setChannelID(['Channel:0:' num2str(i-1)], 0, i-1);
-            metadata.setChannelSamplesPerPixel(toInt(1), 0, i-1);
-        end
-               
 %%%%%%%%%%%%%%%%%%% set up Modulo XML description metadata if present - starts
 if nargin > 2
     metadata.setPixelsPhysicalSizeX(ome.xml.model.primitives.PositiveFloat(java.lang.Double(physszX)),0);
@@ -161,7 +125,7 @@ if exist('modlo','var') OMEXMLService.addModuloAlong(metadata, modlo, 0); end;
         writer = loci.formats.ImageWriter();
         writer.setWriteSequentially(true);
         writer.setMetadataRetrieve(metadata);
-        writer.setCompression('LZW');
+        writer.setCompression('LZW'); % comment out to fix possible slowing down
         writer.getWriter(ometiffilename).setBigTiff(true);
         writer.setId(ometiffilename);
 
@@ -184,10 +148,10 @@ if exist('modlo','var') OMEXMLService.addModuloAlong(metadata, modlo, 0); end;
         nPlanes = sizeZ * sizeC * sizeT;
         acc = zeros(1,nPlanes);
         for index = 1 : nPlanes
-            t0 = tic;            
+            %t0 = tic;            
             I = imread([folder filesep file_names{index}],extension);            
             I = I';
-                %t0 = tic;
+            t0 = tic;
             writer.saveBytes(index-1, getBytes(I));
             telapsed = toc(t0);
             acc(index)=telapsed;            

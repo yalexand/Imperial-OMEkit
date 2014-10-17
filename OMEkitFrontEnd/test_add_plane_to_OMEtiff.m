@@ -64,6 +64,7 @@ labels = (0:1:39);
                 %add_plane_to_OMEtiff_with_metadata(I, i, num_files, folder, ometiffilename, physszX, physszY);
                 %add_plane_to_OMEtiff_with_metadata(I, i, num_files, folder, ometiffilename, physszX, physszY, zdim_label, zdim_unit, zdim_typeDescription, labels);
                 %add_plane_to_OMEtiff_with_metadata(I, i, num_files, folder, ometiffilename, physszX, physszY, zdim_label, zdim_unit, zdim_typeDescription, zdim_start, zdim_end, zdim_step);
+                
                 telapsed  = add_plane_to_OMEtiff_with_metadata(I, i, num_files, folder, ometiffilename);
                 acc(i)=telapsed;
             end
