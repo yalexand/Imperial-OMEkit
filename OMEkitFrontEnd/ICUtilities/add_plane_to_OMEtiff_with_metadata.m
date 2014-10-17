@@ -22,7 +22,9 @@ if 1 == index % make all setups
         loci.common.DebugTools.enableLogging('INFO');
         java.lang.System.setProperty('javax.xml.transform.TransformerFactory', 'com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');
 
-        metadata = createMinimalOMEXMLMetadata(repmat(I, [1 1 sizeZ sizeC sizeT]));
+        metadata = createMinimalOMEXMLMetadata(I);
+        toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));        
+        metadata.setPixelsSizeZ(toInt(sizeZ), 0);
 
 %%%%%%%%%%%%%%%%%%% set up Modulo XML description metadata if present - starts
 if nargin > 5
@@ -65,54 +67,29 @@ if exist('modlo','var') OMEXMLService.addModuloAlong(metadata, modlo, 0); end;
         try
             n_anno = 0;
             if exist('modlo','var'), n_anno = n_anno + 1; end;
-            
-            description = [];
-            xmlfilename = [];
+            %
             xmlfilenames = dir([folder filesep '*.xml']);                
-            if 1 == numel(xmlfilenames), xmlfilename = xmlfilenames(1).name; end;
-            if ~isempty(xmlfilename)
+            for k = 1 : numel(xmlfilenames)
+            xmlfilename = xmlfilenames(k).name;
                 fid = fopen([folder filesep xmlfilename],'r');
                 fgetl(fid);
                 description = fscanf(fid,'%c');
                 fclose(fid);
+                metadata.setXMLAnnotationID(['Annotation:' num2str(n_anno+k-1)],n_anno+k-1);
+                metadata.setXMLAnnotationValue(description,n_anno+k-1);
             end                        
-            if ~isempty(description) % on retrieving apply OMEXMLdescription = r.getMetadataStore().getXMLAnnotationValue(0);                
-                metadata.setXMLAnnotationID(['Annotation:' num2str(n_anno)],n_anno); 
-                metadata.setXMLAnnotationValue(description,n_anno);
-            end
-            %
-            % try the same, one level up
-            description = []; 
-            xmlfilename = [];            
-            sf = strfind(folder,filesep);
-            xmlfilenames = dir([folder(1:sf(length(sf))) '*.xml']);                
-                if 1 == numel(xmlfilenames), xmlfilename = xmlfilenames(1).name; end;
-                if ~isempty(xmlfilename)
-                    fid = fopen([folder(1:sf(length(sf))) xmlfilename],'r');
-                    fgetl(fid);                
-                    description = fscanf(fid,'%c');
-                    fclose(fid);
-                end
-            if ~isempty(description) 
-                % on retrieving apply OMEXMLdescription = r.getMetadataStore().getXMLAnnotationValue(0);               
-                n_anno = n_anno + 1;
-                metadata.setXMLAnnotationID(['Annotation:' num2str(n_anno)],n_anno); 
-                metadata.setXMLAnnotationValue(description,n_anno);
-            end                            
             %        
         catch err
             display(err.message);
         end
         % DESCRIPTION - ends
-
+                               
         % Create ImageWriter
         writer = loci.formats.ImageWriter();
         writer.setWriteSequentially(true);
-        writer.setMetadataRetrieve(metadata);
-        
+        writer.setMetadataRetrieve(metadata);        
         writer.setCompression('LZW'); % comment out to fix possible slowing down
-        writer.getWriter(ometiffilename).setBigTiff(true);
-        
+        writer.getWriter(ometiffilename).setBigTiff(true);        
         writer.setId(ometiffilename);
 
         % Load conversion tools for saving planes

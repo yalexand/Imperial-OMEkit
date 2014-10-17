@@ -27,12 +27,11 @@ addpath_OMEkit;
             
             num_files = numel(file_names);
             %
-            sizeC = 1;
             sizeZ = num_files;
             sizeT = 1;            
+            sizeC = 1;            
 
             try I = imread([folder filesep file_names{1}],extension); catch err, msgbox(err.mesasge), return, end;
-            I = I';
             %
 
         % verify that enough memory is allocated
@@ -44,7 +43,9 @@ addpath_OMEkit;
         loci.common.DebugTools.enableLogging('INFO');
         java.lang.System.setProperty('javax.xml.transform.TransformerFactory', 'com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');
 
-        metadata = createMinimalOMEXMLMetadata(repmat(I, [1 1 sizeZ sizeC sizeT]));        
+        metadata = createMinimalOMEXMLMetadata(I);
+        toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));        
+        metadata.setPixelsSizeZ(toInt(sizeZ), 0);
         
 %%%%%%%%%%%%%%%%%%% set up Modulo XML description metadata if present - starts
 if nargin > 2
@@ -81,40 +82,17 @@ if exist('modlo','var') OMEXMLService.addModuloAlong(metadata, modlo, 0); end;
         try
             n_anno = 0;
             if exist('modlo','var'), n_anno = n_anno + 1; end;
-            
-            description = [];
-            xmlfilename = [];
+            %
             xmlfilenames = dir([folder filesep '*.xml']);                
-            if 1 == numel(xmlfilenames), xmlfilename = xmlfilenames(1).name; end;
-            if ~isempty(xmlfilename)
+            for k = 1 : numel(xmlfilenames)
+            xmlfilename = xmlfilenames(k).name;
                 fid = fopen([folder filesep xmlfilename],'r');
                 fgetl(fid);
                 description = fscanf(fid,'%c');
                 fclose(fid);
+                metadata.setXMLAnnotationID(['Annotation:' num2str(n_anno+k-1)],n_anno+k-1);
+                metadata.setXMLAnnotationValue(description,n_anno+k-1);
             end                        
-            if ~isempty(description) % on retrieving apply OMEXMLdescription = r.getMetadataStore().getXMLAnnotationValue(0);                
-                metadata.setXMLAnnotationID(['Annotation:' num2str(n_anno)],n_anno); 
-                metadata.setXMLAnnotationValue(description,n_anno);
-            end
-            %
-            % try the same, one level up
-            description = []; 
-            xmlfilename = [];            
-            sf = strfind(folder,filesep);
-            xmlfilenames = dir([folder(1:sf(length(sf))) '*.xml']);                
-                if 1 == numel(xmlfilenames), xmlfilename = xmlfilenames(1).name; end;
-                if ~isempty(xmlfilename)
-                    fid = fopen([folder(1:sf(length(sf))) xmlfilename],'r');
-                    fgetl(fid);                
-                    description = fscanf(fid,'%c');
-                    fclose(fid);
-                end
-            if ~isempty(description) 
-                % on retrieving apply OMEXMLdescription = r.getMetadataStore().getXMLAnnotationValue(0);               
-                n_anno = n_anno + 1;
-                metadata.setXMLAnnotationID(['Annotation:' num2str(n_anno)],n_anno); 
-                metadata.setXMLAnnotationValue(description,n_anno);
-            end                            
             %        
         catch err
             display(err.message);
@@ -149,8 +127,7 @@ if exist('modlo','var') OMEXMLService.addModuloAlong(metadata, modlo, 0); end;
         acc = zeros(1,nPlanes);
         for index = 1 : nPlanes
             %t0 = tic;            
-            I = imread([folder filesep file_names{index}],extension);            
-            I = I';
+            I = imread([folder filesep file_names{index}],extension);
             t0 = tic;
             writer.saveBytes(index-1, getBytes(I));
             telapsed = toc(t0);
