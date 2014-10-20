@@ -54,7 +54,10 @@ elseif nargin == 11 && length(zdim_start) > 1 % labels - array of numbers...
     end                                                      
 end
 
-if exist('modlo','var') OMEXMLService.addModuloAlong(metadata, modlo, 0); end;
+if exist('modlo','var') 
+    OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
+    OMEXMLService.addModuloAlong(metadata, modlo, 0); 
+end;
 %%%%%%%%%%%%%%%%%%% set up Modulo XML description metadata if present - ends        
 
 % XMLAnnotaiton arrangement
