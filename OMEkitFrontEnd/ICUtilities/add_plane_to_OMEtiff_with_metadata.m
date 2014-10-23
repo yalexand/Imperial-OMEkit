@@ -1,17 +1,34 @@
-function frame_time = add_plane_to_OMEtiff_with_metadata(I, index, final_index, folder, ometiffilename, ... 
-    physszX, physszY, zdim_label, zdim_unit, zdim_typeDescription, zdim_start, zdim_end, zdim_step)
+function frame_time = add_plane_to_OMEtiff_with_metadata2(I, index, final_index, folder, ometiffilename, varargin)
 
 global writer;
 global getBytes;
 global hw;
+
+assert(isnumeric(I), 'First argument must be numeric');
+assert(isnumeric(index), 'Second argument must be numeric');
+assert(isnumeric(final_index), 'Third argument must be numeric');
+
+ip = inputParser;
+
+ip.addOptional('PhysSz_X', [], @isnumeric);
+ip.addOptional('PhysSz_Y', [], @isnumeric);
+ip.addOptional('ModuloZ_Type', [], @ischar);
+ip.addOptional('ModuloZ_TypeDescription', [], @ischar);
+ip.addOptional('ModuloZ_Unit', [], @ischar);
+ip.addOptional('ModuloZ_Start', [], @isnumeric);
+ip.addOptional('ModuloZ_Step', [], @isnumeric);
+ip.addOptional('ModuloZ_End', [], @isnumeric);
+ip.addOptional('ModuloZ_Labels', [], @isnumeric);
+ip.addOptional('Tags', [], @ischar);    
+ip.addOptional('TagsS_eparatingSeq', [], @ischar);    
+
+ip.parse(varargin{:});
 
 if 1 == index % make all setups
 
         addpath_OMEkit;
 
         sizeZ = final_index;
-        sizeC = 1;
-        sizeT = 1;        
 
         % verify that enough memory is allocated
         bfCheckJavaMemory();
@@ -27,27 +44,29 @@ if 1 == index % make all setups
         metadata.setPixelsSizeZ(toInt(sizeZ), 0);
 
 %%%%%%%%%%%%%%%%%%% set up Modulo XML description metadata if present - starts
-if nargin > 5
-    metadata.setPixelsPhysicalSizeX(ome.xml.model.primitives.PositiveFloat(java.lang.Double(physszX)),0);
-    metadata.setPixelsPhysicalSizeY(ome.xml.model.primitives.PositiveFloat(java.lang.Double(physszY)),0);
+if ~isempty(ip.Results.PhysSz_X)
+    metadata.setPixelsPhysicalSizeX(ome.xml.model.primitives.PositiveFloat(java.lang.Double(ip.Results.PhysSz_X)),0);
+end    
+if ~isempty(ip.Results.PhysSz_Y)
+    metadata.setPixelsPhysicalSizeY(ome.xml.model.primitives.PositiveFloat(java.lang.Double(ip.Results.PhysSz_Y)),0);
 end
 
-if nargin > 7
+if (~isempty(ip.Results.ModuloZ_Type) && ~isempty(ip.Results.ModuloZ_TypeDescription) && ~isempty(ip.Results.ModuloZ_Unit)) || ~isempty(ip.Results.ModuloZ_Labels)
     modlo = loci.formats.CoreMetadata();        
     %
-    % loci.formats.FormatTools.ROTATION;
-    % zdim_label, zdim_unit, zdim_typeDescription, zdim_start, zdim_end, zdim_step)
-    modlo.moduloZ.type = zdim_label;
-    modlo.moduloZ.unit = zdim_unit;
-    modlo.moduloZ.typeDescription = zdim_typeDescription;
+    modlo.moduloZ.type = ip.Results.ModuloZ_Type;
+    modlo.moduloZ.unit = ip.Results.ModuloZ_Unit;
+    modlo.moduloZ.typeDescription = ip.Results.ModuloZ_TypeDescription;
 end
 
-if nargin == 13 % start end step
-    modlo.moduloZ.start = zdim_start;
-    modlo.moduloZ.end = zdim_end;
-    modlo.moduloZ.step = zdim_step;
-elseif nargin == 11 && length(zdim_start) > 1 % labels - array of numbers...
-    labels = zdim_start;
+if ~isempty(ip.Results.ModuloZ_Start) && ~isempty(ip.Results.ModuloZ_Step) && ~isempty(ip.Results.ModuloZ_End)
+    modlo.moduloZ.start = ip.Results.ModuloZ_Start;
+    modlo.moduloZ.end = ip.Results.ModuloZ_End;
+    modlo.moduloZ.step = ip.Results.ModuloZ_Step;
+    %
+elseif ~isempty(ip.Results.ModuloZ_Labels)
+    %
+    labels = ip.Results.ModuloZ_Labels;
     modlo.moduloZ.labels = javaArray('java.lang.String',length(labels));
     for i=1:length(labels)
         modlo.moduloZ.labels(i)= java.lang.String(num2str(labels(i)));
@@ -126,5 +145,5 @@ if index == final_index
     %comment = loci.formats.tiff.TiffParser(ometiffilename).getComment()
     %xmlValidate.process(ometiffilename, java.io.BufferedReader(java.io.StringReader(comment)));    
 end;
-               
+
 end
