@@ -1,4 +1,4 @@
-function frame_time = add_plane_to_OMEtiff_with_metadata2(I, index, final_index, folder, ometiffilename, varargin)
+function frame_time = add_plane_to_OMEtiff_with_metadata(I, index, final_index, folder, ometiffilename, varargin)
 
 global writer;
 global getBytes;
