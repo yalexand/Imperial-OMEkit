@@ -20,7 +20,7 @@ ip.addOptional('ModuloZ_Step', [], @isnumeric);
 ip.addOptional('ModuloZ_End', [], @isnumeric);
 ip.addOptional('ModuloZ_Labels', [], @isnumeric);
 ip.addOptional('Tags', [], @ischar);    
-ip.addOptional('TagsS_eparatingSeq', [], @ischar);    
+ip.addOptional('Tags_SeparatingSeq', [], @ischar);    
 
 ip.parse(varargin{:});
 
@@ -86,9 +86,9 @@ end;
 % description with 1
 
         % DESCRIPTION - one needs to find xml file if there... and so on
+        n_anno = 0;        
+        if exist('modlo','var'), n_anno = n_anno + 1; end;        
         try
-            n_anno = 0;
-            if exist('modlo','var'), n_anno = n_anno + 1; end;
             %
             xmlfilenames = dir([folder filesep '*.xml']);                
             for k = 1 : numel(xmlfilenames)
@@ -97,15 +97,30 @@ end;
                 fgetl(fid);
                 description = fscanf(fid,'%c');
                 fclose(fid);
-                metadata.setXMLAnnotationID(['Annotation:' num2str(n_anno+k-1)],n_anno+k-1);
-                metadata.setXMLAnnotationValue(description,n_anno+k-1);
+                index = n_anno+k-1;
+                metadata.setXMLAnnotationID(['Annotation:' num2str(index)],index);
+                metadata.setXMLAnnotationValue(description,index);
             end                        
-            %        
+            %
+            n_anno = index;
+            %
         catch err
             display(err.message);
         end
         % DESCRIPTION - ends
-                               
+        
+        % Tags
+        tags = ip.Results.Tags;    
+        sepsec = ip.Results.Tags_SeparatingSeq;    
+        if ~isempty(tags) && ~isempty(sepsec)
+            tags = strsplit(tags,sepsec);
+            for k=1:numel(tags)
+                metadata.setTagAnnotationID(['Annotation:' num2str(n_anno+k)],k-1);
+                metadata.setTagAnnotationValue(tags{k},k-1);        
+            end        
+        end
+        % Tags - end
+                                       
         % Create ImageWriter
         writer = loci.formats.ImageWriter();
         writer.setWriteSequentially(true);
