@@ -86,7 +86,8 @@ end;
 % description with 1
 
         % DESCRIPTION - one needs to find xml file if there... and so on
-        n_anno = 0;        
+        n_anno = 0;  
+        dscr_acc = [];
         if exist('modlo','var'), n_anno = n_anno + 1; end;        
         try
             %
@@ -100,6 +101,7 @@ end;
                 index = n_anno+k-1;
                 metadata.setXMLAnnotationID(['Annotation:' num2str(index)],index);
                 metadata.setXMLAnnotationValue(description,index);
+                dscr_acc = [dscr_acc description];
             end                        
             %
             n_anno = index;
@@ -107,6 +109,13 @@ end;
         catch err
             display(err.message);
         end
+        %
+        if ~isempty(dscr_acc) % backup - use description field
+            metadata.setImageDescription(sprintf('first line\nsecondline'), 0);
+            metadata.setImageDescription(sprintf(dscr_acc),0);
+        end
+        
+        %
         % DESCRIPTION - ends
         
         % Tags
