@@ -101,6 +101,9 @@ end;
                 index = n_anno+k-1;
                 metadata.setXMLAnnotationID(['Annotation:' num2str(index)],index);
                 metadata.setXMLAnnotationValue(description,index);
+                % helped by Jmarie, Sebastien - http://www.openmicroscopy.org/community/posting.php?mode=reply&f=6&t=7659
+                metadata.setImageAnnotationRef(['Annotation:' num2str(index)],0,index); 
+                %                  
                 dscr_acc = [dscr_acc description];
             end                        
             %
@@ -109,12 +112,12 @@ end;
         catch err
             display(err.message);
         end
-        %
-        if ~isempty(dscr_acc) % backup - use description field
+        
+        % backup - use description field? 
+        if ~isempty(dscr_acc) 
             metadata.setImageDescription(sprintf('first line\nsecondline'), 0);
             metadata.setImageDescription(sprintf(dscr_acc),0);
-        end
-        
+        end        
         %
         % DESCRIPTION - ends
         
@@ -125,7 +128,8 @@ end;
             tags = strsplit(tags,sepsec);
             for k=1:numel(tags)
                 metadata.setTagAnnotationID(['Annotation:' num2str(n_anno+k)],k-1);
-                metadata.setTagAnnotationValue(tags{k},k-1);        
+                metadata.setTagAnnotationValue(tags{k},k-1);
+                metadata.setImageAnnotationRef(['Annotation:' num2str(n_anno+k)], 0, n_anno+k);
             end        
         end
         % Tags - end
