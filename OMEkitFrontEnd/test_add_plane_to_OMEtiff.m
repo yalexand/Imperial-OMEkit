@@ -1,5 +1,4 @@
-               
-               
+                              
 folder = [pwd filesep 'TestData' filesep 'Fish 3 - Tumour'];
 ometiffilename = [pwd filesep 'TestData' filesep 'Fish 3 - Tumour.OME.tiff'];
 
@@ -9,7 +8,6 @@ end;
 
 addpath_OMEkit;
             
-
 labels = (0:1:39); 
 
             extension  = 'tif';
@@ -46,8 +44,9 @@ Tags = ['Raw Fish' Tags_SeparatingSeq 'Fried Fish' Tags_SeparatingSeq 'Gefilte F
                     'ModuloZ_Unit', 'degree', ...
                     'ModuloZ_Start', 0, ...
                     'ModuloZ_Step', 1, ...
-                    'ModuloZ_End', 359, ...                        
-                    'Tags', Tags, ...            
+                    'ModuloZ_End', 359, ...
+                    'Tags', Tags, ...
+                    'verbose', false, ...            
                     'Tags_SeparatingSeq', Tags_SeparatingSeq);
 
                 acc(i)=telapsed;    

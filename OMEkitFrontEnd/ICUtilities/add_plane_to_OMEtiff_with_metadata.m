@@ -3,6 +3,7 @@ function frame_time = add_plane_to_OMEtiff_with_metadata(I, index, final_index, 
 global writer;
 global getBytes;
 global hw;
+global ifd;
 
 assert(isnumeric(I), 'First argument must be numeric');
 assert(isnumeric(index), 'Second argument must be numeric');
@@ -20,14 +21,16 @@ ip.addOptional('ModuloZ_Step', [], @isnumeric);
 ip.addOptional('ModuloZ_End', [], @isnumeric);
 ip.addOptional('ModuloZ_Labels', [], @isnumeric);
 ip.addOptional('Tags', [], @ischar);    
-ip.addOptional('Tags_SeparatingSeq', [], @ischar);    
+ip.addOptional('Tags_SeparatingSeq', [], @ischar); 
+ip.addOptional('verbose', [], @islogical);
 
 ip.parse(varargin{:});
 
 if 1 == index % make all setups
 
         addpath_OMEkit;
-
+        
+        [sizeX,sizeY] = size(I);
         sizeZ = final_index;
 
         % verify that enough memory is allocated
@@ -155,18 +158,32 @@ end;
             case 'double'
                 getBytes = @(x) loci.common.DataTools.doublesToBytes(x(:), 0);
         end
+                
+        ifd = loci.formats.tiff.IFD();
+        ifd.putIFDValue(ifd.ROWS_PER_STRIP,sizeY);
         
-        hw = waitbar(0, 'Loading images...');
+        hw = [];
+        if ~isempty(ip.Results.verbose) && ip.Results.verbose
+            hw = waitbar(0, 'Loading images...');
+        end
 end        
 
 t0 = tic;
-writer.saveBytes(index-1, getBytes(I));
+% writer.saveBytes(index-1, getBytes(I)); % slower :)
+writer.getWriter(ometiffilename).saveBytes(index-1, getBytes(I), ifd);
 frame_time = toc(t0);
-waitbar(index/final_index,hw); drawnow;    
+
+if ~isempty(hw)
+    waitbar(index/final_index,hw); drawnow;
+end
         
 if index == final_index
-    delete(hw); 
-    drawnow;
+    
+    if ~isempty(hw)
+        delete(hw); 
+        drawnow;
+    end
+    
     writer.close();
     
     %xmlValidate = loci.formats.tools.XMLValidate();
