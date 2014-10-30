@@ -68,10 +68,9 @@ else
 end
 metadata.setPixelsType(pixelsType, 0);
 
-% Read pixels size from image and set it to the metadata
-sizeX = size(I, 1);
-sizeY = size(I, 2);
-
+% Read pixels size from image and set it to the metadat
+sizeX = size(I, 2);
+sizeY = size(I, 1);
 sizeZ = size(I, find(ip.Results.dimensionOrder == 'Z'));
 sizeC = size(I, find(ip.Results.dimensionOrder == 'C'));
 sizeT = size(I, find(ip.Results.dimensionOrder == 'T'));

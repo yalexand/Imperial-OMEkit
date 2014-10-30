@@ -26,13 +26,13 @@ ip.addOptional('verbose', [], @islogical);
 
 ip.parse(varargin{:});
 
+        [sizeX,sizeY] = size(I);
+        sizeZ = final_index;
+
 if 1 == index % make all setups
 
         addpath_OMEkit;
         
-        [sizeX,sizeY] = size(I);
-        sizeZ = final_index;
-
         % verify that enough memory is allocated
         bfCheckJavaMemory();
         % Check for required jars in the Java path
@@ -169,8 +169,13 @@ end;
 end        
 
 t0 = tic;
-% writer.saveBytes(index-1, getBytes(I)); % slower :)
-writer.getWriter(ometiffilename).saveBytes(index-1, getBytes(I), ifd);
+
+% writer.saveBytes(index-1, getBytes(I')); % slower :)
+
+writer.getWriter(ometiffilename).saveBytes(index-1, getBytes(I'), ifd);
+ifd.clear();
+ifd.putIFDValue(ifd.ROWS_PER_STRIP,sizeY);
+
 frame_time = toc(t0);
 
 if ~isempty(hw)
