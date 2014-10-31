@@ -23,6 +23,8 @@ ip.addOptional('ModuloZ_Labels', [], @isnumeric);
 ip.addOptional('Tags', [], @ischar);    
 ip.addOptional('Tags_SeparatingSeq', [], @ischar); 
 ip.addOptional('verbose', [], @islogical);
+ip.addParamValue('Compression', '',  @(x) ismember(x, getCompressionTypes()));
+ip.addParamValue('BigTiff', false , @islogical);
 
 ip.parse(varargin{:});
 
@@ -82,12 +84,6 @@ if exist('modlo','var')
 end;
 %%%%%%%%%%%%%%%%%%% set up Modulo XML description metadata if present - ends        
 
-% XMLAnnotaiton arrangement
-% if only modulo present it goes with 0
-% if description is present, it goes with 0
-% then if modulo and description are present modulo goes with with 0 then
-% description with 1
-
         % DESCRIPTION - one needs to find xml file if there... and so on
         n_anno = 0;  
         dscr_acc = [];
@@ -141,8 +137,14 @@ end;
         writer = loci.formats.ImageWriter();
         writer.setWriteSequentially(true);
         writer.setMetadataRetrieve(metadata);        
-        writer.setCompression('LZW'); % comment out to fix possible slowing down
-        writer.getWriter(ometiffilename).setBigTiff(true);        
+        
+        if ~isempty(ip.Results.Compression)
+            writer.setCompression(ip.Results.Compression);
+        end
+        if ip.Results.BigTiff
+            writer.getWriter(ometiffilename).setBigTiff(ip.Results.BigTiff);
+        end
+                        
         writer.setId(ometiffilename);
 
         % Load conversion tools for saving planes
@@ -197,3 +199,12 @@ if index == final_index
 end;
 
 end
+
+function compressionTypes = getCompressionTypes()
+
+% List all values of Compression
+writer = loci.formats.ImageWriter();
+compressionTypes = arrayfun(@char, writer.getCompressionTypes(),...
+    'UniformOutput', false);
+end
+
