@@ -1,14 +1,13 @@
-                              
-folder = [pwd filesep 'TestData' filesep 'Fish 3 - Tumour'];
-ometiffilename = [pwd filesep 'TestData' filesep 'Fish 3 - Tumour.OME.tiff'];
+src_dir_name = 'Fish 3 - Tumour'
+
+folder = [pwd filesep 'TestData' filesep src_dir_name];
+ometiffilename = [pwd filesep 'TestData' filesep src_dir_name '.OME.tiff'];
 
 if exist(ometiffilename,'file')
     delete(ometiffilename)
 end;
 
-addpath_OMEkit;
-            
-labels = (0:1:39); 
+addpath_OMEkit;            
 
             extension  = 'tif';
             
@@ -29,6 +28,8 @@ labels = (0:1:num_files-1);
 Tags_SeparatingSeq = 'jkhsadfgleufyihtiwurehfjkiblaherb';
 Tags = ['Raw Fish' Tags_SeparatingSeq 'Fried Fish' Tags_SeparatingSeq 'Gefilte Fish'];
             
+da = 360/360; % angle increment
+
             acc = zeros(1,num_files);
             for i = 1 : num_files
                                    
@@ -43,8 +44,8 @@ Tags = ['Raw Fish' Tags_SeparatingSeq 'Fried Fish' Tags_SeparatingSeq 'Gefilte F
                     'ModuloZ_TypeDescription', 'OPT', ...
                     'ModuloZ_Unit', 'degree', ...
                     'ModuloZ_Start', 0, ...
-                    'ModuloZ_Step', 1, ...
-                    'ModuloZ_End', num_files-1, ...
+                    'ModuloZ_Step', da, ...
+                    'ModuloZ_End', (num_files-1)*da, ...
                     'verbose', true, ...            
                     'BigTiff', true, ...
                     'Compression', 'LZW', ... % 'Uncompressed', ... 
@@ -55,4 +56,3 @@ Tags = ['Raw Fish' Tags_SeparatingSeq 'Fried Fish' Tags_SeparatingSeq 'Gefilte F
                                                
             end
             saveBytes_speed = mean(acc)
-                       

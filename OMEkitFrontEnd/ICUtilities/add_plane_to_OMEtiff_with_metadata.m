@@ -166,7 +166,7 @@ end;
         
         hw = [];
         if ~isempty(ip.Results.verbose) && ip.Results.verbose
-            hw = waitbar(0, 'Loading images...');
+            hw = waitbar(0, 'Loading planes...');
         end
 end        
 

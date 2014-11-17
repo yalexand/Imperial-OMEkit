@@ -63,7 +63,7 @@ handles.passwd = [];
 handles.output = {'??', '??', '??', '??'};
 
 try
-    login_details = getpref('GlobalAnalysisFrontEnd','OMEROlogin');
+    login_details = getpref('ic_OPTtoolsFrontEnd','OMEROlogin');
     handles.server = login_details{1};
     handles.port = login_details{2};        
     handles.userName = login_details{3};
@@ -77,8 +77,8 @@ try
     
 catch err
     display(err.message);
-    if ~ispref('GlobalAnalysisFrontEnd','OMEROlogin')
-        addpref('GlobalAnalysisFrontEnd','OMEROlogin',{'','',''});
+    if ~ispref('ic_OPTtoolsFrontEnd','OMEROlogin')
+        addpref('ic_OPTtoolsFrontEnd','OMEROlogin',{'','',''});
     end
 end
 
@@ -210,7 +210,7 @@ passwd = handles.passwd;
 
 handles.output = {server, port, userName, passwd};
 
-setpref('GlobalAnalysisFrontEnd','OMEROlogin',{server,port,userName});
+setpref('ic_OPTtoolsFrontEnd','OMEROlogin',{server,port,userName});
 
 guidata(hObject,handles);
 

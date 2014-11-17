@@ -57,8 +57,8 @@ classdef ic_converter_impl < handle
     function obj = ic_converter_impl()
         
         
-            profile = profile_controller();
-            profile.load_profile();
+            %profile = profile_controller();
+            % profile.load_profile();
         
                                                 
 %           obj.Extension = '???';

@@ -27,9 +27,9 @@ function default_path = get_default_path()
 
 
     try
-        default_path = getpref('GlobalAnalysisFrontEnd','DefaultFolder');
+        default_path = getpref('ic_OPTtoolsFrontEnd','DefaultFolder');
     catch %#ok
-        addpref('GlobalAnalysisFrontEnd','DefaultFolder','C:\')
+        addpref('ic_OPTtoolsFrontEnd','DefaultFolder','C:\')
         default_path = 'C:\';
     end
 
