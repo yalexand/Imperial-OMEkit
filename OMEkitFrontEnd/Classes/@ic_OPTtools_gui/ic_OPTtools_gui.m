@@ -37,8 +37,8 @@ classdef ic_OPTtools_gui
             % [~,b] = dos('dir /s /b MatlabCommunicatorDeamon.jar');
             % b
             % needs to find this dir automatically ..            
-            addpath('c:/users/yalexand/Icy/plugins/ylemontag/matlabcommunicator');
-            icy_init();
+%             addpath('c:/users/yalexand/Icy/plugins/ylemontag/matlabcommunicator');
+%             icy_init();
                         
             if nargin < 1
                 wait = false;

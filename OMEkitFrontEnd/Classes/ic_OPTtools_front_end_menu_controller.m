@@ -65,6 +65,9 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 
         menu_reconstruction_FBP;
                         
+        menu_visualization_setup_Icy_directory;
+        menu_visualization_start_Icy;
+        
         menu_visualization_send_current_proj_to_Icy;
         menu_visualization_send_current_volm_to_Icy;        
 
@@ -245,7 +248,30 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                     msgbox('error - Icy might be not started');                    
                 end
             end
+        end        
+         %------------------------------------------------------------------                
+        function menu_visualization_setup_Icy_directory_callback(obj, ~,~)
+            [path] = uigetdir(obj.data_controller.DefaultDirectory,'Guide to Icy directory');
+            if path ~= 0
+                obj.data_controller.IcyDirectory = path;                
+            end                       
+            try
+                addpath([obj.data_controller.IcyDirectory filesep 'plugins' filesep 'ylemontag' filesep 'matlabcommunicator']);
+                icy_init();
+            catch
+                errordlg('Icy directory not good or Matlab Communicator plugin is not installed - can not continue');
+            end            
         end
+         %------------------------------------------------------------------                
+        function menu_visualization_start_Icy_callback(obj, ~,~)
+            if ~isempty(obj.data_controller.IcyDirectory)
+                dos([obj.data_controller.IcyDirectory filesep 'icy']);
+            else
+                msgbox('error - Icy directory was not set up');
+            end
+        end
+
+    %================================= % reconstruction                
          %------------------------------------------------------------------        
         function menu_reconstruction_FBP_callback(obj, ~,~)
             if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
@@ -254,6 +280,10 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 msgbox('data not loaded - can not do reconstruction');
             end            
         end        
+        
+        
+    %================================= % downsampling indicators        
+        % 
          %------------------------------------------------------------------
         function menu_settings_Pixel_Downsampling_1_callback(obj, ~,~)
             obj.data_controller.downsampling = 1;

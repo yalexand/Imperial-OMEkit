@@ -84,8 +84,11 @@ function handles = setup_menu(obj,handles)
     %================================= visualization
     
     menu_visualization = uimenu(obj.window,'Label','Visualization');
-    handles.menu_visualization_start_Icy = uimenu(menu_visualization,'Label','Start Icy','Separator','on');    
-    handles.menu_visualization_send_current_proj_to_Icy = uimenu(menu_visualization,'Label','Send current Projections');
+    menu_visualization_Icy_setup = uimenu(menu_visualization,'Label','Icy setup');        
+    handles.menu_visualization_setup_Icy_directory = uimenu(menu_visualization_Icy_setup,'Label','Set Icy directory');    
+    handles.menu_visualization_start_Icy = uimenu(menu_visualization_Icy_setup,'Label','Start Icy');
+    %
+    handles.menu_visualization_send_current_proj_to_Icy = uimenu(menu_visualization,'Label','Send current Projections','Separator','on');
     handles.menu_visualization_send_current_volm_to_Icy = uimenu(menu_visualization,'Label','Send current Volume');    
     
     %================================= help   

@@ -39,6 +39,7 @@ classdef ic_OPTtools_data_controller < handle
     properties(Transient)
         
         DefaultDirectory = ['C:' filesep];
+        IcyDirectory = [];
         
         SrcDir = [];
         SrcFileList = [];
@@ -91,12 +92,28 @@ classdef ic_OPTtools_data_controller < handle
             addlistener(obj,'new_batch_set',@obj.on_new_batch_set);   
                                     
             obj.load_settings;
+            
+            if isempty(obj.IcyDirectory)
+                %
+                % to do
+                %
+            end
+
+%             addpath('c:/users/yalexand/Icy/plugins/ylemontag/matlabcommunicator');
+%             icy_init();
+            try
+                addpath([obj.IcyDirectory filesep 'plugins' filesep 'ylemontag' filesep 'matlabcommunicator']);
+                icy_init();
+            catch
+                errordlg('Icy directory not good or Matlab Communicator plugin is not installed - can not continue');
+            end
                                                 
         end
 %-------------------------------------------------------------------------%                
         function save_settings(obj,~,~)        
             settings = [];
             settings.DefaultDirectory = obj.DefaultDirectory;
+            settings.IcyDirectory = obj.IcyDirectory;
             settings.downsampling = obj.downsampling;
             settings.angle_downsampling = obj.angle_downsampling;            
             xml_write([pwd filesep obj.data_settings_filename], settings);
@@ -106,6 +123,7 @@ classdef ic_OPTtools_data_controller < handle
              if exist([pwd filesep obj.data_settings_filename],'file') 
                 [ settings, ~ ] = xml_read ([pwd filesep obj.data_settings_filename]);                                 
                 obj.DefaultDirectory = settings.DefaultDirectory;  
+                obj.IcyDirectory = settings.IcyDirectory;
                 obj.downsampling = settings.downsampling;
                 obj.angle_downsampling = settings.angle_downsampling;                
              end
