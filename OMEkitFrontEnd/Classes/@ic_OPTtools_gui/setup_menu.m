@@ -60,7 +60,7 @@ function handles = setup_menu(obj,handles)
     
     menu_settings = uimenu(obj.window,'Label','Settings');
     menu_settings_Pixel_Downsampling = uimenu(menu_settings,'Label',['Pixel downsampling 1/' num2str(pixel_downsampling)]);
-    menu_settings_Angle_Downsampling = uimenu(menu_settings,'Label',['Angle downsampling 1/' num2str(angle_downsampling)]);
+    % menu_settings_Angle_Downsampling = uimenu(menu_settings,'Label',['Angle downsampling 1/' num2str(angle_downsampling)]);
 
     handles.menu_settings_Pixel_Downsampling_1 = uimenu(menu_settings_Pixel_Downsampling,'Label','1/1');    
     handles.menu_settings_Pixel_Downsampling_2 = uimenu(menu_settings_Pixel_Downsampling,'Label','1/2');
@@ -68,13 +68,14 @@ function handles = setup_menu(obj,handles)
     handles.menu_settings_Pixel_Downsampling_8 = uimenu(menu_settings_Pixel_Downsampling,'Label','1/8');
     handles.menu_settings_Pixel_Downsampling_16 = uimenu(menu_settings_Pixel_Downsampling,'Label','1/16');
 
-    handles.menu_settings_Angle_Downsampling_1 = uimenu(menu_settings_Angle_Downsampling,'Label','1/1');    
-    handles.menu_settings_Angle_Downsampling_2 = uimenu(menu_settings_Angle_Downsampling,'Label','1/2');
-    handles.menu_settings_Angle_Downsampling_4 = uimenu(menu_settings_Angle_Downsampling,'Label','1/4');
-    handles.menu_settings_Angle_Downsampling_8 = uimenu(menu_settings_Angle_Downsampling,'Label','1/8');
+%     handles.menu_settings_Angle_Downsampling_1 = uimenu(menu_settings_Angle_Downsampling,'Label','1/1');    
+%     handles.menu_settings_Angle_Downsampling_2 = uimenu(menu_settings_Angle_Downsampling,'Label','1/2');
+%     handles.menu_settings_Angle_Downsampling_4 = uimenu(menu_settings_Angle_Downsampling,'Label','1/4');
+%     handles.menu_settings_Angle_Downsampling_8 = uimenu(menu_settings_Angle_Downsampling,'Label','1/8');
     
     handles.menu_settings_Pixel_Downsampling = menu_settings_Pixel_Downsampling;
-    handles.menu_settings_Angle_Downsampling = menu_settings_Angle_Downsampling;
+    
+%     handles.menu_settings_Angle_Downsampling = menu_settings_Angle_Downsampling;
         
     %================================= reconstruction
     

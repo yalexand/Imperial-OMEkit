@@ -280,7 +280,8 @@ classdef ic_OPTtools_data_controller < handle
                      %
                      obj.volm = gather(gpu_volm);
                      
-                 else % no GPU
+                 elseif ~use_GPU
+                     
                      for y = 1 : sizeY                
                         sinogram = squeeze(double(obj.proj(:,y,sizeC,:,sizeT)));
                         % reconstruction
@@ -294,8 +295,12 @@ classdef ic_OPTtools_data_controller < handle
                         %
                         if ~isempty(hw), waitbar(y/sizeY,hw), drawnow, end;
                      end                                                 
-                     
-                 end
+                 
+                 else
+                     errordlg('can not run without GPU');
+                     if ~isempty(hw), delete(hw), drawnow, end;
+                     return;
+                 end                     
                                                                
              obj.volm( obj.volm <= 0 ) = 0; % mm? 
              
