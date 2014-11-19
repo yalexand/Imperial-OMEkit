@@ -256,9 +256,7 @@ classdef ic_OPTtools_data_controller < handle
                  
                  step = obj.angle_downsampling;                 
                  acting_angles = obj.angles(1:step:n_angles);
-                 sizeR = numel(acting_angles);
-                 %
-                                                   
+                 %                                                   
                  if use_GPU && obj.isGPU 
                                           
                     % use GPU
@@ -297,9 +295,11 @@ classdef ic_OPTtools_data_controller < handle
                      end                                                 
                  
                  else
+                     
                      errordlg('can not run without GPU');
                      if ~isempty(hw), delete(hw), drawnow, end;
                      return;
+                     
                  end                     
                                                                
              obj.volm( obj.volm <= 0 ) = 0; % mm? 

@@ -238,6 +238,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 catch 
                     msgbox('error - Icy might be not started');
                 end
+            else
+                msgbox('no projections - nothing to visualize');
             end
         end
          %------------------------------------------------------------------        
@@ -248,6 +250,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 catch
                     msgbox('error - Icy might be not started');                    
                 end
+            else
+                msgbox('no volume - nothing to visualize');
             end
         end        
          %------------------------------------------------------------------                

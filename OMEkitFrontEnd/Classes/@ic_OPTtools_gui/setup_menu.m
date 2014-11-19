@@ -80,8 +80,8 @@ function handles = setup_menu(obj,handles)
     %================================= reconstruction
     
     menu_reconstruction = uimenu(obj.window,'Label','Reconstruction');
-    handles.menu_reconstruction_FBP = uimenu(menu_reconstruction,'Label','Standard FBP');    
-    handles.menu_reconstruction_FBP_GPU = uimenu(menu_reconstruction,'Label','Standard FBP (GPU)');
+    handles.menu_reconstruction_FBP = uimenu(menu_reconstruction,'Label','FBP');    
+    handles.menu_reconstruction_FBP_GPU = uimenu(menu_reconstruction,'Label','FBP (GPU)');
         
     %================================= visualization
     
@@ -95,10 +95,10 @@ function handles = setup_menu(obj,handles)
     
     %================================= help   
     
-    menu_help = uimenu(obj.window,'Label','Help');
-    handles.menu_help_about = uimenu(menu_help,'Label','About...');
-    handles.menu_help_tracker = uimenu(menu_help,'Label','Open Issue Tracker...');
-    handles.menu_help_bugs = uimenu(menu_help,'Label','File Bug Report...');
+%     menu_help = uimenu(obj.window,'Label','Help');
+%     handles.menu_help_about = uimenu(menu_help,'Label','About...');
+%     handles.menu_help_tracker = uimenu(menu_help,'Label','Open Issue Tracker...');
+%     handles.menu_help_bugs = uimenu(menu_help,'Label','File Bug Report...');
 
     %================================= indication    
     
