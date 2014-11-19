@@ -30,10 +30,10 @@ function handles = setup_menu(obj,handles)
 
     menu_file      = uimenu(obj.window,'Label','File');
     handles.menu_file_new_window = uimenu(menu_file,'Label','New Window','Accelerator','N');
-    handles.menu_file_set_src_single = uimenu(menu_file,'Label','Set Src - single file..','Separator','on');
-    handles.menu_file_set_src_dir = uimenu(menu_file,'Label','Set Src - multiple files (directory)');
+    handles.menu_file_set_src_single = uimenu(menu_file,'Label','Load single file..','Separator','on');
+    % handles.menu_file_set_src_dir = uimenu(menu_file,'Label','Set Src - multiple files (directory)');
     handles.menu_file_reset_previous = uimenu(menu_file,'Label','Reset to previous');    
-    handles.menu_file_set_dst_dir = uimenu(menu_file,'Label','Set Dst - directory','Separator','on');
+    % handles.menu_file_set_dst_dir = uimenu(menu_file,'Label','Set Dst - directory','Separator','on');
     handles.menu_file_save_current_volume = uimenu(menu_file,'Label','Save current volume','Separator','on');
             
     %================================= OMERO
@@ -52,9 +52,9 @@ function handles = setup_menu(obj,handles)
 
     handles.menu_OMERO_Reset_Logon = uimenu(menu_OMERO_Set_Data,'Label','Restore Logon','Separator','on','Enable','off');                
     
-    handles.menu_OMERO_set_single = uimenu(menu_OMERO,'Label','Set Src - single Image','Separator','on','Enable','off');
-    handles.menu_OMERO_set_multiple = uimenu(menu_OMERO,'Label','Set Src - multiple Images','Enable','off');
-    handles.menu_OMERO_reset_previous = uimenu(menu_OMERO,'Label','Reset to previous','Enable','off');    
+    handles.menu_OMERO_set_single = uimenu(menu_OMERO,'Label','Load single Image','Separator','on','Enable','off');
+    % handles.menu_OMERO_set_multiple = uimenu(menu_OMERO,'Label','Set Src - multiple Images','Enable','off');
+    % handles.menu_OMERO_reset_previous = uimenu(menu_OMERO,'Label','Reset to previous','Enable','off');    
     
     %================================= settings
     
@@ -79,7 +79,8 @@ function handles = setup_menu(obj,handles)
     %================================= reconstruction
     
     menu_reconstruction = uimenu(obj.window,'Label','Reconstruction');
-    handles.menu_reconstruction_FBP = uimenu(menu_reconstruction,'Label','Standard FBP','Separator','on');    
+    handles.menu_reconstruction_FBP = uimenu(menu_reconstruction,'Label','Standard FBP');    
+    handles.menu_reconstruction_FBP_GPU = uimenu(menu_reconstruction,'Label','Standard FBP (GPU)');
         
     %================================= visualization
     
@@ -102,7 +103,7 @@ function handles = setup_menu(obj,handles)
     
     handles.proj_label = uimenu(obj.window,'Label','proj','ForegroundColor','red');    
     handles.volm_label = uimenu(obj.window,'Label','volm','ForegroundColor','red');    
-    handles.batch_label = uimenu(obj.window,'Label','batch','ForegroundColor','red');    
+    % handles.batch_label = uimenu(obj.window,'Label','batch','ForegroundColor','red');    
         
 end
 

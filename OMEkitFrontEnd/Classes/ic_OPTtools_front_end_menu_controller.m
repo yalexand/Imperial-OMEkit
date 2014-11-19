@@ -64,6 +64,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         menu_settings_Angle_Downsampling_8;
                 
         menu_reconstruction_FBP;
+        menu_reconstruction_FBP_GPU;
                         
         menu_visualization_setup_Icy_directory;
         menu_visualization_start_Icy;
@@ -275,12 +276,19 @@ classdef ic_OPTtools_front_end_menu_controller < handle
          %------------------------------------------------------------------        
         function menu_reconstruction_FBP_callback(obj, ~,~)
             if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
-                obj.data_controller.FBP(true); % verbose
+                obj.data_controller.FBP(true,false); % verbose, + no GPU
             else
                 msgbox('data not loaded - can not do reconstruction');
             end            
         end        
-        
+         %------------------------------------------------------------------        
+        function menu_reconstruction_FBP_GPU_callback(obj, ~,~)
+            if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
+                obj.data_controller.FBP(true,true); % verbose, + GPU
+            else
+                msgbox('data not loaded - can not do reconstruction');
+            end            
+        end                
         
     %================================= % downsampling indicators        
         % 

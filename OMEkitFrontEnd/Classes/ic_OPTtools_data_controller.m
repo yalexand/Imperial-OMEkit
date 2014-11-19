@@ -63,6 +63,8 @@ classdef ic_OPTtools_data_controller < handle
         
         menu_controller;
         
+        isGPU;
+        
         proj; % native projection images (processed for co-registration and artifact correction)
         volm; % reconstructed volume
                                
@@ -107,6 +109,13 @@ classdef ic_OPTtools_data_controller < handle
             catch
                 errordlg('Icy directory not good or Matlab Communicator plugin is not installed - can not continue');
             end
+            
+            % detect GPU
+            try
+                isgpu = gpuDevice();
+            catch    
+            end                                  
+            obj.isGPU = exist('isgpu','var');
                                                 
         end
 %-------------------------------------------------------------------------%                
@@ -226,7 +235,7 @@ classdef ic_OPTtools_data_controller < handle
             obj.save_settings;
         end
 %-------------------------------------------------------------------------%        
-        function FBP(obj,verbose,~)
+        function FBP(obj,verbose,use_GPU)
             
             hw = [];
             if verbose
@@ -249,24 +258,45 @@ classdef ic_OPTtools_data_controller < handle
                  acting_angles = obj.angles(1:step:n_angles);
                  sizeR = numel(acting_angles);
                  %
-                 for y = 1 : sizeY                
-                    % create sinogram 
-                    sinogram = zeros(sizeX,sizeR,'double');                
-                    for r = 1 : step : sizeR
-                        sinogram(:,r) = sinogram(:,r) + double(obj.proj(:,y,sizeC,r,sizeT));
-                    end
-                    % reconstruction
-                    reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
-                    if isempty(obj.volm)
-                        [sizeR1,sizeR2] = size(reconstruction);
-                        obj.volm = zeros(sizeR1,sizeR2,sizeY); % XYZ
-                    end
-                    %
-                    obj.volm(:,:,y) = reconstruction;
-                    %
-                    if ~isempty(hw), waitbar(y/sizeY,hw), drawnow, end;
-                 end                                                                    
-             
+                                                   
+                 if use_GPU && obj.isGPU 
+                                          
+                    % use GPU
+                    gpu_volm = [];                    
+                    gpu_proj = gpuArray(single(obj.proj));
+                     for y = 1 : sizeY                
+                        sinogram = squeeze(gpu_proj(:,y,sizeC,:,sizeT));
+                        % reconstruction
+                        reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
+                        if isempty(gpu_volm)
+                            [sizeR1,sizeR2] = size(reconstruction);
+                            gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,sizeY))); % XYZ
+                        end
+                        %
+                        gpu_volm(:,:,y) = reconstruction;
+                        %                        
+                        if ~isempty(hw), waitbar(y/sizeY,hw), drawnow, end;
+                     end   
+                     %
+                     obj.volm = gather(gpu_volm);
+                     
+                 else % no GPU
+                     for y = 1 : sizeY                
+                        sinogram = squeeze(double(obj.proj(:,y,sizeC,:,sizeT)));
+                        % reconstruction
+                        reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
+                        if isempty(obj.volm)
+                            [sizeR1,sizeR2] = size(reconstruction);
+                            obj.volm = zeros(sizeR1,sizeR2,sizeY); % XYZ
+                        end
+                        %
+                        obj.volm(:,:,y) = reconstruction;
+                        %
+                        if ~isempty(hw), waitbar(y/sizeY,hw), drawnow, end;
+                     end                                                 
+                     
+                 end
+                                                               
              obj.volm( obj.volm <= 0 ) = 0; % mm? 
              
              if ~isempty(hw), delete(hw), drawnow, end;
