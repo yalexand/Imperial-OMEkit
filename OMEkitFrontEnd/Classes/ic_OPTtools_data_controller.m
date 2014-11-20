@@ -177,10 +177,7 @@ classdef ic_OPTtools_data_controller < handle
                     %
                     if isempty(obj.proj)
                         [sizeX,sizeY] = size(plane);
-                        sizeZ = n_planes;
-                        sizeC = 1;
-                        sizeT = 1;
-                        obj.proj = zeros(sizeX,sizeY,sizeC,sizeZ,sizeT,class(plane)); % Icy likes XYCZT
+                        obj.proj = zeros(sizeX,sizeY,n_planes,class(plane));
                         %
                         obj.current_filename = full_filename;
                         if isempty(obj.previous_filenames)
@@ -188,7 +185,7 @@ classdef ic_OPTtools_data_controller < handle
                         end                                                                                                
                     end %  ini - end
                     %
-                    obj.proj(:,:,1,p,1) = plane;
+                    obj.proj(:,:,p) = plane;
                     %
                     if ~isempty(hw), waitbar(p/n_planes,hw), drawnow, end;
                     %
@@ -245,7 +242,7 @@ classdef ic_OPTtools_data_controller < handle
              obj.volm = [];                
              notify(obj,'volm_clear');
 
-             [sizeX,sizeY,sizeC,sizeZ,sizeT] = size(obj.proj); 
+             [sizeX,sizeY,sizeZ] = size(obj.proj); 
              
              n_angles = numel(obj.angles);
              
@@ -263,7 +260,7 @@ classdef ic_OPTtools_data_controller < handle
                     gpu_volm = [];                    
                     gpu_proj = gpuArray(single(obj.proj));
                      for y = 1 : sizeY                
-                        sinogram = squeeze(gpu_proj(:,y,sizeC,:,sizeT));
+                        sinogram = squeeze(gpu_proj(:,y,:));
                         % reconstruction
                         reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
                         if isempty(gpu_volm)
@@ -281,7 +278,7 @@ classdef ic_OPTtools_data_controller < handle
                  elseif ~use_GPU
                      
                      for y = 1 : sizeY                
-                        sinogram = squeeze(double(obj.proj(:,y,sizeC,:,sizeT)));
+                        sinogram = squeeze(double(obj.proj(:,y,:)));
                         % reconstruction
                         reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
                         if isempty(obj.volm)
@@ -361,14 +358,11 @@ classdef ic_OPTtools_data_controller < handle
                     %
                     if isempty(obj.proj)
                         [sizeX,sizeY] = size(plane);
-                        sizeZ = n_planes;
-                        sizeC = 1;
-                        sizeT = 1;
-                        obj.proj = zeros(sizeX,sizeY,sizeC,sizeZ,sizeT,class(plane)); % Icy likes XYCZT
+                        obj.proj = zeros(sizeX,sizeY,n_planes,class(plane));
                         
                     end %  ini - end
                     %
-                    obj.proj(:,:,1,p,1) = plane;
+                    obj.proj(:,:,p) = plane;
                     %
                     if ~isempty(hw), waitbar(p/n_planes,hw), drawnow, end;
                     %

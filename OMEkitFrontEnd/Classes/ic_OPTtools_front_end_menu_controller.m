@@ -234,7 +234,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_visualization_send_current_proj_to_Icy_callback(obj, ~,~)
             if ~isempty(obj.data_controller.proj)
                 try
-                    icy_imshow(obj.data_controller.proj);
+                    [szX,szY,szR] = size(obj.data_controller.proj);
+                    icy_imshow(reshape(obj.data_controller.proj,[szX,szY,1,szR,1])); % Icy likes XYCZT 
                 catch 
                     msgbox('error - Icy might be not started');
                 end
