@@ -101,8 +101,6 @@ classdef ic_OPTtools_data_controller < handle
                 %
             end
 
-%             addpath('c:/users/yalexand/Icy/plugins/ylemontag/matlabcommunicator');
-%             icy_init();
             try
                 addpath([obj.IcyDirectory filesep 'plugins' filesep 'ylemontag' filesep 'matlabcommunicator']);
                 icy_init();
@@ -168,12 +166,8 @@ classdef ic_OPTtools_data_controller < handle
                 imgdata = omedata{1,1};                
                 n_planes = length(imgdata(:,1));
                                 
-                f = 1./obj.downsampling;
                 for p = 1 : n_planes,
                     plane = imgdata{p,1};
-                    if 1 ~= f
-                        plane = imresize(plane,f);
-                    end;
                     %
                     if isempty(obj.proj)
                         [sizeX,sizeY] = size(plane);
@@ -234,9 +228,19 @@ classdef ic_OPTtools_data_controller < handle
 %-------------------------------------------------------------------------%        
         function FBP(obj,verbose,use_GPU)
             
+            s = [];
+            if use_GPU && obj.isGPU
+                s = 'applying FBP (GPU) reconstruction.. please wait...';
+            elseif ~use_GPU
+                s = 'applying FBP reconstruction.. please wait...';
+            else                     
+                errordlg('can not run FBP (GPU) without GPU');
+                return;
+            end
+            
             hw = [];
             if verbose
-                hw = waitbar(0, 'applying FBP reconstruction.. please wait...');
+                hw = waitbar(0,s);
             end
                         
              obj.volm = [];                
@@ -251,52 +255,83 @@ classdef ic_OPTtools_data_controller < handle
                  return;
              end
                  
+                 f = 1/obj.downsampling;
+                 [szX_r,szY_r] = size(imresize(zeros(sizeX,sizeY),f));                 
+             
                  step = obj.angle_downsampling;                 
                  acting_angles = obj.angles(1:step:n_angles);
                  %                                                   
                  if use_GPU && obj.isGPU 
-                                          
-                    % use GPU
+                                                              
+                    % create downsampled projections
+                    if 1 == f
+                        gpu_proj = gpuArray(single(obj.proj));
+                    else
+                        proj_r = zeros(szX_r,szY_r,sizeZ);
+                        for r = 1:sizeZ,
+                            proj_r(:,:,r) = imresize(single(obj.proj(:,:,r)),f);
+                        end
+                        gpu_proj = gpuArray(proj_r);
+                        clear('proj_r');
+                    end
+                                       
                     gpu_volm = [];                    
-                    gpu_proj = gpuArray(single(obj.proj));
-                     for y = 1 : sizeY                
+                                        
+                    for y = 1 : szY_r                
                         sinogram = squeeze(gpu_proj(:,y,:));
                         % reconstruction
                         reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
                         if isempty(gpu_volm)
                             [sizeR1,sizeR2] = size(reconstruction);
-                            gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,sizeY))); % XYZ
+                            gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,szY_r))); % XYZ
                         end
                         %
                         gpu_volm(:,:,y) = reconstruction;
                         %                        
-                        if ~isempty(hw), waitbar(y/sizeY,hw), drawnow, end;
-                     end   
+                        if ~isempty(hw), waitbar(y/szY_r,hw), drawnow, end;
+                    end   
                      %
                      obj.volm = gather(gpu_volm);
                      
                  elseif ~use_GPU
-                     
-                     for y = 1 : sizeY                
-                        sinogram = squeeze(double(obj.proj(:,y,:)));
-                        % reconstruction
-                        reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
-                        if isempty(obj.volm)
-                            [sizeR1,sizeR2] = size(reconstruction);
-                            obj.volm = zeros(sizeR1,sizeR2,sizeY); % XYZ
-                        end
-                        %
-                        obj.volm(:,:,y) = reconstruction;
-                        %
-                        if ~isempty(hw), waitbar(y/sizeY,hw), drawnow, end;
-                     end                                                 
-                 
-                 else
-                     
-                     errordlg('can not run without GPU');
-                     if ~isempty(hw), delete(hw), drawnow, end;
-                     return;
-                     
+
+                     obj.volm = [];
+                     %
+                     if 1 == f % no downsampling
+                         for y = 1 : sizeY                                        
+                            sinogram = squeeze(double(obj.proj(:,y,:)));
+                            % reconstruction
+                            reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
+                            if isempty(obj.volm)
+                                [sizeR1,sizeR2] = size(reconstruction);
+                                obj.volm = zeros(sizeR1,sizeR2,sizeY); % XYZ
+                            end
+                            %
+                            obj.volm(:,:,y) = reconstruction;
+                            %
+                            if ~isempty(hw), waitbar(y/sizeY,hw), drawnow, end;
+                         end                                                 
+                     else % with downsampling
+                         proj_r = zeros(szX_r,szY_r,sizeZ,'single');
+                         for r = 1:sizeZ,
+                            proj_r(:,:,r) = imresize(obj.proj(:,:,r),f);
+                         end
+                         %
+                         for y = 1 : szY_r
+                            sinogram = squeeze(double(proj_r(:,y,:)));
+                            % reconstruction
+                            reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
+                            if isempty(obj.volm)
+                                [sizeR1,sizeR2] = size(reconstruction);
+                                obj.volm = zeros(sizeR1,sizeR2,szY_r); % XYZ
+                            end
+                            %
+                            obj.volm(:,:,y) = reconstruction;
+                            %
+                            if ~isempty(hw), waitbar(y/szY_r,hw), drawnow, end;
+                         end
+                     end
+                                      
                  end                     
                                                                
              obj.volm( obj.volm <= 0 ) = 0; % mm? 
@@ -322,11 +357,7 @@ classdef ic_OPTtools_data_controller < handle
             pixelsList = image.copyPixels();    
             pixels = pixelsList.get(0);
                         
-            SizeC = pixels.getSizeC().getValue();
             SizeZ = pixels.getSizeZ().getValue();
-            SizeT = pixels.getSizeT().getValue();     
-            SizeX = pixels.getSizeY().getValue();  
-            SizeY = pixels.getSizeX().getValue();
         
             pixelsId = pixels.getId().getValue();
             rawPixelsStore = omero_data_manager.session.createRawPixelsStore(); 
@@ -342,19 +373,14 @@ classdef ic_OPTtools_data_controller < handle
             notify(obj,'proj_and_volm_clear');            
                 
             n_planes = SizeZ;
-                
-            f = 1./obj.downsampling;
+                            
             for p = 1 : SizeZ,
                     
                     z = p-1;
                     c = 0;
                     t = 0;
                     rawPlane = rawPixelsStore.getPlane(z,c,t);                    
-                    plane = toMatrix(rawPlane, pixels)'; 
-                    
-                    if 1 ~= f
-                        plane = imresize(plane,f);
-                    end;
+                    plane = toMatrix(rawPlane, pixels)';                     
                     %
                     if isempty(obj.proj)
                         [sizeX,sizeY] = size(plane);

@@ -299,39 +299,32 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         % 
          %------------------------------------------------------------------
         function menu_settings_Pixel_Downsampling_1_callback(obj, ~,~)
-            obj.data_controller.downsampling = 1;
-            obj.data_controller.proj = []; obj.data_controller.volm = [];
-            notify(obj.data_controller,'proj_and_volm_clear');
-            set(obj.menu_settings_Pixel_Downsampling,'Label','Pixel downsampling 1/1');
+            obj.set_pixel_downsampling(1);            
         end        
          %------------------------------------------------------------------        
         function menu_settings_Pixel_Downsampling_2_callback(obj, ~,~)
-            obj.data_controller.downsampling = 2;
-            obj.data_controller.proj = []; obj.data_controller.volm = [];
-            notify(obj.data_controller,'proj_and_volm_clear');
-            set(obj.menu_settings_Pixel_Downsampling,'Label','Pixel downsampling 1/2');
+            obj.set_pixel_downsampling(2);
         end
          %------------------------------------------------------------------
         function menu_settings_Pixel_Downsampling_4_callback(obj, ~,~)
-            obj.data_controller.downsampling = 4;
-            obj.data_controller.proj = []; obj.data_controller.volm = [];
-            notify(obj.data_controller,'proj_and_volm_clear');
-            set(obj.menu_settings_Pixel_Downsampling,'Label','Pixel downsampling 1/4');            
+            obj.set_pixel_downsampling(4);            
         end            
          %------------------------------------------------------------------        
         function menu_settings_Pixel_Downsampling_8_callback(obj, ~,~)
-            obj.data_controller.downsampling = 8;
-            obj.data_controller.proj = []; obj.data_controller.volm = [];
-            notify(obj.data_controller,'proj_and_volm_clear');
-            set(obj.menu_settings_Pixel_Downsampling,'Label','Pixel downsampling 1/8');                        
+            obj.set_pixel_downsampling(8);            
         end            
          %------------------------------------------------------------------        
         function menu_settings_Pixel_Downsampling_16_callback(obj, ~,~)
-            obj.data_controller.downsampling = 16;
-            obj.data_controller.proj = []; obj.data_controller.volm = []; 
-            notify(obj.data_controller,'proj_and_volm_clear');
-            set(obj.menu_settings_Pixel_Downsampling,'Label','Pixel downsampling 1/16');                                    
+            obj.set_pixel_downsampling(16);            
         end            
+        %
+         %------------------------------------------------------------------        
+         function set_pixel_downsampling(obj,factor,~)
+            obj.data_controller.downsampling = factor;
+            obj.data_controller.volm = [];
+            notify(obj.data_controller,'volm_clear');                        
+            set(obj.menu_settings_Pixel_Downsampling,'Label',['Pixel downsampling 1/' num2str(factor)]);                                                 
+         end    
         %
          %------------------------------------------------------------------        
         function menu_settings_Angle_Downsampling_1_callback(obj, ~,~)
