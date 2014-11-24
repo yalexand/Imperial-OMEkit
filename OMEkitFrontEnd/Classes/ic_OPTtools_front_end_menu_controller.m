@@ -152,18 +152,26 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         %------------------------------------------------------------------
         function menu_OMERO_Connect_To_Another_User_callback(obj,~,~)
             obj.omero_data_manager.Select_Another_User();
-            set(obj.menu_OMERO_Working_Data_Info,'Label','Working Data have not been set up','ForegroundColor','red');
+            obj.omero_data_manager.project = [];
+            obj.omero_data_manager.dataset = [];
+            obj.data_controller.proj = [];
+            obj.data_controller.volm = [];            
+            notify(obj.data_controller,'proj_and_volm_clear');            
+            set(obj.menu_OMERO_Working_Data_Info,'Label','...','ForegroundColor','red');
         end                            
         %------------------------------------------------------------------
         function menu_OMERO_Connect_To_Logon_User_callback(obj,~,~)            
             obj.omero_data_manager.userid = obj.omero_data_manager.session.getAdminService().getEventContext().userId;
             obj.omero_data_manager.project = [];
             obj.omero_data_manager.dataset = [];
-            set(obj.menu_OMERO_Working_Data_Info,'Label','Working Data have not been set up','ForegroundColor','red');
+            obj.data_controller.proj = [];
+            obj.data_controller.volm = [];            
+            notify(obj.data_controller,'proj_and_volm_clear');
+            set(obj.menu_OMERO_Working_Data_Info,'Label','...','ForegroundColor','red');
         end  
          %------------------------------------------------------------------
         function menu_OMERO_set_single_callback(obj, ~, ~)
-            infostring = obj.data_controller.OMERO_load_single(obj.omero_data_manager);
+            infostring = obj.data_controller.OMERO_load_single(obj.omero_data_manager,true); % verbose
             if ~isempty(infostring)
                 set(obj.menu_OMERO_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
                 set(obj.menu_file_Working_Data_Info,'Label','...','Enable','off');                

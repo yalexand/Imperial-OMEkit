@@ -142,8 +142,9 @@ classdef ic_OPTtools_data_controller < handle
             if isempty(obj.angles), errordlg('source does not contain angle specs - can not continue'), return, end;
             %                               
             hw = [];
+            waitmsg = 'Loading planes...';
             if verbose
-                hw = waitbar(0, 'Loading planes...');
+                hw = waitdialog(waitmsg);
             end
             
             obj.proj = [];
@@ -166,9 +167,9 @@ classdef ic_OPTtools_data_controller < handle
                 imgdata = omedata{1,1};                
                 n_planes = length(imgdata(:,1));
                                 
-                for p = 1 : n_planes,
+                for p = 1 : n_planes,                    
                     plane = imgdata{p,1};
-                    %
+                    %   
                     if isempty(obj.proj)
                         [sizeX,sizeY] = size(plane);
                         obj.proj = zeros(sizeX,sizeY,n_planes,class(plane));
@@ -181,7 +182,7 @@ classdef ic_OPTtools_data_controller < handle
                     %
                     obj.proj(:,:,p) = plane;
                     %
-                    if ~isempty(hw), waitbar(p/n_planes,hw), drawnow, end;
+                    if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;                    
                     %
                 end
                                 
@@ -242,9 +243,9 @@ classdef ic_OPTtools_data_controller < handle
             
             hw = [];
             if verbose
-                hw = waitbar(0,s);
+                hw = waitdialog(s);
             end
-                        
+                                    
              obj.volm = [];                
              notify(obj,'volm_clear');
 
@@ -290,7 +291,7 @@ classdef ic_OPTtools_data_controller < handle
                         %
                         gpu_volm(:,:,y) = reconstruction;
                         %                        
-                        if ~isempty(hw), waitbar(y/szY_r,hw), drawnow, end;
+                        if ~isempty(hw), waitdialog(y/szY_r,hw,s); drawnow, end;
                     end   
                      %
                      obj.volm = gather(gpu_volm);
@@ -311,7 +312,7 @@ classdef ic_OPTtools_data_controller < handle
                             %
                             obj.volm(:,:,y) = reconstruction;
                             %
-                            if ~isempty(hw), waitbar(y/sizeY,hw), drawnow, end;
+                            if ~isempty(hw), waitdialog(y/sizeY,hw,s); drawnow, end;
                          end                                                 
                      else % with downsampling
                          proj_r = zeros(szX_r,szY_r,sizeZ,'single');
@@ -330,7 +331,7 @@ classdef ic_OPTtools_data_controller < handle
                             %
                             obj.volm(:,:,y) = reconstruction;
                             %
-                            if ~isempty(hw), waitbar(y/szY_r,hw), drawnow, end;
+                            if ~isempty(hw), waitdialog(y/szY_r,hw,s); drawnow, end;
                          end
                      end
                                       
@@ -343,7 +344,7 @@ classdef ic_OPTtools_data_controller < handle
              notify(obj,'new_volm_set');
         end
 %-------------------------------------------------------------------------%
-        function infostring  = OMERO_load_single(obj,omero_data_manager,~)
+        function infostring  = OMERO_load_single(obj,omero_data_manager,verbose,~)
 
             infostring = [];            
             
@@ -372,7 +373,11 @@ classdef ic_OPTtools_data_controller < handle
             obj.angles = obj.OMERO_get_angles(omero_data_manager,omero_data_manager.image);
             if isempty(obj.angles), errordlg('source does not contain angle specs - can not continue'), return, end;
                                                     
-            hw = waitbar(0, 'Loading planes form Omero, please wait ...');
+            waitmsg = 'Loading planes form Omero, please wait ...';
+            hw = [];
+            if verbose
+                hw = waitdialog(waitmsg);
+            end            
                 
             obj.proj = [];
             obj.volm = [];
@@ -396,7 +401,7 @@ classdef ic_OPTtools_data_controller < handle
                     %
                     obj.proj(:,:,p) = plane;
                     %
-                    if ~isempty(hw), waitbar(p/n_planes,hw), drawnow, end;
+                    if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;
                     %
             end
 
