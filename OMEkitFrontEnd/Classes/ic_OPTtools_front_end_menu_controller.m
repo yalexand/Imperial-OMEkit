@@ -165,7 +165,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_OMERO_set_single_callback(obj, ~, ~)
             infostring = obj.data_controller.OMERO_load_single(obj.omero_data_manager);
             if ~isempty(infostring)
-                set(obj.menu_OMERO_Working_Data_Info,'Label',infostring,'ForegroundColor','blue');
+                set(obj.menu_OMERO_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
                 set(obj.menu_file_Working_Data_Info,'Label','...','Enable','off');                
             end;            
         end
