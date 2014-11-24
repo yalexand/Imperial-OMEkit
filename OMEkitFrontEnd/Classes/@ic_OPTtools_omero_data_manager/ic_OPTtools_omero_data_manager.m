@@ -33,6 +33,8 @@ classdef ic_OPTtools_omero_data_manager < handle
         dataset;    
         project;    
         %
+        image;
+        %
         userid;       
 
     end

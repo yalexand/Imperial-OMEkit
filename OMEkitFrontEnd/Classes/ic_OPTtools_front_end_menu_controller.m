@@ -29,7 +29,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         proj_label;
         volm_label;
         batch_label;
-                
+
+        menu_file_Working_Data_Info;        
         menu_file_new_window;
         menu_file_set_src_single;
         menu_file_set_src_dir;
@@ -160,6 +161,22 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             obj.omero_data_manager.dataset = [];
             set(obj.menu_OMERO_Working_Data_Info,'Label','Working Data have not been set up','ForegroundColor','red');
         end  
+         %------------------------------------------------------------------
+        function menu_OMERO_set_single_callback(obj, ~, ~)
+            infostring = obj.data_controller.OMERO_load_single(obj.omero_data_manager);
+            if ~isempty(infostring)
+                set(obj.menu_OMERO_Working_Data_Info,'Label',infostring,'ForegroundColor','blue');
+                set(obj.menu_file_Working_Data_Info,'Label','...','Enable','off');                
+            end;            
+        end
+         %------------------------------------------------------------------
+        function menu_OMERO_set_multiple_callback(obj, ~, ~)
+            obj.data_controller.OMERO_load_multiple(obj.omero_data_manager);
+        end
+         %------------------------------------------------------------------
+        function menu_OMERO_reset_previous_callback(obj, ~, ~)            
+            % to do            
+        end                       
         
         %------------------------------------------------------------------
         % OMERO
@@ -174,7 +191,11 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_file_set_src_single_callback(obj, ~, ~)
             [file,path] = uigetfile({'*.OME.tiff','OME.tiff Files'},'Select OPT data file',obj.data_controller.DefaultDirectory);
             if file ~= 0
-                obj.data_controller.Set_Src_Single([path file],true); % verbose
+                infostring = obj.data_controller.Set_Src_Single([path file],true); % verbose
+                if ~isempty(infostring)
+                    set(obj.menu_file_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
+                    set(obj.menu_OMERO_Working_Data_Info,'Label','...','Enable','off');
+                end;                
             end
         end   
          %------------------------------------------------------------------
@@ -200,18 +221,6 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 obj.data_controller.Set_Dst_Dir(path);    
             end           
         end    
-         %------------------------------------------------------------------
-        function menu_OMERO_set_single_callback(obj, ~, ~)
-            obj.data_controller.OMERO_load_single(obj.omero_data_manager);
-        end
-         %------------------------------------------------------------------
-        function menu_OMERO_set_multiple_callback(obj, ~, ~)
-            obj.data_controller.OMERO_load_multiple(obj.omero_data_manager);
-        end
-         %------------------------------------------------------------------
-        function menu_OMERO_reset_previous_callback(obj, ~, ~)            
-            % to do            
-        end                       
          %------------------------------------------------------------------       
         function menu_file_save_current_volume_callback(obj,~,~)
             if ~isempty(obj.data_controller.volm)

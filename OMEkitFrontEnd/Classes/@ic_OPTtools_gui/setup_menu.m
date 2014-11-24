@@ -29,6 +29,8 @@ function handles = setup_menu(obj,handles)
     %================================= file
 
     menu_file      = uimenu(obj.window,'Label','File');
+    
+    handles.menu_file_Working_Data_Info = uimenu(menu_file,'Label','...','ForegroundColor','red','Enable','off');    
     handles.menu_file_new_window = uimenu(menu_file,'Label','New Window','Accelerator','N');
     handles.menu_file_set_src_single = uimenu(menu_file,'Label','Load single file..','Separator','on');
     % handles.menu_file_set_src_dir = uimenu(menu_file,'Label','Set Src - multiple files (directory)');
@@ -40,8 +42,8 @@ function handles = setup_menu(obj,handles)
     
     menu_OMERO = uimenu(obj.window,'Label','OMERO');
 
-    handles.menu_OMERO_login = uimenu(menu_OMERO,'Label','Log in to OMERO');
-    handles.menu_OMERO_Working_Data_Info = uimenu(menu_OMERO,'Label','Working Data have not been set up','ForegroundColor','red','Enable','off');
+    handles.menu_OMERO_Working_Data_Info = uimenu(menu_OMERO,'Label','...','ForegroundColor','red','Enable','off');
+    handles.menu_OMERO_login = uimenu(menu_OMERO,'Label','Log in to OMERO');    
 
     menu_OMERO_Set_Data = uimenu(menu_OMERO,'Label','Set Working Data');
     handles.menu_OMERO_Set_Dataset = uimenu(menu_OMERO_Set_Data,'Label','Dataset','Enable','off');

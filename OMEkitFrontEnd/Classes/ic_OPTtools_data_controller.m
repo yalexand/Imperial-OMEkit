@@ -136,7 +136,7 @@ classdef ic_OPTtools_data_controller < handle
              end
         end
 %-------------------------------------------------------------------------%
-        function Set_Src_Single(obj,full_filename,verbose,~)
+        function infostring = Set_Src_Single(obj,full_filename,verbose,~)
             %                                       
             obj.angles = obj.get_angles(full_filename); % temp
             if isempty(obj.angles), errordlg('source does not contain angle specs - can not continue'), return, end;
@@ -202,6 +202,8 @@ classdef ic_OPTtools_data_controller < handle
             % obj.data - do something dependent on downsampling... etc... 
             
             notify(obj,'new_proj_set');                        
+            
+            infostring = obj.current_filename;
             
         end
 %-------------------------------------------------------------------------%        
@@ -341,8 +343,10 @@ classdef ic_OPTtools_data_controller < handle
              notify(obj,'new_volm_set');
         end
 %-------------------------------------------------------------------------%
-        function OMERO_load_single(obj,omero_data_manager,~)
-                       
+        function infostring  = OMERO_load_single(obj,omero_data_manager,~)
+
+            infostring = [];            
+            
             if ~isempty(omero_data_manager.dataset)
                 image = select_Image(omero_data_manager.session,omero_data_manager.userid,omero_data_manager.dataset);
             else
@@ -352,9 +356,11 @@ classdef ic_OPTtools_data_controller < handle
             
             if isempty(image), return, end;
             
-            obj.omero_IDs{1} = image.getId.getValue;
+            omero_data_manager.image = image;
+            
+            obj.omero_IDs{1} = omero_data_manager.image.getId.getValue;
                              
-            pixelsList = image.copyPixels();    
+            pixelsList = omero_data_manager.image.copyPixels();    
             pixels = pixelsList.get(0);
                         
             SizeZ = pixels.getSizeZ().getValue();
@@ -363,7 +369,7 @@ classdef ic_OPTtools_data_controller < handle
             rawPixelsStore = omero_data_manager.session.createRawPixelsStore(); 
             rawPixelsStore.setPixelsId(pixelsId, false);    
                         
-            obj.angles = obj.OMERO_get_angles(omero_data_manager,image);
+            obj.angles = obj.OMERO_get_angles(omero_data_manager,omero_data_manager.image);
             if isempty(obj.angles), errordlg('source does not contain angle specs - can not continue'), return, end;
                                                     
             hw = waitbar(0, 'Loading planes form Omero, please wait ...');
@@ -407,6 +413,17 @@ classdef ic_OPTtools_data_controller < handle
             rawPixelsStore.close();           
             
             notify(obj,'new_proj_set');                        
+            
+            % infostring
+            pName = char(java.lang.String(omero_data_manager.project.getName().getValue()));            
+            dName = char(java.lang.String(omero_data_manager.dataset.getName().getValue()));                    
+            iName = char(java.lang.String(omero_data_manager.image.getName().getValue()));
+            
+            pId = num2str(omero_data_manager.project.getId().getValue());            
+            dId = num2str(omero_data_manager.dataset.getId().getValue());            
+            iId = num2str(omero_data_manager.image.getId().getValue());            
+            
+            infostring = [ 'Image "' iName '" [' iId '] @ Dataset "' dName '" [' dId '] @ Project "' pName '" [' pId ']'];            
              
         end
 %-------------------------------------------------------------------------%
