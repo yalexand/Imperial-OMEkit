@@ -481,23 +481,13 @@ classdef ic_OPTtools_data_controller < handle
 %-------------------------------------------------------------------------%
         function ret = OMERO_get_angles(obj,omero_data_manager,image,~)
             
-            ret = [];
+           ret = [];
      
-            try
-            
-                % assigning angles via modulo annotation - start
-                xas = getImageXmlAnnotations(omero_data_manager.session, image.getId.getValue);     
-
-                is_modulo = false;
-                for j = 1:numel(xas)
-                        s = xas(j).getTextValue().getValue();
-                        if ~isempty(strfind(s,'ModuloAlongZ')) && ~isempty(strfind(s,'OPT'))
-                            is_modulo = true;
-                            break;
-                        end
-                end           
-
-                if ~is_modulo, errordlg('no modulo annotation - can not continue'), return, end;
+           try
+                            
+                s = read_XmlAnnotation_havingNS(omero_data_manager.session,image,'openmicroscopy.org/omero/dimension/modulo');
+                                                                                               
+                if isempty(s), errordlg('no modulo annotation - can not continue'), return, end;
 
                 [parseResult,~] = xmlreadstring(s);
                 tree = xml_read(parseResult);

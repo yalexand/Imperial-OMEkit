@@ -41,16 +41,21 @@ function str = read_XmlAnnotation_havingNS(session, object, tag)
         annotations = map.get(objId);
                                             
         for j = 0:annotations.size()-1
-            s = annotations.get(j).getNs().getValue();
-            curr_str = char(s);
-            if strfind(curr_str,tag)
-                str = annotations.get(j).getTextValue().getValue();
-                return;
-            end; 
-             if strfind(curr_str,'openmicroscopy.org/Schemas/Additions/2011-09')        % retained only for test data remove ASAP
-                str = annotations.get(j).getTextValue().getValue();
-                return;
-            end; 
+            try
+                s = annotations.get(j).getNs().getValue();
+            catch
+            end
+                if exist('s','var')
+                    curr_str = char(s);
+                    if strfind(curr_str,tag)
+                        str = annotations.get(j).getTextValue().getValue();
+                        return;
+                    end; 
+                     if strfind(curr_str,'openmicroscopy.org/Schemas/Additions/2011-09')        % retained only for test data remove ASAP
+                        str = annotations.get(j).getTextValue().getValue();
+                        return;
+                    end; 
+                end;
         end                              
        
 end
