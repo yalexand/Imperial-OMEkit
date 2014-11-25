@@ -34,6 +34,10 @@ classdef ic_OPTtools_data_controller < handle
         angle_downsampling = 1; 
         % z_range = []; 
         
+        FBP_interp = 'linear';
+        FBP_filter = 'Ram-Lak';
+        FBP_fscaling = 1;    
+                
     end                    
     
     properties(Transient)
@@ -123,6 +127,9 @@ classdef ic_OPTtools_data_controller < handle
             settings.IcyDirectory = obj.IcyDirectory;
             settings.downsampling = obj.downsampling;
             settings.angle_downsampling = obj.angle_downsampling;            
+            settings.FBP_interp = obj.FBP_interp;
+            settings.FBP_filter = obj.FBP_filter;
+            settings.FBP_fscaling = obj.FBP_fscaling;            
             xml_write([pwd filesep obj.data_settings_filename], settings);
         end % save_settings
 %-------------------------------------------------------------------------%                        
@@ -133,6 +140,9 @@ classdef ic_OPTtools_data_controller < handle
                 obj.IcyDirectory = settings.IcyDirectory;
                 obj.downsampling = settings.downsampling;
                 obj.angle_downsampling = settings.angle_downsampling;                
+                obj.FBP_interp = settings.FBP_interp;
+                obj.FBP_filter = settings.FBP_filter;
+                obj.FBP_fscaling = settings.FBP_fscaling;                
              end
         end
 %-------------------------------------------------------------------------%
@@ -282,8 +292,8 @@ classdef ic_OPTtools_data_controller < handle
                                         
                     for y = 1 : szY_r                
                         sinogram = squeeze(gpu_proj(:,y,:));
-                        % reconstruction
-                        reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
+                        % 
+                        reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
                         if isempty(gpu_volm)
                             [sizeR1,sizeR2] = size(reconstruction);
                             gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,szY_r))); % XYZ
@@ -303,8 +313,8 @@ classdef ic_OPTtools_data_controller < handle
                      if 1 == f % no downsampling
                          for y = 1 : sizeY                                        
                             sinogram = squeeze(double(obj.proj(:,y,:)));
-                            % reconstruction
-                            reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
+                            % 
+                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
                             if isempty(obj.volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
                                 obj.volm = zeros(sizeR1,sizeR2,sizeY); % XYZ
@@ -322,8 +332,8 @@ classdef ic_OPTtools_data_controller < handle
                          %
                          for y = 1 : szY_r
                             sinogram = squeeze(double(proj_r(:,y,:)));
-                            % reconstruction
-                            reconstruction = iradon(sinogram,acting_angles,'linear','Ram-Lak');
+                            % 
+                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);                            
                             if isempty(obj.volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
                                 obj.volm = zeros(sizeR1,sizeR2,szY_r); % XYZ

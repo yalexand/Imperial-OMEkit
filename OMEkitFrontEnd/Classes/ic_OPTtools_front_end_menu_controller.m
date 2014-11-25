@@ -63,6 +63,25 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         menu_settings_Angle_Downsampling_2;
         menu_settings_Angle_Downsampling_4;
         menu_settings_Angle_Downsampling_8;
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        menu_FBP_interp;   
+        menu_FBP_interp_nearest;
+        menu_FBP_interp_linear;
+        menu_FBP_interp_spline;
+        menu_FBP_interp_pchip;
+        menu_FBP_interp_v5cubic;
+    
+        menu_FBP_filter;
+        menu_FBP_filter_Ram_Lak;
+        menu_FBP_filter_Shepp_Logan;
+        menu_FBP_filter_Cosine;
+        menu_FBP_filter_Hammming;
+        menu_FBP_filter_Hann;
+        menu_FBP_filter_None;
+    
+        menu_FBP_freq_scaling;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 
         menu_reconstruction_FBP;
         menu_reconstruction_FBP_GPU;
@@ -366,8 +385,72 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             obj.data_controller.angle_downsampling = 8;
             obj.data_controller.volm = []; notify(obj.data_controller,'volm_clear');
             set(obj.menu_settings_Angle_Downsampling,'Label','Angle downsampling 1/8');            
+        end                    
+         %------------------------------------------------------------------
+        function menu_FBP_interp_nearest_callback(obj, ~,~)
+            obj.data_controller.FBP_interp = 'nearest';
+            set(obj.menu_FBP_interp,'Label',['FBP interp : ' obj.data_controller.FBP_interp]);
         end            
-                        
+         %------------------------------------------------------------------        
+        function menu_FBP_interp_linear_callback(obj, ~,~)
+            obj.data_controller.FBP_interp = 'linear';
+            set(obj.menu_FBP_interp,'Label',['FBP interp : ' obj.data_controller.FBP_interp]);            
+        end            
+         %------------------------------------------------------------------                    
+        function menu_FBP_interp_spline_callback(obj, ~,~)
+            obj.data_controller.FBP_interp = 'spline';
+            set(obj.menu_FBP_interp,'Label',['FBP interp : ' obj.data_controller.FBP_interp]);            
+        end            
+         %------------------------------------------------------------------                    
+        function menu_FBP_interp_pchip_callback(obj, ~,~)
+            obj.data_controller.FBP_interp = 'pchip';
+            set(obj.menu_FBP_interp,'Label',['FBP interp : ' obj.data_controller.FBP_interp]);            
+        end            
+         %------------------------------------------------------------------                    
+        function menu_FBP_interp_v5cubic_callback(obj, ~,~)
+            obj.data_controller.FBP_interp = 'v5cubic';
+            set(obj.menu_FBP_interp,'Label',['FBP interp : ' obj.data_controller.FBP_interp]);            
+        end            
+         %------------------------------------------------------------------                        
+        function menu_FBP_filter_Ram_Lak_callback(obj, ~,~)
+            obj.data_controller.FBP_filter = 'Ram-Lak';
+            set(obj.menu_FBP_filter,'Label',['FBP filter : ' obj.data_controller.FBP_filter]);
+        end            
+         %------------------------------------------------------------------                    
+        function menu_FBP_filter_Shepp_Logan_callback(obj, ~,~)
+            obj.data_controller.FBP_filter = 'Shepp-Logan';
+            set(obj.menu_FBP_filter,'Label',['FBP filter : ' obj.data_controller.FBP_filter]);
+        end            
+         %------------------------------------------------------------------                    
+        function menu_FBP_filter_Cosine_callback(obj, ~,~)
+            obj.data_controller.FBP_filter = 'Cosine';
+            set(obj.menu_FBP_filter,'Label',['FBP filter : ' obj.data_controller.FBP_filter]);            
+        end            
+         %------------------------------------------------------------------                    
+        function menu_FBP_filter_Hammming_callback(obj, ~,~)
+            obj.data_controller.FBP_filter = 'Hamming';
+            set(obj.menu_FBP_filter,'Label',['FBP filter : ' obj.data_controller.FBP_filter]);            
+        end            
+         %------------------------------------------------------------------                    
+        function menu_FBP_filter_Hann_callback(obj, ~,~)
+            obj.data_controller.FBP_filter = 'Hann';
+            set(obj.menu_FBP_filter,'Label',['FBP filter : ' obj.data_controller.FBP_filter]);                        
+        end            
+         %------------------------------------------------------------------                    
+        function menu_FBP_filter_None_callback(obj, ~,~)
+            obj.data_controller.FBP_filter = 'None';
+            set(obj.menu_FBP_filter,'Label',['FBP filter : ' obj.data_controller.FBP_filter]);                        
+        end            
+         %------------------------------------------------------------------                        
+        function menu_FBP_freq_scaling_callback(obj, ~,~)
+            fscaling = enter_value();
+            if ~isnan(fscaling) && fscaling > 0 && fscaling <= 1
+                obj.data_controller.FBP_fscaling = fscaling;
+                set(obj.menu_FBP_freq_scaling,'Label',['FBP fscaling : ' num2str(fscaling)]);                    
+            end
+        end            
+         %------------------------------------------------------------------                
+                                
     %================================= % VANITY       
     
         %------------------------------------------------------------------

@@ -22,13 +22,19 @@ function handles = setup_menu(obj,handles)
     % through  a studentship from the Institute of Chemical Biology 
     % and The Wellcome Trust through a grant entitled 
     % "The Open Microscopy Environment: Image Informatics for Biological Sciences" (Ref: 095931).
+
+    %================================= settings    
     
     pixel_downsampling = handles.data_controller.downsampling;
     angle_downsampling = handles.data_controller.angle_downsampling;
     
+    FBP_interp = handles.data_controller.FBP_interp;
+    FBP_filter = handles.data_controller.FBP_filter;
+    FBP_fscaling = handles.data_controller.FBP_fscaling;    
+    
     %================================= file
 
-    menu_file      = uimenu(obj.window,'Label','File');
+    menu_file = uimenu(obj.window,'Label','File');
     
     handles.menu_file_Working_Data_Info = uimenu(menu_file,'Label','...','ForegroundColor','red','Enable','off');    
     handles.menu_file_new_window = uimenu(menu_file,'Label','New Window','Accelerator','N');
@@ -69,21 +75,38 @@ function handles = setup_menu(obj,handles)
     handles.menu_settings_Pixel_Downsampling_4 = uimenu(menu_settings_Pixel_Downsampling,'Label','1/4');
     handles.menu_settings_Pixel_Downsampling_8 = uimenu(menu_settings_Pixel_Downsampling,'Label','1/8');
     handles.menu_settings_Pixel_Downsampling_16 = uimenu(menu_settings_Pixel_Downsampling,'Label','1/16');
+    %     handles.menu_settings_Angle_Downsampling_1 = uimenu(menu_settings_Angle_Downsampling,'Label','1/1');    
+    %     handles.menu_settings_Angle_Downsampling_2 = uimenu(menu_settings_Angle_Downsampling,'Label','1/2');
+    %     handles.menu_settings_Angle_Downsampling_4 = uimenu(menu_settings_Angle_Downsampling,'Label','1/4');
+    %     handles.menu_settings_Angle_Downsampling_8 = uimenu(menu_settings_Angle_Downsampling,'Label','1/8');
+    
+    handles.menu_settings_Pixel_Downsampling = menu_settings_Pixel_Downsampling;    
+    %     handles.menu_settings_Angle_Downsampling = menu_settings_Angle_Downsampling;
+    
+    menu_FBP_interp = uimenu(menu_settings,'Label',['FBP interp : ' FBP_interp],'Separator','On');    
+        handles.menu_FBP_interp_nearest = uimenu(menu_FBP_interp,'Label','nearest');    
+        handles.menu_FBP_interp_linear = uimenu(menu_FBP_interp,'Label','linear');    
+        handles.menu_FBP_interp_spline = uimenu(menu_FBP_interp,'Label','spline');    
+        handles.menu_FBP_interp_pchip = uimenu(menu_FBP_interp,'Label','pchip');    
+        handles.menu_FBP_interp_v5cubic = uimenu(menu_FBP_interp,'Label','v5cubic');    
+    
+    menu_FBP_filter = uimenu(menu_settings,'Label',['FBP filter : ' FBP_filter]);
+        handles.menu_FBP_filter_Ram_Lak = uimenu(menu_FBP_filter,'Label','Ram-Lak');
+        handles.menu_FBP_filter_Shepp_Logan = uimenu(menu_FBP_filter,'Label','Shepp-Logan');
+        handles.menu_FBP_filter_Cosine = uimenu(menu_FBP_filter,'Label','Cosine');        
+        handles.menu_FBP_filter_Hammming = uimenu(menu_FBP_filter,'Label','Hamming');
+        handles.menu_FBP_filter_Hann = uimenu(menu_FBP_filter,'Label','Hann');
+        handles.menu_FBP_filter_None = uimenu(menu_FBP_filter,'Label','None');        
+    
+    handles.menu_FBP_freq_scaling = uimenu(menu_settings,'Label',['FBP fscaling : ' num2str(FBP_fscaling)]);    
+    handles.menu_FBP_interp = menu_FBP_interp;
+    handles.menu_FBP_filter = menu_FBP_filter;
 
-%     handles.menu_settings_Angle_Downsampling_1 = uimenu(menu_settings_Angle_Downsampling,'Label','1/1');    
-%     handles.menu_settings_Angle_Downsampling_2 = uimenu(menu_settings_Angle_Downsampling,'Label','1/2');
-%     handles.menu_settings_Angle_Downsampling_4 = uimenu(menu_settings_Angle_Downsampling,'Label','1/4');
-%     handles.menu_settings_Angle_Downsampling_8 = uimenu(menu_settings_Angle_Downsampling,'Label','1/8');
-    
-    handles.menu_settings_Pixel_Downsampling = menu_settings_Pixel_Downsampling;
-    
-%     handles.menu_settings_Angle_Downsampling = menu_settings_Angle_Downsampling;
-        
     %================================= reconstruction
     
-    menu_reconstruction = uimenu(obj.window,'Label','Reconstruction');
-    handles.menu_reconstruction_FBP = uimenu(menu_reconstruction,'Label','FBP');    
-    handles.menu_reconstruction_FBP_GPU = uimenu(menu_reconstruction,'Label','FBP (GPU)');
+    menu_reconstruction = uimenu(obj.window,'Label','Reconstruction');        
+    handles.menu_reconstruction_FBP = uimenu(menu_reconstruction,'Label','Run FBP','Separator','on');    
+    handles.menu_reconstruction_FBP_GPU = uimenu(menu_reconstruction,'Label','Run FBP (GPU)');
         
     %================================= visualization
     
