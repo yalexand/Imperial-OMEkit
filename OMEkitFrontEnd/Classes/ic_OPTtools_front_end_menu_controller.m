@@ -480,10 +480,10 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                     position = fix(position);                    
                         minZ = position(1);
                         maxZ = position(1) + position(3);
-                            if minZ <= 0 minZ = 1; end;
-                            if maxZ > szY maxZ = szY; end;                                        
+                            if minZ <= 0, minZ = 1; end;
+                            if maxZ > szY, maxZ = szY; end;                                        
                     obj.data_controller.Z_range = [minZ maxZ];
-                    disp(obj.data_controller.Z_range);                    
+
                     set(obj.menu_settings_Zrange,'Label',[ 'Z range ' '[' num2str(minZ) ',' num2str(maxZ) ']' ])
                 else
                     msgbox('Z range will be switched to default (full data)');
