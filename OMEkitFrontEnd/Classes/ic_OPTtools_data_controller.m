@@ -32,7 +32,7 @@ classdef ic_OPTtools_data_controller < handle
             
         downsampling = 1;
         angle_downsampling = 1; 
-        % z_range = []; 
+        Z_range = []; 
         
         FBP_interp = 'linear';
         FBP_filter = 'Ram-Lak';
@@ -311,38 +311,61 @@ classdef ic_OPTtools_data_controller < handle
                      obj.volm = [];
                      %
                      if 1 == f % no downsampling
-                         for y = 1 : sizeY                                        
-                            sinogram = squeeze(double(obj.proj(:,y,:)));
+                         
+                         y_min = 1;
+                         y_max = sizeY;
+                         YL = sizeY;
+                         if ~isempty(obj.Z_range)
+                             y_min = obj.Z_range(1);
+                             y_max = obj.Z_range(2);
+                             YL = y_max - y_min;                             
+                         end
+                                                  
+                         for y = 1 : YL                                       
+                            sinogram = squeeze(double(obj.proj(:,y_min+y-1,:)));
                             % 
                             reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
                             if isempty(obj.volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
-                                obj.volm = zeros(sizeR1,sizeR2,sizeY); % XYZ
+                                obj.volm = zeros(sizeR1,sizeR2,YL); % XYZ
                             end
                             %
                             obj.volm(:,:,y) = reconstruction;
                             %
-                            if ~isempty(hw), waitdialog(y/sizeY,hw,s); drawnow, end;
+                            if ~isempty(hw), waitdialog(y/YL,hw,s); drawnow, end;
                          end                                                 
-                     else % with downsampling
+                         
+                     else % with downsampling                         
+
+                         y_min = 1;
+                         y_max = szY_r;
+                         YL = szY_r;
+                         if ~isempty(obj.Z_range)
+                             y_min = fix(obj.Z_range(1)*f);
+                                if y_min < 1, y_min = 1; end;
+                             y_max = fix(obj.Z_range(2)*f);
+                             YL = y_max - y_min;                             
+                         end
+
                          proj_r = zeros(szX_r,szY_r,sizeZ,'single');
                          for r = 1:sizeZ,
                             proj_r(:,:,r) = imresize(obj.proj(:,:,r),f);
                          end
                          %
-                         for y = 1 : szY_r
-                            sinogram = squeeze(double(proj_r(:,y,:)));
+                         for y = 1 : YL
+                            sinogram = squeeze(double(proj_r(:,y_min+y-1,:)));
                             % 
                             reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);                            
                             if isempty(obj.volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
-                                obj.volm = zeros(sizeR1,sizeR2,szY_r); % XYZ
+                                obj.volm = zeros(sizeR1,sizeR2,YL); % XYZ
                             end
                             %
                             obj.volm(:,:,y) = reconstruction;
                             %
-                            if ~isempty(hw), waitdialog(y/szY_r,hw,s); drawnow, end;
+                            if ~isempty(hw), waitdialog(y/YL,hw,s); drawnow, end;
                          end
+
                      end
                                       
                  end                     

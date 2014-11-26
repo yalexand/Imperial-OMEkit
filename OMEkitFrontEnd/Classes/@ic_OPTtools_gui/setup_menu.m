@@ -67,8 +67,8 @@ function handles = setup_menu(obj,handles)
     %================================= settings
     
     menu_settings = uimenu(obj.window,'Label','Settings');
-    menu_settings_Pixel_Downsampling = uimenu(menu_settings,'Label',['Pixel downsampling 1/' num2str(pixel_downsampling)]);
-    % menu_settings_Angle_Downsampling = uimenu(menu_settings,'Label',['Angle downsampling 1/' num2str(angle_downsampling)]);
+    menu_settings_Pixel_Downsampling = uimenu(menu_settings,'Label',['Pixel downsampling : 1/' num2str(pixel_downsampling)]);
+    % menu_settings_Angle_Downsampling = uimenu(menu_settings,'Label',['Angle downsampling : 1/' num2str(angle_downsampling)]);
 
     handles.menu_settings_Pixel_Downsampling_1 = uimenu(menu_settings_Pixel_Downsampling,'Label','1/1');    
     handles.menu_settings_Pixel_Downsampling_2 = uimenu(menu_settings_Pixel_Downsampling,'Label','1/2');
@@ -82,6 +82,8 @@ function handles = setup_menu(obj,handles)
     
     handles.menu_settings_Pixel_Downsampling = menu_settings_Pixel_Downsampling;    
     %     handles.menu_settings_Angle_Downsampling = menu_settings_Angle_Downsampling;
+    
+    handles.menu_settings_Zrange = uimenu(menu_settings,'Label','Z range : full','Separator','On'); % oops.. who knows..   
     
     menu_FBP_interp = uimenu(menu_settings,'Label',['FBP interp : ' FBP_interp],'Separator','On');    
         handles.menu_FBP_interp_nearest = uimenu(menu_FBP_interp,'Label','nearest');    

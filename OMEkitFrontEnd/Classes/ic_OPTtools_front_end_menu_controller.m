@@ -64,6 +64,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         menu_settings_Angle_Downsampling_4;
         menu_settings_Angle_Downsampling_8;
         
+        menu_settings_Zrange;
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         menu_FBP_interp;   
         menu_FBP_interp_nearest;
@@ -194,6 +196,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             if ~isempty(infostring)
                 set(obj.menu_OMERO_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
                 set(obj.menu_file_Working_Data_Info,'Label','...','Enable','off');                
+                obj.data_controller.current_filename = [];
             end;            
         end
          %------------------------------------------------------------------
@@ -222,6 +225,9 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 if ~isempty(infostring)
                     set(obj.menu_file_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
                     set(obj.menu_OMERO_Working_Data_Info,'Label','...','Enable','off');
+                    set(obj.menu_settings_Zrange,'Label','Z range : full');
+                    obj.data_controller.Z_range = []; % no selection                    
+                    obj.omero_data_manager.image = [];
                 end;                
             end
         end   
@@ -236,8 +242,12 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_file_reset_previous_callback(obj, ~, ~)       
             if ~isempty(obj.data_controller.previous_filenames) 
                 if 1 == numel(obj.data_controller.previous_filenames) && ...
-                   ~strcmp(obj.data_controller.current_filename,char(obj.data_controller.previous_filenames{1})) 
-                    obj.data_controller.Set_Src_Single(char(obj.data_controller.previous_filenames{1}),true); % verbose
+                   ~strcmp(obj.data_controller.current_filename,char(obj.data_controller.previous_filenames{1}))                
+                    infostring = obj.data_controller.Set_Src_Single(char(obj.data_controller.previous_filenames{1}),true); % verbose
+                    set(obj.menu_file_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
+                    set(obj.menu_OMERO_Working_Data_Info,'Label','...','Enable','off');                    
+                    set(obj.menu_settings_Zrange,'Label','Z range : full');
+                    obj.data_controller.Z_range = []; % no selection                    
                 end
             end            
         end
@@ -271,7 +281,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             if ~isempty(obj.data_controller.proj)
                 try
                     [szX,szY,szR] = size(obj.data_controller.proj);
-                    icy_imshow(reshape(obj.data_controller.proj,[szX,szY,1,szR,1])); % Icy likes XYCZT 
+                    icy_imshow(reshape(obj.data_controller.proj,[szX,szY,1,szR,1]),['proj ' obj.get_current_data_info_string]); % Icy likes XYCZT 
                 catch 
                     msgbox('error - Icy might be not started');
                 end
@@ -283,7 +293,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_visualization_send_current_volm_to_Icy_callback(obj, ~,~)
             if ~isempty(obj.data_controller.volm)
                 try
-                    icy_im3show(obj.data_controller.volm);
+                    icy_im3show(obj.data_controller.volm,['volm downsampled 1/' num2str(obj.data_controller.downsampling) ' : ' obj.get_current_data_info_string]);
                 catch
                     msgbox('error - Icy might be not started');                    
                 end
@@ -359,7 +369,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             obj.data_controller.downsampling = factor;
             obj.data_controller.volm = [];
             notify(obj.data_controller,'volm_clear');                        
-            set(obj.menu_settings_Pixel_Downsampling,'Label',['Pixel downsampling 1/' num2str(factor)]);                                                 
+            set(obj.menu_settings_Pixel_Downsampling,'Label',['Pixel downsampling : 1/' num2str(factor)]);                                                 
          end    
         %
          %------------------------------------------------------------------        
@@ -450,7 +460,59 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             end
         end            
          %------------------------------------------------------------------                
-                                
+         function menu_settings_Zrange_callback(obj,~,~)
+             if ~isempty(obj.data_controller.proj)
+                h1 = figure;
+                
+                %imagesc(obj.data_controller.proj(:,:,1));
+                [szX,szY,szR] = size(obj.data_controller.proj);
+                for r = 1:10:szR
+                     imagesc(obj.data_controller.proj(:,:,r));
+                     daspect([1 1 1]);
+                     getframe;
+                end
+                                                                    
+                h = imrect; 
+                position = wait(h); 
+                try close(h1); catch, end;
+                
+                if ~isempty(position)                                        
+                    position = fix(position);                    
+                        minZ = position(1);
+                        maxZ = position(1) + position(3);
+                            if minZ <= 0 minZ = 1; end;
+                            if maxZ > szY maxZ = szY; end;                                        
+                    obj.data_controller.Z_range = [minZ maxZ];
+                    disp(obj.data_controller.Z_range);                    
+                    set(obj.menu_settings_Zrange,'Label',[ 'Z range ' '[' num2str(minZ) ',' num2str(maxZ) ']' ])
+                else
+                    msgbox('Z range will be switched to default (full data)');
+                    set(obj.menu_settings_Zrange,'Label','Z range : full');
+                    obj.data_controller.Z_range = []; % no selection
+                end
+                
+             else
+                 errordlg('please load projections first');
+             end
+                          
+         end
+
+        %------------------------------------------------------------------
+        function infostring = get_current_data_info_string(obj,~,~)
+            infostring = [];
+            if ~isempty(obj.data_controller.current_filename)
+                infostring = obj.data_controller.current_filename;
+            elseif ~isempty(obj.omero_data_manager.image) 
+                pName = char(java.lang.String(obj.omero_data_manager.project.getName().getValue()));            
+                dName = char(java.lang.String(obj.omero_data_manager.dataset.getName().getValue()));                    
+                iName = char(java.lang.String(obj.omero_data_manager.image.getName().getValue()));            
+                    pId = num2str(obj.omero_data_manager.project.getId().getValue());            
+                    dId = num2str(obj.omero_data_manager.dataset.getId().getValue());            
+                    iId = num2str(obj.omero_data_manager.image.getId().getValue());                        
+                infostring = [ 'Image "' iName '" [' iId '] @ Dataset "' dName '" [' dId '] @ Project "' pName '" [' pId ']'];            
+            end
+        end
+         
     %================================= % VANITY       
     
         %------------------------------------------------------------------
