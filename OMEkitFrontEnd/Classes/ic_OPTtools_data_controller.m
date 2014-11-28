@@ -344,34 +344,27 @@ classdef ic_OPTtools_data_controller < handle
                          end                                                 
                          
                      else % with downsampling                         
-
-                         y_min = 1;
-                         y_max = szY_r;
-                         YL = szY_r;
-                         if ~isempty(obj.Z_range)
-                             y_min = fix(obj.Z_range(1)*f);
-                                if y_min < 1, y_min = 1; end;
-                             y_max = fix(obj.Z_range(2)*f);
-                             YL = y_max - y_min;                             
-                         end
-
-                         proj_r = zeros(szX_r,szY_r,sizeZ,'single');
+                         
+                         proj_r = [];
                          for r = 1:sizeZ,
-                            proj_r(:,:,r) = imresize(obj.proj(:,:,r),f);
+                            if isempty(proj_r) 
+                                [szX_r,szY_r] = size(imresize(obj.proj(:,obj.Z_range(1):obj.Z_range(2),r),f));
+                                proj_r = zeros(szX_r,szY_r,sizeZ,'single');
+                            end
+                            proj_r(:,:,r) = imresize(obj.proj(:,obj.Z_range(1):obj.Z_range(2),r),f);
                          end
                          %
-                         for y = 1 : YL
-                            sinogram = squeeze(double(proj_r(:,y_min+y-1,:)));
-                            % 
+                         for y = 1 : szY_r 
+                            sinogram = squeeze(double(proj_r(:,y,:)));                             
                             reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);                            
                             if isempty(obj.volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
-                                obj.volm = zeros(sizeR1,sizeR2,YL); % XYZ
+                                obj.volm = zeros(sizeR1,sizeR2,szY_r); % XYZ
                             end
                             %
                             obj.volm(:,:,y) = reconstruction;
                             %
-                            if ~isempty(hw), waitdialog(y/YL,hw,s); drawnow, end;
+                            if ~isempty(hw), waitdialog(y/szY_r,hw,s); drawnow, end;
                          end
 
                      end

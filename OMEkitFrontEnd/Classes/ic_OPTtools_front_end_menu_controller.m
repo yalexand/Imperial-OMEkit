@@ -197,6 +197,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 set(obj.menu_OMERO_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
                 set(obj.menu_file_Working_Data_Info,'Label','...','Enable','off');                
                 obj.data_controller.current_filename = [];
+                set(obj.menu_settings_Zrange,'Label','Z range : full');
+                obj.data_controller.Z_range = []; % no selection                                    
             end;            
         end
          %------------------------------------------------------------------
