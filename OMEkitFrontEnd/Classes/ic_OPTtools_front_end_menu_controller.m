@@ -282,8 +282,19 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_visualization_send_current_proj_to_Icy_callback(obj, ~,~)
             if ~isempty(obj.data_controller.proj)
                 try
-                    [szX,szY,szR] = size(obj.data_controller.proj);
-                    icy_imshow(reshape(obj.data_controller.proj,[szX,szY,1,szR,1]),['proj ' obj.get_current_data_info_string]); % Icy likes XYCZT 
+                    f = 1/obj.data_controller.downsampling;
+                    if 1 == f
+                        [szX,szY,szR] = size(obj.data_controller.proj);
+                        icy_imshow(reshape(obj.data_controller.proj,[szX,szY,1,szR,1]),['proj ' obj.get_current_data_info_string]); % Icy likes XYCZT 
+                    else
+                        [szX,szY] = size(imresize(obj.data_controller.proj(:,:,1),f));
+                        [~,~,szR] = size(obj.data_controller.proj);
+                        proj_r = zeros(szX,szY,1,szR,1,class(obj.data_controller.proj));
+                        for r = 1:szR
+                            proj_r(:,:,1,r,1) = imresize(obj.data_controller.proj(:,:,r),f);
+                        end
+                        icy_imshow(proj_r,['proj downsampled 1/' num2str(obj.data_controller.downsampling) ' : ' obj.get_current_data_info_string]); % Icy likes XYCZT 
+                    end
                 catch 
                     msgbox('error - Icy might be not started');
                 end

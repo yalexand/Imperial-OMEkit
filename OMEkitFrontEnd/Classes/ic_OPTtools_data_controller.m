@@ -316,19 +316,17 @@ classdef ic_OPTtools_data_controller < handle
                      
                  elseif ~use_GPU
 
-                     obj.volm = [];
-                     %
+                     y_min = 1;
+                     y_max = sizeY;
+                     YL = sizeY;
+                     if ~isempty(obj.Z_range)
+                         y_min = obj.Z_range(1);
+                         y_max = obj.Z_range(2);
+                         YL = y_max - y_min;                             
+                     end                         
+                                          
                      if 1 == f % no downsampling
-                         
-                         y_min = 1;
-                         y_max = sizeY;
-                         YL = sizeY;
-                         if ~isempty(obj.Z_range)
-                             y_min = obj.Z_range(1);
-                             y_max = obj.Z_range(2);
-                             YL = y_max - y_min;                             
-                         end
-                                                  
+                                                                           
                          for y = 1 : YL                                       
                             sinogram = squeeze(double(obj.proj(:,y_min+y-1,:)));
                             % 
@@ -348,10 +346,10 @@ classdef ic_OPTtools_data_controller < handle
                          proj_r = [];
                          for r = 1:sizeZ,
                             if isempty(proj_r) 
-                                [szX_r,szY_r] = size(imresize(obj.proj(:,obj.Z_range(1):obj.Z_range(2),r),f));
+                                [szX_r,szY_r] = size(imresize(obj.proj(:,y_min:y_max,r),f));
                                 proj_r = zeros(szX_r,szY_r,sizeZ,'single');
                             end
-                            proj_r(:,:,r) = imresize(obj.proj(:,obj.Z_range(1):obj.Z_range(2),r),f);
+                            proj_r(:,:,r) = imresize(obj.proj(:,y_min:y_max,r),f);
                          end
                          %
                          for y = 1 : szY_r 
