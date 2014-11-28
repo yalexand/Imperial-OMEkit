@@ -96,8 +96,11 @@ classdef ic_OPTtools_data_controller < handle
             addlistener(obj,'volm_clear',@obj.on_volm_clear);            
             addlistener(obj,'proj_and_volm_clear',@obj.on_proj_and_volm_clear);                                    
             addlistener(obj,'new_batch_set',@obj.on_new_batch_set);   
-                                    
+
+            try 
             obj.load_settings;
+            catch
+            end
             
             if isempty(obj.IcyDirectory)
                 %
@@ -275,36 +278,41 @@ classdef ic_OPTtools_data_controller < handle
                  acting_angles = obj.angles(1:step:n_angles);
                  %                                                   
                  if use_GPU && obj.isGPU 
-                                                              
-                    % create downsampled projections
-                    if 1 == f
-                        gpu_proj = gpuArray(single(obj.proj));
-                    else
-                        proj_r = zeros(szX_r,szY_r,sizeZ);
-                        for r = 1:sizeZ,
+                         % not the best possible..
+                         y_min = 1;
+                         y_max = szY_r;
+                         YL = szY_r;
+                         if ~isempty(obj.Z_range)
+                             y_min = fix(obj.Z_range(1)*f);
+                                if y_min < 1, y_min = 1; end;
+                             y_max = fix(obj.Z_range(2)*f);
+                             YL = y_max - y_min;                             
+                         end
+                         
+                         proj_r = zeros(szX_r,szY_r,sizeZ);
+                         for r = 1:sizeZ,
                             proj_r(:,:,r) = imresize(single(obj.proj(:,:,r)),f);
-                        end
-                        gpu_proj = gpuArray(proj_r);
-                        clear('proj_r');
-                    end
-                                       
-                    gpu_volm = [];                    
+                         end
+                         gpu_proj = gpuArray(proj_r);
+                         clear('proj_r');
+                         
+                         gpu_volm = [];                    
                                         
-                    for y = 1 : szY_r                
-                        sinogram = squeeze(gpu_proj(:,y,:));
-                        % 
-                        reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
-                        if isempty(gpu_volm)
-                            [sizeR1,sizeR2] = size(reconstruction);
-                            gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,szY_r))); % XYZ
-                        end
-                        %
-                        gpu_volm(:,:,y) = reconstruction;
-                        %                        
-                        if ~isempty(hw), waitdialog(y/szY_r,hw,s); drawnow, end;
-                    end   
-                     %
-                     obj.volm = gather(gpu_volm);
+                         for y = 1 : YL                
+                            sinogram = squeeze(gpu_proj(:,y_min+y-1,:));
+                            % 
+                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
+                            if isempty(gpu_volm)
+                                [sizeR1,sizeR2] = size(reconstruction);
+                                gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,YL))); % XYZ
+                            end
+                            %
+                            gpu_volm(:,:,y) = reconstruction;
+                            %                        
+                            if ~isempty(hw), waitdialog(y/YL,hw,s); drawnow, end;
+                         end   
+                         %
+                         obj.volm = gather(gpu_volm);
                      
                  elseif ~use_GPU
 
