@@ -104,15 +104,9 @@ classdef ic_OPTtools_data_controller < handle
             
             if isempty(obj.IcyDirectory)
                 %
-                % to do
+                % try to find it
+                % (to do)
                 %
-            end
-
-            try
-                addpath([obj.IcyDirectory filesep 'plugins' filesep 'ylemontag' filesep 'matlabcommunicator']);
-                icy_init();
-            catch
-                errordlg('Icy directory not good or Matlab Communicator plugin is not installed - can not continue');
             end
             
             % detect GPU

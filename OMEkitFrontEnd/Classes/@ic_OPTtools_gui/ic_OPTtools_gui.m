@@ -32,14 +32,7 @@ classdef ic_OPTtools_gui
     methods
       
         function obj = ic_OPTtools_gui(wait,require_auth)
-                            
-            % cd('c:\');
-            % [~,b] = dos('dir /s /b MatlabCommunicatorDeamon.jar');
-            % b
-            % needs to find this dir automatically ..            
-%             addpath('c:/users/yalexand/Icy/plugins/ylemontag/matlabcommunicator');
-%             icy_init();
-                        
+                                                    
             if nargin < 1
                 wait = false;
             end

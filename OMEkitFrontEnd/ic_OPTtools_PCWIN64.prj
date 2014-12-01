@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
+  <configuration target="target.ezdeploy.standalone" target-name="MATLAB Compiler for Standalone Applications" name="ic_OPTtools_PCWIN64" location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd" file="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\ic_OPTtools_PCWIN64.prj" preferred-package-type="package.type.exe" build-checksum="512773078" preferred-package-location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution">
+    <param.appname>ic_OPTtools_PCWIN64</param.appname>
+    <param.authnamewatermark />
+    <param.email />
+    <param.company />
+    <param.icon />
+    <param.icons />
+    <param.summary />
+    <param.description />
+    <param.screenshot />
+    <param.version>1.0</param.version>
+    <param.namespace>ic_OPTtools_PCWIN64</param.namespace>
+    <param.guid />
+    <param.installpath.string>\ic_OPTtools_PCWIN64\</param.installpath.string>
+    <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
+    <param.logo />
+    <param.install.notes />
+    <param.intermediate>${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_testing</param.intermediate>
+    <param.output>${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution</param.output>
+    <param.embed.ctf>true</param.embed.ctf>
+    <param.target.type>subtarget.standalone</param.target.type>
+    <param.classorg />
+    <param.web.mcr>false</param.web.mcr>
+    <param.package.mcr>true</param.package.mcr>
+    <param.no.mcr>false</param.no.mcr>
+    <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
+    <param.package.mcr.name>ic_OPTtools_installer_mcr</param.package.mcr.name>
+    <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
+    <param.user.defined.mcr.options />
+    <param.windows.command.prompt>true</param.windows.command.prompt>
+    <param.user.only.registration>false</param.user.only.registration>
+    <param.mads.no.java>false</param.mads.no.java>
+    <param.mads.exclusive.mcr>false</param.mads.exclusive.mcr>
+    <param.net.framework>option.net.framework.default</param.net.framework>
+    <param.assembly.type>false</param.assembly.type>
+    <param.encryption.key.file />
+    <param.net.enable.remoting>false</param.net.enable.remoting>
+    <param.net.tsa.enable>false</param.net.tsa.enable>
+    <param.net.tsa.assembly />
+    <param.net.tsa.interface />
+    <param.net.tsa.namespace>ic_OPTtools_PCWIN64</param.net.tsa.namespace>
+    <param.net.tsa.superclass />
+    <param.net.tsa.metadata />
+    <param.net.tsa.metadata.assembly>C:\Users\yalexand\Documents\MATLAB</param.net.tsa.metadata.assembly>
+    <param.create.log>false</param.create.log>
+    <param.log.file />
+    <unset>
+      <param.authnamewatermark />
+      <param.email />
+      <param.company />
+      <param.icon />
+      <param.icons />
+      <param.summary />
+      <param.description />
+      <param.screenshot />
+      <param.version />
+      <param.namespace />
+      <param.guid />
+      <param.installpath.string />
+      <param.logo />
+      <param.install.notes />
+      <param.embed.ctf />
+      <param.target.type />
+      <param.classorg />
+      <param.no.mcr />
+      <param.web.mcr.name />
+      <param.no.mcr.name />
+      <param.user.defined.mcr.options />
+      <param.windows.command.prompt />
+      <param.user.only.registration />
+      <param.mads.no.java />
+      <param.mads.exclusive.mcr />
+      <param.net.framework />
+      <param.assembly.type />
+      <param.encryption.key.file />
+      <param.net.enable.remoting />
+      <param.net.tsa.enable />
+      <param.net.tsa.assembly />
+      <param.net.tsa.interface />
+      <param.net.tsa.namespace />
+      <param.net.tsa.superclass />
+      <param.net.tsa.metadata />
+      <param.net.tsa.metadata.assembly />
+      <param.create.log />
+      <param.log.file />
+    </unset>
+    <fileset.main>
+      <file>${PROJECT_ROOT}\ic_OPTtools.m</file>
+    </fileset.main>
+    <fileset.resources>
+      <file>C:\Users\yalexand\ICY\plugins\ylemontag\matlabcommunicator\icy_command.m</file>
+      <file>C:\Users\yalexand\ICY\plugins\ylemontag\matlabcommunicator\icy_init.m</file>
+      <file>C:\Users\yalexand\ICY\plugins\ylemontag\matlabxserver\icy_figure.m</file>
+      <file>C:\Users\yalexand\ICY\plugins\ylemontag\matlabxserver\icy_gettitle.m</file>
+      <file>C:\Users\yalexand\ICY\plugins\ylemontag\matlabxserver\icy_im3show.m</file>
+      <file>C:\Users\yalexand\ICY\plugins\ylemontag\matlabxserver\icy_imshow.m</file>
+      <file>${PROJECT_ROOT}\addpath_OMEkit.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\bfCheckJavaMemory.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\bfCheckJavaPath.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\bfGetFileExtensions.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\bfGetPlane.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\bfGetReader.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\bfopen.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\bfsave.m</file>
+      <file>${PROJECT_ROOT}\BFMatlab\createMinimalOMEXMLMetadata.m</file>
+      <file>${PROJECT_ROOT}\Classes\@ic_OPTtools_gui\ic_OPTtools_gui.m</file>
+      <file>${PROJECT_ROOT}\Classes\@ic_OPTtools_gui\setup_menu.m</file>
+      <file>${PROJECT_ROOT}\Classes\@ic_OPTtools_omero_data_manager\ic_OPTtools_omero_data_manager.m</file>
+      <file>${PROJECT_ROOT}\Classes\ic_OPTtools_data_controller.m</file>
+      <file>${PROJECT_ROOT}\Classes\ic_OPTtools_front_end_menu_controller.m</file>
+      <file>${PROJECT_ROOT}\Classes\ic_OPTtools_profile_controller.m</file>
+      <file>${PROJECT_ROOT}\GeneratedFiles\version.txt</file>
+      <file>${PROJECT_ROOT}\GUIDEInterfaces\enter_value.fig</file>
+      <file>${PROJECT_ROOT}\GUIDEInterfaces\enter_value.m</file>
+      <file>${PROJECT_ROOT}\GUIDEInterfaces\OMERO_logon.fig</file>
+      <file>${PROJECT_ROOT}\GUIDEInterfaces\OMERO_logon.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\doubleops_PCWIN64\@double\power.mexw64</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\genops.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\getapplicationdatadir.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Box.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\calculatePixelSizes.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\callCallback.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\CardPanel.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\ChildEvent.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\Container.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\DecoratedPanel.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\findArg.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\get.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\HBox.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\interpretColor.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\TabPanel.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\+uiextras\VBox.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\Patch\getpixelposition.p</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\GUILayout\Patch\isHGUsingMATLABClasses.p</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\makegenops.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\position2size.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\progressbar.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\propertiesGUI.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\sort_nat.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\waitdialog.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\xml_io_toos\xml_read.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\xml_io_toos\xml_write.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\xml_io_toos\xmlreadstring.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\xml_io_toos\xmlwrite_xerces.m</file>
+      <file>${PROJECT_ROOT}\ICY_Matlab\matlabcommunicator\icy_command.m</file>
+      <file>${PROJECT_ROOT}\ICY_Matlab\matlabxserver\icy_figure.m</file>
+      <file>${PROJECT_ROOT}\ICY_Matlab\matlabxserver\icy_gettitle.m</file>
+      <file>${PROJECT_ROOT}\ICY_Matlab\matlabxserver\icy_im3show.m</file>
+      <file>${PROJECT_ROOT}\ICY_Matlab\matlabxserver\icy_imshow.m</file>
+      <file>${PROJECT_ROOT}\InternalHelperFunctions\args2struct.m</file>
+      <file>${PROJECT_ROOT}\InternalHelperFunctions\assign_handles.m</file>
+      <file>${PROJECT_ROOT}\InternalHelperFunctions\split.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getCommentAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getDatasetCommentAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getDatasetFileAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getDatasetTagAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getDatasetXmlAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getFileAnnotationContent.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getFileAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getImageCommentAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getImageFileAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getImageTagAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getImageXmlAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getObjectAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getPlateCommentAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getPlateFileAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getPlateTagAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getPlateXmlAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getProjectCommentAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getProjectFileAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getProjectTagAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getProjectXmlAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getScreenCommentAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getScreenFileAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getScreenTagAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getScreenXmlAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getTagAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\getXmlAnnotations.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\linkAnnotation.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\updateFileAnnotation.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\updateOriginalFile.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\writeCommentAnnotation.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\writeFileAnnotation.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\writeTagAnnotation.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\writeTextAnnotation.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\annotations\writeXmlAnnotation.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\connectOmero.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\Contents.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\createObjectDictionary.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\delete\deleteDatasets.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\delete\deleteImages.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\delete\deleteObjects.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\delete\deletePlateAcquisitions.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\delete\deletePlates.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\delete\deleteProjects.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\delete\deleteScreens.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\findOmero.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\getAnnotationTypes.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\getObjectTypes.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\getOmeroJars.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\idListToMap.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\iterateToList.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\JavaImageToMatlab.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\randint.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rarray.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rbool.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rdouble.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rfloat.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rint.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rlist.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rlong.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rmap.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rset.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rstring.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\rtime.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\structToHashMap.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\toByteArray.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\toJavaList.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\toMatlabList.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\helper\toMatrix.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\ice.config</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\exportImageAsOMETIFF.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\getPlane.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\getPlaneInfo.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\getRawPixelsStore.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\getStack.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\getThumbnail.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\getThumbnailByLongestSide.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\getThumbnailByLongestSideSet.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\getThumbnailSet.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\getTile.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\image\loadChannels.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\createDataset.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\createObject.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\createPlate.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\createProject.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\createScreen.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\getDatasets.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\getImages.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\getObjects.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\getPlates.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\getProjects.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\io\getScreens.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\activation.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ant.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\antlr.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\asm-attrs.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\asm.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\backport-util-concurrent.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\batik-all.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\bio-formats.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\blitz.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\btm.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\bufr.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\cglib-nodep.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\checkstyle.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\com.springsource.org.aopalliance.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\common.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\commons-beanutils.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\commons-codec.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\commons-collections.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\commons-httpclient.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\commons-io.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\commons-lang.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\commons-logging.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\commons-pool.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\dom4j.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\dsl.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ehcache.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\emma.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\emma_ant.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\findbugs-ant.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\FontBox.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\freemarker.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\geronimo-spec-jta.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\grib.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\gtkjfilechooser.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\guava-jdk5.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\guava.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\hibernate-jpa-2.0-api.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\hibernate-search.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\hibernate-tools.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\hibernate-validator.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\hibernate.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ice-db.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ice-freeze.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ice-glacier2.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ice-grid.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ice-storm.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ice.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ini4j.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\jai_imageio.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\jakarta-oro.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\jamon.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\java-getopt.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\java-image-scaling.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\javassist.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\jmock.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\jsr107cache.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\jtidy.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\jts.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\junit.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\loci-common.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\log4j.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\lucene-core.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\lucene-highlighter.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\lucene-misc.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\lucene-spellchecker.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\mail.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\mdbtools-java.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\metakit.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\model-psql.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\netcdf.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ome-io.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ome-java.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\ome-xml.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\omero-clients-util.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\omero-shares.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\omero_client.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\OmeroImporter.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.aop.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.asm.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.beans.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.context.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.context.support.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.core.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.expression.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.jdbc.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.orm.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.test.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\org.springframework.transaction.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\PDFBox.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\perf4j.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\poi-loci.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\postgresql.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\quartz.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\rendering.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\reportng.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\romio.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\scifio.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\serializer.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\server.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\slf4j-api.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\slf4j-log4j12.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\specification.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\spring-ldap.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\spring-security-config.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\spring-security-core.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\spring-security-ldap.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\swingx.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\TableLayout.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\testng.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\velocity-tools-generic.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\velocity.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\xalan.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\xercesImpl.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\xml-apis-ext.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\libs\xml-apis.jar</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\loadOmero.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\omeroKeepAlive.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\OMEROMatlab.txt</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\omeroVersion.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\roi\createEllipse.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\roi\createLine.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\roi\createMask.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\roi\createPoint.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\roi\createPolygon.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\roi\createPolyline.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\roi\createRectangle.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\roi\setShapeCoordinates.m</file>
+      <file>${PROJECT_ROOT}\OMEROMatlab\unloadOmero.m</file>
+      <file>${PROJECT_ROOT}\OMEROUtilities\read_XmlAnnotation_havingNS.m</file>
+      <file>${PROJECT_ROOT}\OMEROUtilities\select_Dataset.m</file>
+      <file>${PROJECT_ROOT}\OMEROUtilities\select_Image.m</file>
+    </fileset.resources>
+    <fileset.package />
+    <build-deliverables>
+      <file name="readme.txt" location="${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_testing" optional="true">C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_testing\readme.txt</file>
+      <file name="ic_OPTtools_PCWIN64.exe" location="${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_testing" optional="false">C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_testing\ic_OPTtools_PCWIN64.exe</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>C:\matlab\R2013b</root>
+      <toolboxes>
+        <toolbox name="fixedpoint" />
+      </toolboxes>
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>6.2</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
+

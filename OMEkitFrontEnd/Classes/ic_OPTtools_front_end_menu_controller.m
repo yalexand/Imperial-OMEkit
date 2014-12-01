@@ -320,12 +320,6 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             if path ~= 0
                 obj.data_controller.IcyDirectory = path;                
             end                       
-            try
-                addpath([obj.data_controller.IcyDirectory filesep 'plugins' filesep 'ylemontag' filesep 'matlabcommunicator']);
-                icy_init();
-            catch
-                errordlg('Icy directory not good or Matlab Communicator plugin is not installed - can not continue');
-            end            
         end
          %------------------------------------------------------------------                
         function menu_visualization_start_Icy_callback(obj, ~,~)
