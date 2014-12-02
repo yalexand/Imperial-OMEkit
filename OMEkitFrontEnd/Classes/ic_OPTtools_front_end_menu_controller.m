@@ -293,7 +293,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                         for r = 1:szR
                             proj_r(:,:,1,r,1) = imresize(obj.data_controller.proj(:,:,r),f);
                         end
-                        icy_imshow(proj_r,['proj downsampled 1/' num2str(obj.data_controller.downsampling) ' : ' obj.get_current_data_info_string]); % Icy likes XYCZT 
+                        icy_imshow(proj_r,['proj scale 1/' num2str(obj.data_controller.downsampling) ' : ' obj.get_current_data_info_string]); % Icy likes XYCZT 
                     end
                 catch 
                     msgbox('error - Icy might be not started');
@@ -306,7 +306,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_visualization_send_current_volm_to_Icy_callback(obj, ~,~)
             if ~isempty(obj.data_controller.volm)
                 try
-                    icy_im3show(obj.data_controller.volm,['volm downsampled 1/' num2str(obj.data_controller.downsampling) ' : ' obj.get_current_data_info_string]);
+                    icy_im3show(obj.data_controller.volm,['volm scale 1/' num2str(obj.data_controller.downsampling) ' : ' obj.get_current_data_info_string]);
                 catch
                     msgbox('error - Icy might be not started');                    
                 end
