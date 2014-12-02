@@ -323,11 +323,19 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         end
          %------------------------------------------------------------------                
         function menu_visualization_start_Icy_callback(obj, ~,~)
-            if ~isempty(obj.data_controller.IcyDirectory)
-                dos([obj.data_controller.IcyDirectory filesep 'icy']);
+            
+            if ~isempty(obj.data_controller.IcyDirectory)                
+                if ispc
+                    dos([obj.data_controller.IcyDirectory filesep 'icy']);
+                elseif ismac                    
+                    unix(['open ' obj.data_controller.IcyDirectory filesep 'icy']); % ?                    
+                elseif isunix
+                    % ?
+                end                                
             else
                 msgbox('error - Icy directory was not set up');
             end
+            
         end
 
     %================================= % reconstruction                

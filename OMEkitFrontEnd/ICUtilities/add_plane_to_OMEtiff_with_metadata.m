@@ -97,16 +97,16 @@ end;
                 fgetl(fid);
                 description = fscanf(fid,'%c');
                 fclose(fid);
-                index = n_anno+k-1;
-                metadata.setXMLAnnotationID(['Annotation:' num2str(index)],index);
-                metadata.setXMLAnnotationValue(description,index);
+                ind = n_anno+k-1;
+                metadata.setXMLAnnotationID(['Annotation:' num2str(ind)],ind);
+                metadata.setXMLAnnotationValue(description,ind);
                 % helped by Jmarie, Sebastien - http://www.openmicroscopy.org/community/posting.php?mode=reply&f=6&t=7659
-                metadata.setImageAnnotationRef(['Annotation:' num2str(index)],0,index); 
+                metadata.setImageAnnotationRef(['Annotation:' num2str(ind)],0,ind); 
                 %                  
                 dscr_acc = [dscr_acc description];
             end                        
             %
-            n_anno = index;
+            n_anno = ind;
             %
         catch err
             display(err.message);
