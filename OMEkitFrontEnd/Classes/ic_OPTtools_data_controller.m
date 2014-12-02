@@ -271,53 +271,64 @@ classdef ic_OPTtools_data_controller < handle
                  step = obj.angle_downsampling;                 
                  acting_angles = obj.angles(1:step:n_angles);
                  %                                                   
+                 y_min = 1;
+                 y_max = sizeY;
+                 YL = sizeY;
+                 if ~isempty(obj.Z_range)
+                     y_min = obj.Z_range(1);
+                     y_max = obj.Z_range(2);
+                     YL = y_max - y_min;                             
+                 end                         
+                                                   
                  if use_GPU && obj.isGPU 
-                         % not the best possible..
-                         y_min = 1;
-                         y_max = szY_r;
-                         YL = szY_r;
-                         if ~isempty(obj.Z_range)
-                             y_min = fix(obj.Z_range(1)*f);
-                                if y_min < 1, y_min = 1; end;
-                             y_max = fix(obj.Z_range(2)*f);
-                             YL = y_max - y_min;                             
-                         end
+                                          
+                     if 1 == f % no downsampling
+
+                         gpu_proj = gpuArray(cast(obj.proj(:,y_min:y_max,:),'single'));
+                         gpu_volm = [];
                          
-                         proj_r = zeros(szX_r,szY_r,sizeZ);
-                         for r = 1:sizeZ,
-                            proj_r(:,:,r) = imresize(single(obj.proj(:,:,r)),f);
-                         end
-                         gpu_proj = gpuArray(proj_r);
-                         clear('proj_r');
-                         
-                         gpu_volm = [];                    
-                                        
-                         for y = 1 : YL                
-                            sinogram = squeeze(gpu_proj(:,y_min+y-1,:));
-                            % 
+                         for y = 1 : YL                                       
+                            sinogram = squeeze(gpu_proj(:,y,:));                             
                             reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
                             if isempty(gpu_volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
                                 gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,YL))); % XYZ
-                            end
-                            %
-                            gpu_volm(:,:,y) = reconstruction;
-                            %                        
+                            end                            
+                            gpu_volm(:,:,y) = reconstruction;                            
                             if ~isempty(hw), waitdialog(y/YL,hw,s); drawnow, end;
-                         end   
-                         %
+                         end                           
                          obj.volm = gather(gpu_volm);
+                         
+                     else % with downsampling                         
+                         
+                         proj_r = [];
+                         gpu_volm = [];
+                         
+                         for r = 1:sizeZ,
+                            if isempty(proj_r) 
+                                [szX_r,szY_r] = size(imresize(obj.proj(:,y_min:y_max,r),f));
+                                proj_r = zeros(szX_r,szY_r,sizeZ,'single');
+                            end
+                            proj_r(:,:,r) = imresize(obj.proj(:,y_min:y_max,r),f);
+                         end
+                         gpu_proj_r = gpuArray(proj_r);
+                         clear('proj_r');                         
+                         %
+                         for y = 1 : szY_r 
+                            sinogram = squeeze(gpu_proj_r(:,y,:));
+                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);                            
+                            if isempty(gpu_volm)
+                                [sizeR1,sizeR2] = size(reconstruction);
+                                gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,szY_r))); % XYZ
+                            end                            
+                            gpu_volm(:,:,y) = reconstruction;                            
+                            if ~isempty(hw), waitdialog(y/szY_r,hw,s); drawnow, end;
+                         end
+                         obj.volm = gather(gpu_volm);
+                         
+                     end
                      
                  elseif ~use_GPU
-
-                     y_min = 1;
-                     y_max = sizeY;
-                     YL = sizeY;
-                     if ~isempty(obj.Z_range)
-                         y_min = obj.Z_range(1);
-                         y_max = obj.Z_range(2);
-                         YL = y_max - y_min;                             
-                     end                         
                                           
                      if 1 == f % no downsampling
                                                                            
