@@ -112,8 +112,8 @@ function handles = setup_menu(obj,handles)
         
     %================================= visualization
     
-    menu_visualization = uimenu(obj.window,'Label','Visualization');
-    menu_visualization_Icy_setup = uimenu(menu_visualization,'Label','Icy setup');        
+    menu_visualization = uimenu(obj.window,'Label','Icy');
+    menu_visualization_Icy_setup = uimenu(menu_visualization,'Label','Setup');        
     handles.menu_visualization_setup_Icy_directory = uimenu(menu_visualization_Icy_setup,'Label','Set Icy directory');    
     handles.menu_visualization_start_Icy = uimenu(menu_visualization_Icy_setup,'Label','Start Icy');
     %

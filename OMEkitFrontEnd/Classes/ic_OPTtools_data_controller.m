@@ -103,24 +103,26 @@ classdef ic_OPTtools_data_controller < handle
             end
             
             if isempty(obj.IcyDirectory)
+                hw = waitdialog('looking for Icy directory..');
+                waitdialog(0.1,hw,'looking for Icy directory..');                
                 if ispc
-                   try
                        prevdir = pwd;
                        cd('c:\');
                        [~,b] = dos('dir /s /b icy.exe');
-                       filenames = textscan(b,'%s','delimiter',char(10));
-                       s = char(filenames{1});
-                       s = s(1,:);
-                       s = strsplit(s,'icy.exe');
-                       obj.IcyDirectory = s{1};
+                       if ~strcmp(b,'File Not Found')
+                            filenames = textscan(b,'%s','delimiter',char(10));
+                            s = char(filenames{1});
+                            s = s(1,:);
+                            s = strsplit(s,'icy.exe');
+                            obj.IcyDirectory = s{1};
+                       end
                        cd(prevdir);
-                   catch
-                   end                                                
                 elseif ismac
                     % to do
                 else
                     % to do
-                end
+                end                
+                delete(hw); drawnow;
             end
             
             % detect GPU
