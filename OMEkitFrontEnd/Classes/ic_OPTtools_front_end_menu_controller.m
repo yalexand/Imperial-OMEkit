@@ -518,10 +518,20 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             if ~isempty(obj.data_controller.current_filename)
                 infostring = obj.data_controller.current_filename;
             elseif ~isempty(obj.omero_data_manager.image) 
-                pName = char(java.lang.String(obj.omero_data_manager.project.getName().getValue()));            
+                
+                try
+                    pName = char(java.lang.String(obj.omero_data_manager.project.getName().getValue()));            
+                    pId = num2str(obj.omero_data_manager.project.getId().getValue());            
+                catch
+                end
+                if ~exist('pName','var')
+                    pName = 'NO PROJECT!!';
+                    pId = 'xxx';
+                end
+                                                
                 dName = char(java.lang.String(obj.omero_data_manager.dataset.getName().getValue()));                    
                 iName = char(java.lang.String(obj.omero_data_manager.image.getName().getValue()));            
-                    pId = num2str(obj.omero_data_manager.project.getId().getValue());            
+                    
                     dId = num2str(obj.omero_data_manager.dataset.getId().getValue());            
                     iId = num2str(obj.omero_data_manager.image.getId().getValue());                        
                 infostring = [ 'Image "' iName '" [' iId '] @ Dataset "' dName '" [' dId '] @ Project "' pName '" [' pId ']'];            

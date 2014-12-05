@@ -473,11 +473,17 @@ classdef ic_OPTtools_data_controller < handle
             notify(obj,'new_proj_set');                        
             
             % infostring
-            pName = char(java.lang.String(omero_data_manager.project.getName().getValue()));            
+            try
+                pName = char(java.lang.String(omero_data_manager.project.getName().getValue()));            
+                pId = num2str(omero_data_manager.project.getId().getValue());                        
+            catch
+            end
+            if ~exist('pName','var')
+                pName = 'NO PROJECT!!';
+                pId = 'xxx';
+            end            
             dName = char(java.lang.String(omero_data_manager.dataset.getName().getValue()));                    
-            iName = char(java.lang.String(omero_data_manager.image.getName().getValue()));
-            
-            pId = num2str(omero_data_manager.project.getId().getValue());            
+            iName = char(java.lang.String(omero_data_manager.image.getName().getValue()));            
             dId = num2str(omero_data_manager.dataset.getId().getValue());            
             iId = num2str(omero_data_manager.image.getId().getValue());            
             
