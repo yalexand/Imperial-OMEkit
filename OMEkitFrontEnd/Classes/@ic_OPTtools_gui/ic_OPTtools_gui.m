@@ -99,8 +99,8 @@ classdef ic_OPTtools_gui
                 'to the static Java path or add it to the Matlab path.']);
 
             % initialize logging
-            %loci.common.DebugTools.enableLogging('INFO');
-            loci.common.DebugTools.enableLogging('ERROR');
+            loci.common.DebugTools.enableLogging('INFO');
+            java.lang.System.setProperty('javax.xml.transform.TransformerFactory', 'com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');            
             
             close all;
             
