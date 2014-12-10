@@ -87,6 +87,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 
         menu_reconstruction_FBP;
         menu_reconstruction_FBP_GPU;
+        menu_reconstruction_FBP_Largo;
                         
         menu_visualization_setup_Icy_directory;
         menu_visualization_start_Icy;
@@ -264,8 +265,10 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_file_save_current_volume_callback(obj,~,~)
             if ~isempty(obj.data_controller.volm)
                 [file, path] = uiputfile({'*.OME.tiff'},'Select exported acceptor image file name',obj.data_controller.DefaultDirectory);
-                if file ~= 0                                    
-                    bfsave(obj.data_controller.volm,[path filesep file],'Compression', 'LZW','BigTiff', true);   
+                if file ~= 0  
+                    hw = waitdialog(' ');
+                    bfsave(obj.data_controller.volm,[path filesep file],'Compression', 'LZW','BigTiff', true); 
+                    delete(hw);drawnow;
                 end
             else
                 errordlg('Volume was not created - nothing to save');
@@ -355,7 +358,14 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 msgbox('data not loaded - can not do reconstruction');
             end            
         end                
-        
+         %------------------------------------------------------------------        
+        function menu_reconstruction_FBP_Largo_callback(obj, ~,~)
+            if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
+                obj.data_controller.FBP_Largo;
+            else
+                msgbox('data not loaded - can not do reconstruction');
+            end            
+        end          
     %================================= % downsampling indicators        
         % 
          %------------------------------------------------------------------

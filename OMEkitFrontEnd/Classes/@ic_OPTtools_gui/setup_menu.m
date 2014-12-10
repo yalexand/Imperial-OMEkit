@@ -109,6 +109,7 @@ function handles = setup_menu(obj,handles)
     menu_reconstruction = uimenu(obj.window,'Label','Reconstruction');        
     handles.menu_reconstruction_FBP = uimenu(menu_reconstruction,'Label','Run FBP','Separator','on');    
     handles.menu_reconstruction_FBP_GPU = uimenu(menu_reconstruction,'Label','Run FBP (GPU)');
+    handles.menu_reconstruction_FBP_Largo = uimenu(menu_reconstruction,'Label','Run FBP Largo');
         
     %================================= visualization
     

@@ -396,6 +396,80 @@ classdef ic_OPTtools_data_controller < handle
              
              notify(obj,'new_volm_set');
         end
+%-------------------------------------------------------------------------%        
+        function FBP_Largo(obj,~,~)
+            
+            if ~(1==obj.downsampling)
+                 errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue')
+                 return; 
+             end;     
+
+             n_chunks = 10;
+             %
+             obj.volm = [];                
+             notify(obj,'volm_clear');
+
+             s1 = 'processing chanks & saving...';
+             hw1 = waitdialog(s1);
+
+             [~,sizeZ,~] = size(obj.proj); 
+             
+             maxV = -inf; 
+             
+             sz_chunk = floor(sizeZ/n_chunks);
+             zrange(1)=1;
+             zrange(2)=sz_chunk;
+             k=0;
+             while  zrange(2) < (sizeZ-sz_chunk)
+                 %
+                res = do_FBP_on_Z_chunk(obj,zrange,obj.isGPU);
+                curmax = max(res(:));
+                if curmax>maxV, maxV=curmax; end;
+                res(res<0)=0;
+                %
+                zrange = zrange + sz_chunk;
+                k=k+1;
+                save(num2str(k),'res');
+                waitdialog(k/(n_chunks+1),hw1,s1);
+             end
+             zrange_last(1) = zrange(2)+1;
+             zrange_last(2) = sizeZ;
+             %
+             res = do_FBP_on_Z_chunk(obj,zrange_last,obj.isGPU);
+             curmax = max(res(:));
+             if curmax>maxV, maxV=curmax; end;
+             res(res<0)=0;
+             %
+             k=k+1;
+             save(num2str(k),'res');
+             [szVx,szVy,~]=size(res);
+             delete(hw1);drawnow;
+             %
+             try
+                 obj.proj = [];
+                 notify(obj,'proj_clear');
+                 obj.volm = zeros(szVx,szVy,sizeZ,'uint16');
+             catch
+                 errordlg('memory allocation failed, can not continue');
+                 return;
+             end
+             %
+             s2 = 'retrieving chanks...';
+             hw2 = waitdialog(s2);
+             z_beg=1;
+             for m=1:k
+                 load(num2str(m));
+                 [~,~,szVMz] = size(res);                 
+                 obj.volm(:,:,z_beg:z_beg+szVMz-1) = cast(res*32767/maxV,'uint16');                
+                 z_beg = z_beg+szVMz;
+                 delete([num2str(m) '.mat']);
+                 waitdialog(m/k,hw2,s2);
+             end
+             delete(hw2);drawnow;
+             %
+             obj.volm( obj.volm <= 0 ) = 0; % mm? 
+             notify(obj,'new_volm_set');                                   
+        end      
 %-------------------------------------------------------------------------%
         function infostring  = OMERO_load_single(obj,omero_data_manager,verbose,~)
 
@@ -599,6 +673,68 @@ classdef ic_OPTtools_data_controller < handle
                         
         end        
 %-------------------------------------------------------------------------%                
+
+
+%-------------------------------------------------------------------------%        
+        function res = do_FBP_on_Z_chunk(obj,zrange,use_GPU)
+                            
+             res = [];
+             if isempty(zrange) || 2~=numel(zrange) || ~(zrange(1)<zrange(2)) || ~(1==obj.downsampling)
+                 return; 
+             end;                             
+
+             [sizeX,sizeY,sizeZ] = size(obj.proj); 
+             
+             n_angles = numel(obj.angles);
+             
+             if sizeZ ~= n_angles
+                 errormsg('Incompatible settings - can not continue');
+                 return;
+             end
+                              
+                 step = obj.angle_downsampling;                 
+                 acting_angles = obj.angles(1:step:n_angles);
+                 %                                                   
+                 y_min = zrange(1);
+                 y_max = zrange(2);
+                 YL = y_max - y_min;                             
+                                                   
+                 if use_GPU && obj.isGPU 
+                                          
+                         gpu_proj = gpuArray(cast(obj.proj(:,y_min:y_max,:),'single'));
+                         gpu_volm = [];
+                         
+                         for y = 1 : YL                                       
+                            sinogram = squeeze(gpu_proj(:,y,:));                             
+                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
+                            if isempty(gpu_volm)
+                                [sizeR1,sizeR2] = size(reconstruction);
+                                gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,YL))); % XYZ
+                            end                            
+                            gpu_volm(:,:,y) = reconstruction;                            
+                         end                           
+                         res = gather(gpu_volm);
+                                              
+                 elseif ~use_GPU
+                                                                                                                     
+                         for y = 1 : YL                                       
+                            sinogram = squeeze(double(obj.proj(:,y_min+y-1,:)));
+                            % 
+                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
+                            if isempty(obj.volm)
+                                [sizeR1,sizeR2] = size(reconstruction);
+                                obj.volm = zeros(sizeR1,sizeR2,YL); % XYZ
+                            end
+                            %
+                            res(:,:,y) = reconstruction;
+                         end                                                                                                                
+                 end                     
+                                                               
+             res( res <= 0 ) = 0; % mm? 
+             
+        end
+%-------------------------------------------------------------------------%
+
     end
     
 end
