@@ -409,7 +409,7 @@ classdef ic_OPTtools_data_controller < handle
              obj.volm = [];                
              notify(obj,'volm_clear');
 
-             s1 = 'processing chanks & saving...';
+             s1 = 'processing chunks & saving...';
              hw1 = waitdialog(s1);
 
              [~,sizeZ,~] = size(obj.proj); 
@@ -454,7 +454,7 @@ classdef ic_OPTtools_data_controller < handle
                  return;
              end
              %
-             s2 = 'retrieving chanks...';
+             s2 = 'retrieving chunks...';
              hw2 = waitdialog(s2);
              z_beg=1;
              for m=1:k
