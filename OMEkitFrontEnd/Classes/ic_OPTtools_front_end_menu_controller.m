@@ -288,7 +288,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                     f = 1/obj.data_controller.downsampling;
                     if 1 == f
                         [szX,szY,szR] = size(obj.data_controller.proj);
-                        icy_imshow(reshape(obj.data_controller.proj,[szX,szY,1,szR,1]),['proj ' obj.get_current_data_info_string]); % Icy likes XYCZT 
+                        icy_imshow(cast(reshape(obj.data_controller.proj,[szX,szY,1,szR,1]),'single'),['proj ' obj.get_current_data_info_string]); % Icy likes XYCZT 
                     else
                         [szX,szY] = size(imresize(obj.data_controller.proj(:,:,1),f));
                         [~,~,szR] = size(obj.data_controller.proj);
@@ -309,7 +309,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_visualization_send_current_volm_to_Icy_callback(obj, ~,~)
             if ~isempty(obj.data_controller.volm)
                 try
-                    icy_im3show(obj.data_controller.volm,['volm scale 1/' num2str(obj.data_controller.downsampling) ' : ' obj.get_current_data_info_string]);
+                    icy_im3show(cast(obj.data_controller.volm,'single'),['volm scale 1/' num2str(obj.data_controller.downsampling) ' : ' obj.get_current_data_info_string]);
                 catch
                     msgbox('error - Icy might be not started');                    
                 end
