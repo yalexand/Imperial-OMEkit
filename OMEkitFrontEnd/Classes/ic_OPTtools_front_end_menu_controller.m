@@ -48,8 +48,14 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             %
             menu_OMERO_set_single;
             menu_OMERO_set_multiple;
-            menu_OMERO_reset_previous;        
-        
+            menu_OMERO_reset_previous;
+            
+        menu_Batch_Indicator_Src;
+        menu_Batch_Indicator_Dst;
+        menu_Batch_Src_HD;
+        menu_Batch_Src_OMERO;
+        menu_Batch_SetDst;
+                                
         menu_settings_Pixel_Downsampling;
         menu_settings_Angle_Downsampling;
 
@@ -160,6 +166,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             infostring = obj.omero_data_manager.Set_Dataset();
             if ~isempty(infostring)
                 set(obj.menu_OMERO_Working_Data_Info,'Label',infostring,'ForegroundColor','blue');
+                set(obj.menu_Batch_Indicator_Src,'Label',infostring,'ForegroundColor','blue');                
             end;
         end                        
         %------------------------------------------------------------------        
@@ -277,10 +284,6 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         
     %================================= % call Icy visualizations
         
-         %------------------------------------------------------------------    
-        function menu_OMERO_start_Icy_callback(obj, ~, ~)
-            % to do
-        end
          %------------------------------------------------------------------        
         function menu_visualization_send_current_proj_to_Icy_callback(obj, ~,~)
             if ~isempty(obj.data_controller.proj)
@@ -342,8 +345,29 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         end
 
     %================================= % reconstruction                
+    
+         %------------------------------------------------------------------            
+        function ret = maybe_run_batch_reconstruction(obj,mode,~)
+
+                ret = false;
+
+                batch_src_OK = isdir(obj.data_controller.BatchSrcDirectory) || ~isempty(obj.omero_data_manager.dataset);
+                batch_dst_OK = isdir(obj.data_controller.BatchDstDirectory);
+
+                if ~(batch_src_OK && batch_dst_OK), return, end;        
+
+                button = questdlg('Do you want to run Batch or Current Single?',...
+                'Choose what exactly you want to do','Batch','Single','Single');
+                if strcmp(button,'Batch')
+                   obj.data_controller.run_batch(mode);
+                   ret = true;
+                end                    
+        end
          %------------------------------------------------------------------        
         function menu_reconstruction_FBP_callback(obj, ~,~)
+            
+            if obj.maybe_run_batch_reconstruction('FBP'), return, end;
+            
             if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
                 obj.data_controller.FBP(true,false); % verbose, + no GPU
             else
@@ -352,6 +376,9 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         end        
          %------------------------------------------------------------------        
         function menu_reconstruction_FBP_GPU_callback(obj, ~,~)
+            
+            if obj.maybe_run_batch_reconstruction('FBP_GPU'), return, end;            
+            
             if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
                 obj.data_controller.FBP(true,true); % verbose, + GPU
             else
@@ -360,12 +387,16 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         end                
          %------------------------------------------------------------------        
         function menu_reconstruction_FBP_Largo_callback(obj, ~,~)
+            
+            if obj.maybe_run_batch_reconstruction('FBP_Largo'), return, end;            
+            
             if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
                 obj.data_controller.FBP_Largo;
             else
                 msgbox('data not loaded - can not do reconstruction');
             end            
         end          
+        
     %================================= % downsampling indicators        
         % 
          %------------------------------------------------------------------
@@ -547,7 +578,42 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 infostring = [ 'Image "' iName '" [' iId '] @ Dataset "' dName '" [' dId '] @ Project "' pName '" [' pId ']'];            
             end
         end
-         
+
+
+    %================================= % Batch
+    
+        %------------------------------------------------------------------    
+        function menu_Batch_Src_HD_callback(obj,~,~)
+            [path] = uigetdir(obj.data_controller.DefaultDirectory,'Set Source directory');
+            if path ~= 0
+                obj.data_controller.BatchSrcDirectory = path;                
+                set(obj.menu_Batch_Indicator_Src,'Label',path,'ForegroundColor','blue');
+                obj.data_controller.DefaultDirectory = path;
+            end                                               
+        end
+        %------------------------------------------------------------------        
+        function menu_Batch_Src_OMERO_callback(obj,~,~)
+            infostring = [];
+            try
+                infostring = obj.omero_data_manager.Set_Dataset();
+            catch
+                errordlg('OMERO might be not active - please log on');
+                return;
+            end
+            if ~isempty(infostring)
+                set(obj.menu_OMERO_Working_Data_Info,'Label',infostring,'ForegroundColor','blue');
+                set(obj.menu_Batch_Indicator_Src,'Label',infostring,'ForegroundColor','blue');                
+            end;                        
+        end
+        %------------------------------------------------------------------        
+        function menu_Batch_SetDst_callback(obj,~,~)
+            [path] = uigetdir(obj.data_controller.DefaultDirectory,'Set Destination directory');
+            if path ~= 0
+                obj.data_controller.BatchDstDirectory = path;                
+                set(obj.menu_Batch_Indicator_Dst,'Label',path,'ForegroundColor','blue');
+            end                                               
+        end            
+                        
     %================================= % VANITY       
     
         %------------------------------------------------------------------

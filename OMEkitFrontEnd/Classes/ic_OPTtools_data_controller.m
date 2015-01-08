@@ -45,6 +45,9 @@ classdef ic_OPTtools_data_controller < handle
         DefaultDirectory = ['C:' filesep];
         IcyDirectory = [];
         
+        BatchDstDirectory = [];
+        BatchSrcDirectory = [];        
+        
         SrcDir = [];
         SrcFileList = [];
         DstDir = [];        
@@ -160,9 +163,15 @@ classdef ic_OPTtools_data_controller < handle
         end
 %-------------------------------------------------------------------------%
         function infostring = Set_Src_Single(obj,full_filename,verbose,~)
-            %                                       
+            %   
+            infostring = [];
             obj.angles = obj.get_angles(full_filename); % temp
-            if isempty(obj.angles), errordlg('source does not contain angle specs - can not continue'), return, end;
+            if isempty(obj.angles), 
+                if verbose
+                    errordlg('source does not contain angle specs - can not continue'), 
+                end
+                return, 
+            end;
             %                               
             hw = [];
             waitmsg = 'Loading planes...';
@@ -230,23 +239,23 @@ classdef ic_OPTtools_data_controller < handle
             infostring = obj.current_filename;
             
         end
-%-------------------------------------------------------------------------%        
-        function Set_Src_Multiple(obj,src_dir_path,~)
-            disp(src_dir_path);
-            %
-            % todo
-            %
-            obj.DefaultDirectory = src_dir_path;
-            % notify(obj,'new_batch_set'); % ?            
-        end
-%-------------------------------------------------------------------------%        
-        function Set_Dst_Dir(obj,dst_dir_path,~)
-            disp(dst_dir_path);
-            %
-            % todo
-            %
-            obj.DefaultDirectory = dst_dir_path;            
-        end        
+% %-------------------------------------------------------------------------%        
+%         function Set_Src_Multiple(obj,src_dir_path,~)
+%             disp(src_dir_path);
+%             %
+%             % todo
+%             %
+%             obj.DefaultDirectory = src_dir_path;
+%             % notify(obj,'new_batch_set'); % ?            
+%         end
+% %-------------------------------------------------------------------------%        
+%         function Set_Dst_Dir(obj,dst_dir_path,~)
+%             disp(dst_dir_path);
+%             %
+%             % todo
+%             %
+%             obj.DefaultDirectory = dst_dir_path;            
+%         end        
 %-------------------------------------------------------------------------%
         function delete(obj)
             obj.save_settings;
@@ -734,6 +743,60 @@ classdef ic_OPTtools_data_controller < handle
              
         end
 %-------------------------------------------------------------------------%
+        function run_batch(obj,mode,~)
+                                    
+            s1 = get(obj.menu_controller.menu_OMERO_Working_Data_Info,'Label');
+            s2 = get(obj.menu_controller.menu_Batch_Indicator_Src,'Label');            
+            if strcmp(s1,s2) % images should be loaded from OMERO
+                %
+                % to do
+                %
+            else
+                
+                if isdir(obj.BatchSrcDirectory)
+
+                    files = dir([obj.BatchSrcDirectory filesep '*.OME.tiff']);
+                    num_files = length(files);
+                    if 0 ~= num_files
+                        names_list = cell(1,num_files);
+                        for k = 1:num_files
+                            names_list{k} = char(files(k).name);
+                        end
+                    else
+                        %? - can't arrive here?
+                    end
+
+                    for k=1:numel(names_list)
+                        fname = [obj.BatchSrcDirectory filesep names_list{k}];                    
+                        infostring = obj.Set_Src_Single(fname,false);                    
+                        if ~isempty(infostring)                    
+                            if strcmp(mode,'FBP')
+                                obj.FBP(true,false);
+                            elseif strcmp(mode,'FBP_GPU')
+                                obj.FBP(true,true);
+                            elseif strcmp(mode,'FBP_Lsrgo')
+                                obj.FBP_Largo;
+                            end
+                            %
+                            %save on disk
+                            L = length(names_list{k});
+                            S = names_list{k};
+                            savefilename = [S(1:L-9) '_VOLUME.OME.tiff'];
+                            hw = waitdialog(['saving ' savefilename]);
+                            bfsave(obj.volm,[obj.BatchDstDirectory filesep savefilename],'Compression', 'LZW','BigTiff', true); 
+                            delete(hw);drawnow;                        
+                            %
+                        end                    
+                    end
+
+                else
+                    %? - can't arrive here?
+                end
+
+            end
+            
+        end
+%-------------------------------------------------------------------------%        
 
     end
     

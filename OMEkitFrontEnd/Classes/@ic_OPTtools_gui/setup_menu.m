@@ -63,6 +63,18 @@ function handles = setup_menu(obj,handles)
     handles.menu_OMERO_set_single = uimenu(menu_OMERO,'Label','Load single Image','Separator','on','Enable','off');
     % handles.menu_OMERO_set_multiple = uimenu(menu_OMERO,'Label','Set Src - multiple Images','Enable','off');
     % handles.menu_OMERO_reset_previous = uimenu(menu_OMERO,'Label','Reset to previous','Enable','off');    
+            
+    %================================= Batch
+    
+    menu_Batch = uimenu(obj.window,'Label','Batch');
+    handles.menu_Batch_Indicator_Src = uimenu(menu_Batch,'Label','...','ForegroundColor','red','Enable','off');    
+    handles.menu_Batch_Indicator_Dst = uimenu(menu_Batch,'Label','...','ForegroundColor','red','Enable','off');        
+    menu_Batch_SetSrc = uimenu(menu_Batch,'Label','Set Source');
+
+    handles.menu_Batch_Src_HD = uimenu(menu_Batch_SetSrc,'Label','HD Directory');
+    handles.menu_Batch_Src_OMERO = uimenu(menu_Batch_SetSrc,'Label','OMERO Dataset');
+    
+    handles.menu_Batch_SetDst = uimenu(menu_Batch,'Label','Set Destination');
     
     %================================= settings
     
