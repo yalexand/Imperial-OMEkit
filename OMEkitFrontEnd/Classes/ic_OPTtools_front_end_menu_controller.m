@@ -274,7 +274,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 [file, path] = uiputfile({'*.OME.tiff'},'Select exported acceptor image file name',obj.data_controller.DefaultDirectory);
                 if file ~= 0  
                     hw = waitdialog(' ');
-                    bfsave(obj.data_controller.volm,[path filesep file],'Compression', 'LZW','BigTiff', true); 
+                    [szX,szY,szZ] = size(obj.data_controller.volm);
+                    bfsave(reshape(obj.data_controller.volm,[szX,szY,1,1,szZ]),[path filesep file],'dimensionOrder','XYCTZ','Compression','LZW','BigTiff',true); 
                     delete(hw);drawnow;
                 end
             else
@@ -345,7 +346,20 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         end
 
     %================================= % reconstruction                
-    
+
+         %------------------------------------------------------------------                
+        function clear_all(obj,~,~)
+                    obj.omero_data_manager.project = [];
+                    obj.omero_data_manager.dataset = [];
+                    obj.data_controller.proj = [];
+                    obj.data_controller.volm = [];            
+                    notify(obj.data_controller,'proj_and_volm_clear');            
+                    set(obj.menu_OMERO_Working_Data_Info,'Label','...','ForegroundColor','red');
+                    set(obj.menu_Batch_Indicator_Src,'Label','...','ForegroundColor','blue');
+                    set(obj.menu_Batch_Indicator_Dst,'Label','...','ForegroundColor','blue');                
+                    obj.data_controller.BatchDstDirectory = [];                    
+                    obj.data_controller.BatchSrcDirectory = [];                                
+        end    
          %------------------------------------------------------------------            
         function ret = maybe_run_batch_reconstruction(obj,mode,~)
 
@@ -357,10 +371,16 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 if ~(batch_src_OK && batch_dst_OK), return, end;        
 
                 button = questdlg('Do you want to run Batch or Current Single?',...
-                'Choose what exactly you want to do','Batch','Single','Single');
-                if strcmp(button,'Batch')
-                   obj.data_controller.run_batch(mode);
-                   ret = true;
+                'Choose what exactly you want to do','Batch','Single','Clear All','Clear All');
+                if strcmp(button,'Batch')                   
+                   obj.data_controller.run_batch(mode);                   
+                   obj.clear_all;
+                   ret = true;                                       
+                elseif strcmp(button,'Single')         
+                   ret = false; % will try to do Single image reconstruction
+                elseif strcmp(button,'Clear All')
+                   obj.clear_all;
+                   ret = true;                                        
                 end                    
         end
          %------------------------------------------------------------------        

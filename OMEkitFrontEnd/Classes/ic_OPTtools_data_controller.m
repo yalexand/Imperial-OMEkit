@@ -774,16 +774,17 @@ classdef ic_OPTtools_data_controller < handle
                                 obj.FBP(true,false);
                             elseif strcmp(mode,'FBP_GPU')
                                 obj.FBP(true,true);
-                            elseif strcmp(mode,'FBP_Lsrgo')
+                            elseif strcmp(mode,'FBP_Largo')
                                 obj.FBP_Largo;
                             end
                             %
-                            %save on disk
+                            % save volume on disk
                             L = length(names_list{k});
                             S = names_list{k};
                             savefilename = [S(1:L-9) '_VOLUME.OME.tiff'];
                             hw = waitdialog(['saving ' savefilename]);
-                            bfsave(obj.volm,[obj.BatchDstDirectory filesep savefilename],'Compression', 'LZW','BigTiff', true); 
+                            [szX,szY,szZ] = size(obj.volm);
+                            bfsave(reshape(obj.volm,[szX,szY,1,1,szZ]),[obj.BatchDstDirectory filesep savefilename],'dimensionOrder','XYCTZ','Compression','LZW','BigTiff',true); 
                             delete(hw);drawnow;                        
                             %
                         end                    
