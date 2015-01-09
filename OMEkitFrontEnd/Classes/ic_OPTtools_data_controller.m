@@ -563,13 +563,7 @@ classdef ic_OPTtools_data_controller < handle
             infostring = [ 'Image "' iName '" [' iId '] @ Dataset "' dName '" [' dId '] @ Project "' pName '" [' pId ']'];            
              
         end
-        %-------------------------------------------------------------------------%
-        function OMERO_load_multiple(obj,omero_data_manager,~)
-            %
-            % to do
-            %
-        end
-                
+        
          %------------------------------------------------------------------        
             function on_new_proj_set(obj, ~,~)
                 set(obj.menu_controller.proj_label,'ForegroundColor','blue');
