@@ -80,7 +80,6 @@ classdef ic_OPTtools_data_controller < handle
     events
         new_proj_set;
         new_volm_set;
-        new_batch_set;
         proj_clear;
         volm_clear;
         proj_and_volm_clear;
@@ -98,7 +97,6 @@ classdef ic_OPTtools_data_controller < handle
             addlistener(obj,'proj_clear',@obj.on_proj_clear);                        
             addlistener(obj,'volm_clear',@obj.on_volm_clear);            
             addlistener(obj,'proj_and_volm_clear',@obj.on_proj_and_volm_clear);                                    
-            addlistener(obj,'new_batch_set',@obj.on_new_batch_set);   
 
             try 
             obj.load_settings;
@@ -239,23 +237,6 @@ classdef ic_OPTtools_data_controller < handle
             infostring = obj.current_filename;
             
         end
-% %-------------------------------------------------------------------------%        
-%         function Set_Src_Multiple(obj,src_dir_path,~)
-%             disp(src_dir_path);
-%             %
-%             % todo
-%             %
-%             obj.DefaultDirectory = src_dir_path;
-%             % notify(obj,'new_batch_set'); % ?            
-%         end
-% %-------------------------------------------------------------------------%        
-%         function Set_Dst_Dir(obj,dst_dir_path,~)
-%             disp(dst_dir_path);
-%             %
-%             % todo
-%             %
-%             obj.DefaultDirectory = dst_dir_path;            
-%         end        
 %-------------------------------------------------------------------------%
         function delete(obj)
             obj.save_settings;
@@ -481,7 +462,7 @@ classdef ic_OPTtools_data_controller < handle
         end      
 %-------------------------------------------------------------------------%
         function infostring  = OMERO_load_single(obj,omero_data_manager,verbose,~)
-
+            
             infostring = [];            
             
             if ~isempty(omero_data_manager.dataset)
@@ -492,6 +473,15 @@ classdef ic_OPTtools_data_controller < handle
             end;
             
             if isempty(image), return, end;
+
+            angleS = obj.OMERO_get_angles(omero_data_manager,image);
+            if isempty(angleS), errordlg('source does not contain angle specs - can not continue'), return, end;
+                        
+            infostring = obj.OMERO_load_image(omero_data_manager,image,verbose);
+                        
+        end
+%-------------------------------------------------------------------------%
+        function infostring  = OMERO_load_image(obj,omero_data_manager,image,verbose,~)
             
             omero_data_manager.image = image;
             
@@ -507,7 +497,7 @@ classdef ic_OPTtools_data_controller < handle
             rawPixelsStore.setPixelsId(pixelsId, false);    
                         
             obj.angles = obj.OMERO_get_angles(omero_data_manager,omero_data_manager.image);
-            if isempty(obj.angles), errordlg('source does not contain angle specs - can not continue'), return, end;
+            % if isempty(obj.angles), errordlg('source does not contain angle specs - can not continue'), return, end;
                                                     
             waitmsg = 'Loading planes form Omero, please wait ...';
             hw = [];
@@ -573,7 +563,7 @@ classdef ic_OPTtools_data_controller < handle
             infostring = [ 'Image "' iName '" [' iId '] @ Dataset "' dName '" [' dId '] @ Project "' pName '" [' pId ']'];            
              
         end
-%-------------------------------------------------------------------------%
+        %-------------------------------------------------------------------------%
         function OMERO_load_multiple(obj,omero_data_manager,~)
             %
             % to do
@@ -601,9 +591,6 @@ classdef ic_OPTtools_data_controller < handle
             function on_proj_and_volm_clear(obj, ~,~)
                 set(obj.menu_controller.volm_label,'ForegroundColor','red');                                
                 set(obj.menu_controller.proj_label,'ForegroundColor','red');                                
-            end
-         %------------------------------------------------------------------            
-            function on_new_batch_set(obj, ~,~)
             end
                         
 %-------------------------------------------------------------------------%        
@@ -642,6 +629,7 @@ classdef ic_OPTtools_data_controller < handle
             end
             
         end
+        
 %-------------------------------------------------------------------------%
         function ret = OMERO_get_angles(obj,omero_data_manager,image,~)
             
@@ -681,10 +669,8 @@ classdef ic_OPTtools_data_controller < handle
             end
                         
         end        
+        
 %-------------------------------------------------------------------------%                
-
-
-%-------------------------------------------------------------------------%        
         function res = do_FBP_on_Z_chunk(obj,zrange,use_GPU)
                             
              res = [];
@@ -742,16 +728,49 @@ classdef ic_OPTtools_data_controller < handle
              res( res <= 0 ) = 0; % mm? 
              
         end
+        
 %-------------------------------------------------------------------------%
-        function run_batch(obj,mode,~)
+        function run_batch(obj,omero_data_manager,mode,~)
                                     
             s1 = get(obj.menu_controller.menu_OMERO_Working_Data_Info,'Label');
             s2 = get(obj.menu_controller.menu_Batch_Indicator_Src,'Label');            
-            if strcmp(s1,s2) % images should be loaded from OMERO
+            if strcmp(s1,s2) && ~isempty(omero_data_manager.session) % images should be loaded from OMERO
                 %
-                % to do
-                %
-            else
+                imageList = getImages(omero_data_manager.session, 'dataset', omero_data_manager.dataset.getId.getValue);
+                
+                if isempty(imageList)
+                    errordlg(['Dataset ' pName ' have no images'])
+                    return;
+                end;                                    
+                        
+                waitmsg = 'Batch processing...';
+                hw = waitdialog(waitmsg);
+                for k = 1:length(imageList) 
+                        waitdialog((k-1)/length(imageList),hw,waitmsg); drawnow                    
+                        infostring = obj.OMERO_load_image(omero_data_manager,imageList(k),false);
+                        if ~isempty(infostring)                    
+                            if strcmp(mode,'FBP')
+                                obj.FBP(false,false);
+                            elseif strcmp(mode,'FBP_GPU')
+                                obj.FBP(false,true);
+                            elseif strcmp(mode,'FBP_Largo')
+                                obj.FBP_Largo;
+                            end
+                            %
+                            % save volume on disk - presume OME.tiff filenames everywhere
+                            iName = char(java.lang.String(imageList(k).getName().getValue()));                            
+                            L = length(iName);
+                            S = iName;
+                            savefilename = [S(1:L-9) '_VOLUME.OME.tiff'];
+                            [szX,szY,szZ] = size(obj.volm);
+                            bfsave(reshape(obj.volm,[szX,szY,1,1,szZ]),[obj.BatchDstDirectory filesep savefilename], ...
+                                                        'dimensionOrder','XYCTZ','Compression','LZW','BigTiff',true); 
+                        end   
+                        waitdialog(k/length(imageList),hw,waitmsg); drawnow
+                end 
+                delete(hw);drawnow;                  
+                
+            else % images should be loaded from HD
                 
                 if isdir(obj.BatchSrcDirectory)
 
@@ -766,14 +785,17 @@ classdef ic_OPTtools_data_controller < handle
                         %? - can't arrive here?
                     end
 
+                    waitmsg = 'Batch processing...';
+                    hw = waitdialog(waitmsg);                    
                     for k=1:numel(names_list)
+                        waitdialog((k-1)/numel(names_list),hw,waitmsg); drawnow;
                         fname = [obj.BatchSrcDirectory filesep names_list{k}];                    
-                        infostring = obj.Set_Src_Single(fname,false);                    
-                        if ~isempty(infostring)                    
+                        infostring = obj.Set_Src_Single(fname,false);                        
+                        if ~isempty(infostring)  
                             if strcmp(mode,'FBP')
-                                obj.FBP(true,false);
+                                obj.FBP(false,false);
                             elseif strcmp(mode,'FBP_GPU')
-                                obj.FBP(true,true);
+                                obj.FBP(false,true);
                             elseif strcmp(mode,'FBP_Largo')
                                 obj.FBP_Largo;
                             end
@@ -782,19 +804,19 @@ classdef ic_OPTtools_data_controller < handle
                             L = length(names_list{k});
                             S = names_list{k};
                             savefilename = [S(1:L-9) '_VOLUME.OME.tiff'];
-                            hw = waitdialog(['saving ' savefilename]);
                             [szX,szY,szZ] = size(obj.volm);
-                            bfsave(reshape(obj.volm,[szX,szY,1,1,szZ]),[obj.BatchDstDirectory filesep savefilename],'dimensionOrder','XYCTZ','Compression','LZW','BigTiff',true); 
-                            delete(hw);drawnow;                        
-                            %
+                            bfsave(reshape(obj.volm,[szX,szY,1,1,szZ]),[obj.BatchDstDirectory filesep savefilename], ...
+                                                        'dimensionOrder','XYCTZ','Compression','LZW','BigTiff',true);
                         end                    
+                        waitdialog(k/numel(names_list),hw,waitmsg); drawnow;                                                                            
                     end
+                    delete(hw);drawnow;
 
                 else
                     %? - can't arrive here?
                 end
-
-            end
+                
+            end 
             
         end
 %-------------------------------------------------------------------------%        
