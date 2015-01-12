@@ -388,53 +388,57 @@ classdef ic_OPTtools_data_controller < handle
         end
 %-------------------------------------------------------------------------%        
         function FBP_Largo(obj,~,~)
-            
-            if ~(1==obj.downsampling)
+
+             if ~(1==obj.downsampling)
                  errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue')
                  return; 
              end;     
 
-             n_chunks = 10;
-             %
              obj.volm = [];                
              notify(obj,'volm_clear');
-
+             [~,sizeZ,~] = size(obj.proj);              
+             
+             maxV = -inf;              
+             
+             % not hooked
+             Max_vox_chunk = 71*1e6;
+             n_chunks = floor(numel(obj.proj(:))/Max_vox_chunk);                          
+             if n_chunks <= 1, n_chunks = 2; end;
+                          
+             n_chunks = 8;             
+             
+             sz_chunk = floor(sizeZ/n_chunks);             
+             %
+             rest_z = mod(sizeZ,n_chunks);
+             % 
+             z2 = (1:n_chunks)*sz_chunk;
+             z1 = z2 - sz_chunk+1;
+             zranges = [z1;z2]';
+                           
+             if 0~=rest_z
+                  lastel = zranges(n_chunks,:);
+                  lastel(1) = lastel(2) + 1;
+                  lastel(2) = lastel(2) + rest_z;                  
+                  zranges = [zranges; lastel];
+             end
+              
              s1 = 'processing chunks & saving...';
              hw1 = waitdialog(s1);
-
-             [~,sizeZ,~] = size(obj.proj); 
-             
-             maxV = -inf; 
-             
-             sz_chunk = floor(sizeZ/n_chunks);
-             zrange(1)=1;
-             zrange(2)=sz_chunk;
-             k=0;
-             while  zrange(2) < (sizeZ-sz_chunk)
-                 %
-                res = do_FBP_on_Z_chunk(obj,zrange,obj.isGPU);
+             sz = size(zranges);
+             n_blocks = sz(1);
+             for k = 1 : n_blocks
+                    waitdialog((k-1)/n_blocks,hw1,s1);                                  
+                res = do_FBP_on_Z_chunk(obj,zranges(k,:),obj.isGPU);
                 curmax = max(res(:));
                 if curmax>maxV, maxV=curmax; end;
                 res(res<0)=0;
-                %
-                zrange = zrange + sz_chunk;
-                k=k+1;
                 save(num2str(k),'res');
-                waitdialog(k/(n_chunks+1),hw1,s1);
+                    waitdialog(k/n_blocks,hw1,s1);                 
              end
-             zrange_last(1) = zrange(2)+1;
-             zrange_last(2) = sizeZ;
-             %
-             res = do_FBP_on_Z_chunk(obj,zrange_last,obj.isGPU);
-             curmax = max(res(:));
-             if curmax>maxV, maxV=curmax; end;
-             res(res<0)=0;
-             %
-             k=k+1;
-             save(num2str(k),'res');
-             [szVx,szVy,~]=size(res);
              delete(hw1);drawnow;
-             %
+                 
+             [szVx,szVy,~]=size(res);
+             
              try
                  obj.proj = [];
                  notify(obj,'proj_clear');
@@ -446,14 +450,12 @@ classdef ic_OPTtools_data_controller < handle
              %
              s2 = 'retrieving chunks...';
              hw2 = waitdialog(s2);
-             z_beg=1;
-             for m=1:k
-                 load(num2str(m));
-                 [~,~,szVMz] = size(res);                 
-                 obj.volm(:,:,z_beg:z_beg+szVMz-1) = cast(res*32767/maxV,'uint16');                
-                 z_beg = z_beg+szVMz;
-                 delete([num2str(m) '.mat']);
-                 waitdialog(m/k,hw2,s2);
+             for k=1:n_blocks
+                 waitdialog((k-1)/n_blocks,hw2,s2)
+                 load(num2str(k));
+                 obj.volm(:,:,zranges(k,1):zranges(k,2)) = cast(res*32767/maxV,'uint16');                
+                 delete([num2str(k) '.mat']);
+                 waitdialog(k/n_blocks,hw2,s2);
              end
              delete(hw2);drawnow;
              %
@@ -686,7 +688,7 @@ classdef ic_OPTtools_data_controller < handle
                  %                                                   
                  y_min = zrange(1);
                  y_max = zrange(2);
-                 YL = y_max - y_min;                             
+                 YL = y_max - y_min + 1; % mmmm
                                                    
                  if use_GPU && obj.isGPU 
                                           
