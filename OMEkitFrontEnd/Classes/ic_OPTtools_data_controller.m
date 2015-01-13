@@ -214,9 +214,41 @@ classdef ic_OPTtools_data_controller < handle
                     %
                     if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;                    
                     %
-                end
-                                
+                end                                
                 if ~isempty(hw), delete(hw), drawnow, end;
+                
+                % possibly correcting orientation
+                if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+                    %
+                    waitmsg = 'Oops.. swappig dimensions..';
+                    if verbose
+                        hw = waitdialog(waitmsg);
+                    end
+                    %
+                    obj.proj = [];                  
+                    %
+                    for p = 1 : n_planes,                    
+                        plane = rot90(imgdata{p,1});
+                        %   
+                        if isempty(obj.proj)
+                            [sizeX,sizeY] = size(plane);
+                            obj.proj = zeros(sizeX,sizeY,n_planes,class(plane));
+                            %
+                            obj.current_filename = full_filename;
+                            if isempty(obj.previous_filenames)
+                                obj.previous_filenames{1} = obj.current_filename;
+                            end                                                                                                
+                        end %  ini - end
+                        %
+                        obj.proj(:,:,p) = plane;
+                        %
+                        if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;                    
+                        %
+                    end                                
+                    if ~isempty(hw), delete(hw), drawnow, end;                                                                                
+                    %
+                end
+                % end orientation correcting...
                 
                 % that might be inadequate for transmission...
                 if min(obj.proj(:)) > 2^15
@@ -229,13 +261,54 @@ classdef ic_OPTtools_data_controller < handle
                 [filepath,~,~] = fileparts(full_filename);
                 obj.DefaultDirectory = filepath;
             end
-            
-            % obj.data - do something dependent on downsampling... etc... 
-            
+                        
             notify(obj,'new_proj_set');                        
             
             infostring = obj.current_filename;
             
+        end
+%-------------------------------------------------------------------------%
+        function res = proj_rect_orientation_is_OK(obj,~,~)
+            
+            [sizeX,sizeY,n_planes] = size(obj.proj);
+             
+            ps1_acc = [];
+            for k=1:2:sizeY
+                s1 = squeeze(double(obj.proj(:,k,:)));
+                s = sum(s1);
+                F = fftshift(fft(s));
+                ps = F.*conj(F);                
+                if isempty(ps1_acc) ps1_acc = zeros(size(ps)); end;
+                ps1_acc = ps1_acc + ps;
+            end
+            %
+            ps2_acc = [];
+            for k=1:2:sizeX
+                s2 = squeeze(double(obj.proj(k,:,:)));
+                s = sum(s2);
+                F = fftshift(fft(s));
+                ps = F.*conj(F);                
+                if isempty(ps2_acc) ps2_acc = zeros(size(ps)); end;
+                ps2_acc = ps2_acc + ps;
+            end
+            %
+            ps1_acc = ps1_acc/(sizeY/2);
+            ps2_acc = ps2_acc/(sizeX/2);
+            %
+            N = fix(length(ps1_acc))/2;            
+            %                        
+            y1 = ps1_acc(N+2:2*N);
+            y2 = ps2_acc(N+2:2*N);            
+            
+            discr_param = mean(log(y2./y1));
+            
+%             figure();
+%             plot((1:N-1),log(y1),'b.-',(1:N-1),log(y2),'r.-');
+%             xlabel(num2str(discr_param));
+            
+            res = true;
+            if (discr_param < 0), res = false; end;
+                                                               
         end
 %-------------------------------------------------------------------------%
         function delete(obj)
@@ -389,7 +462,7 @@ classdef ic_OPTtools_data_controller < handle
 %-------------------------------------------------------------------------%        
         function FBP_Largo(obj,~,~)
 
-             if ~(1==obj.downsampling)
+             if 1 ~= obj.downsampling
                  errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue')
                  return; 
              end;     
@@ -532,7 +605,40 @@ classdef ic_OPTtools_data_controller < handle
                     if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;
                     %
             end
+            if ~isempty(hw), delete(hw), drawnow; end;   
+            
+                % possibly correcting orientation
+                if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+                    %
+                    waitmsg = 'Oops.. swappig dimensions..';
+                    if verbose
+                        hw = waitdialog(waitmsg);
+                    end
+                    %
+                    obj.proj = [];                  
+                    %
+                    for p = 1 : SizeZ,
+                            z = p-1;
+                            c = 0;
+                            t = 0;
+                            rawPlane = rawPixelsStore.getPlane(z,c,t);                    
+                            plane = rot90(toMatrix(rawPlane, pixels)');
+                            %
+                            if isempty(obj.proj)
+                                [sizeX,sizeY] = size(plane);
+                                obj.proj = zeros(sizeX,sizeY,n_planes,class(plane));
 
+                            end %  ini - end
+                            %
+                            obj.proj(:,:,p) = plane;
+                            %
+                            if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;
+                            %
+                    end                          
+                    if ~isempty(hw), delete(hw), drawnow, end;                                                                                
+                    %
+                end
+            
                 % that might be inadequate for transmission...
                 if min(obj.proj(:)) > 2^15
                     obj.proj = obj.proj - 2^15;    % clear the sign bit which is set by labview
@@ -541,8 +647,6 @@ classdef ic_OPTtools_data_controller < handle
 %                  max_val = max(obj.proj(:));
 %                  obj.proj = max_val - obj.proj;
                          
-            delete(hw); drawnow;    
-
             rawPixelsStore.close();           
             
             notify(obj,'new_proj_set');                        
@@ -564,8 +668,7 @@ classdef ic_OPTtools_data_controller < handle
             
             infostring = [ 'Image "' iName '" [' iId '] @ Dataset "' dName '" [' dId '] @ Project "' pName '" [' pId ']'];            
              
-        end
-        
+        end        
          %------------------------------------------------------------------        
             function on_new_proj_set(obj, ~,~)
                 set(obj.menu_controller.proj_label,'ForegroundColor','blue');
@@ -587,8 +690,7 @@ classdef ic_OPTtools_data_controller < handle
             function on_proj_and_volm_clear(obj, ~,~)
                 set(obj.menu_controller.volm_label,'ForegroundColor','red');                                
                 set(obj.menu_controller.proj_label,'ForegroundColor','red');                                
-            end
-                        
+            end                        
 %-------------------------------------------------------------------------%        
         function ret = get_angles(obj,full_filename,~)
             
@@ -624,8 +726,7 @@ classdef ic_OPTtools_data_controller < handle
             catch
             end
             
-        end
-        
+        end        
 %-------------------------------------------------------------------------%
         function ret = OMERO_get_angles(obj,omero_data_manager,image,~)
             
@@ -664,8 +765,7 @@ classdef ic_OPTtools_data_controller < handle
             catch
             end
                         
-        end        
-        
+        end                
 %-------------------------------------------------------------------------%                
         function res = do_FBP_on_Z_chunk(obj,zrange,use_GPU)
                             
@@ -723,8 +823,7 @@ classdef ic_OPTtools_data_controller < handle
                                                                
              res( res <= 0 ) = 0; % mm? 
              
-        end
-        
+        end        
 %-------------------------------------------------------------------------%
         function run_batch(obj,omero_data_manager,mode,~)
                                     
@@ -737,8 +836,13 @@ classdef ic_OPTtools_data_controller < handle
                 if isempty(imageList)
                     errordlg(['Dataset ' pName ' have no images'])
                     return;
-                end;                                    
-                        
+                end;
+                %
+                if strcmp(mode,'FBP_Largo') && 1 ~= ob.downsampling
+                    errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue');
+                    return;                     
+                end
+                %                        
                 waitmsg = 'Batch processing...';
                 hw = waitdialog(waitmsg);
                 for k = 1:length(imageList) 
