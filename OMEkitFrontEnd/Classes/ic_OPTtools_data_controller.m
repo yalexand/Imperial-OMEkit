@@ -53,7 +53,6 @@ classdef ic_OPTtools_data_controller < handle
         DstDir = [];        
         
         current_filename = []; % not sure
-        % current_metadata = [];
         
         file_names = [];
         omero_IDs = [];
@@ -61,8 +60,12 @@ classdef ic_OPTtools_data_controller < handle
         previous_filenames = [];
         previous_omero_IDs = [];
         
-        angles; % well..
-                
+        angles; 
+
+        % current_metadata = []; % ?
+        PixelsPhysicalSizeX = []; % as in loaded original
+        PixelsPhysicalSizeY = [];
+                        
     end    
         
     properties(Transient,Hidden)
@@ -193,9 +196,19 @@ classdef ic_OPTtools_data_controller < handle
             end
             
             if ~isempty(omedata)
-
-                imgdata = omedata{1,1};                
-                n_planes = length(imgdata(:,1));
+                                
+            r = loci.formats.ChannelFiller();
+            r = loci.formats.ChannelSeparator(r);
+            OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
+            r.setMetadataStore(OMEXMLService.createOMEXMLMetadata());
+            r.setId(full_filename);
+            r.setSeries(0);            
+            omeMeta = r.getMetadataStore();             
+            obj.PixelsPhysicalSizeX = omeMeta.getPixelsPhysicalSizeX(0).getValue;
+            obj.PixelsPhysicalSizeY = omeMeta.getPixelsPhysicalSizeY(0).getValue;
+                                                                    
+            imgdata = omedata{1,1};                
+            n_planes = length(imgdata(:,1));
                                 
                 for p = 1 : n_planes,                    
                     plane = imgdata{p,1};
@@ -267,6 +280,23 @@ classdef ic_OPTtools_data_controller < handle
             infostring = obj.current_filename;
             
         end
+%-------------------------------------------------------------------------%
+function save_volume(obj,full_filename,verbose,~)                        
+    hw = [];
+    if verbose, hw = waitdialog(' '); end;                    
+        [szX,szY,szZ] = size(obj.volm);                                        
+        if ~isempty(obj.PixelsPhysicalSizeX) && ~isempty(obj.PixelsPhysicalSizeX)
+            metadata = createMinimalOMEXMLMetadata(reshape(obj.volm,[szX,szY,1,1,szZ]),'XYCTZ');
+            toPosFloat = @(x) ome.xml.model.primitives.PositiveFloat(java.lang.Double(x));
+            metadata.setPixelsPhysicalSizeX(toPosFloat(obj.PixelsPhysicalSizeX*obj.downsampling),0);
+            metadata.setPixelsPhysicalSizeY(toPosFloat(obj.PixelsPhysicalSizeY*obj.downsampling),0);
+            metadata.setPixelsPhysicalSizeZ(toPosFloat(obj.PixelsPhysicalSizeX*obj.downsampling),0);                        
+            bfsave(reshape(obj.volm,[szX,szY,1,1,szZ]),full_filename,'metadata',metadata,'Compression','LZW','BigTiff',true); 
+        else
+            bfsave(reshape(obj.volm,[szX,szY,1,1,szZ]),full_filename,'dimensionOrder','XYCTZ','Compression','LZW','BigTiff',true); 
+        end                    
+    if verbose, delete(hw), drawnow; end;
+end
 %-------------------------------------------------------------------------%
         function res = proj_rect_orientation_is_OK(obj,~,~)
             
@@ -566,6 +596,9 @@ classdef ic_OPTtools_data_controller < handle
             pixels = pixelsList.get(0);
                         
             SizeZ = pixels.getSizeZ().getValue();
+            
+            obj.PixelsPhysicalSizeX = pixels.getPhysicalSizeX.getValue;
+            obj.PixelsPhysicalSizeY = pixels.getPhysicalSizeY.getValue;
         
             pixelsId = pixels.getId().getValue();
             rawPixelsStore = omero_data_manager.session.createRawPixelsStore(); 
@@ -862,9 +895,7 @@ classdef ic_OPTtools_data_controller < handle
                             L = length(iName);
                             S = iName;
                             savefilename = [S(1:L-9) '_VOLUME.OME.tiff'];
-                            [szX,szY,szZ] = size(obj.volm);
-                            bfsave(reshape(obj.volm,[szX,szY,1,1,szZ]),[obj.BatchDstDirectory filesep savefilename], ...
-                                                        'dimensionOrder','XYCTZ','Compression','LZW','BigTiff',true); 
+                            obj.save_volume([obj.BatchDstDirectory filesep savefilename],false); % silent
                         end   
                         waitdialog(k/length(imageList),hw,waitmsg); drawnow
                 end 
@@ -904,9 +935,7 @@ classdef ic_OPTtools_data_controller < handle
                             L = length(names_list{k});
                             S = names_list{k};
                             savefilename = [S(1:L-9) '_VOLUME.OME.tiff'];
-                            [szX,szY,szZ] = size(obj.volm);
-                            bfsave(reshape(obj.volm,[szX,szY,1,1,szZ]),[obj.BatchDstDirectory filesep savefilename], ...
-                                                        'dimensionOrder','XYCTZ','Compression','LZW','BigTiff',true);
+                            obj.save_volume([obj.BatchDstDirectory filesep savefilename],false); % silent
                         end                    
                         waitdialog(k/numel(names_list),hw,waitmsg); drawnow;                                                                            
                     end

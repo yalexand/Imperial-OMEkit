@@ -231,7 +231,10 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_file_set_src_single_callback(obj, ~, ~)
             [file,path] = uigetfile({'*.OME.tiff','OME.tiff Files'},'Select OPT data file',obj.data_controller.DefaultDirectory);
             if file ~= 0
-                infostring = obj.data_controller.Set_Src_Single([path file],true); % verbose
+                %infostring = obj.data_controller.Set_Src_Single([path file],true); % verbose
+                
+                infostring = obj.data_controller.Set_Src_Single([path file],false);
+                
                 if ~isempty(infostring)
                     set(obj.menu_file_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
                     set(obj.menu_OMERO_Working_Data_Info,'Label','...','Enable','off');
@@ -272,11 +275,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_file_save_current_volume_callback(obj,~,~)
             if ~isempty(obj.data_controller.volm)
                 [file, path] = uiputfile({'*.OME.tiff'},'Select exported acceptor image file name',obj.data_controller.DefaultDirectory);
-                if file ~= 0  
-                    hw = waitdialog(' ');
-                    [szX,szY,szZ] = size(obj.data_controller.volm);
-                    bfsave(reshape(obj.data_controller.volm,[szX,szY,1,1,szZ]),[path filesep file],'dimensionOrder','XYCTZ','Compression','LZW','BigTiff',true); 
-                    delete(hw);drawnow;
+                if file ~= 0
+                    obj.data_controller.save_volume([path filesep file],true);
                 end
             else
                 errordlg('Volume was not created - nothing to save');
