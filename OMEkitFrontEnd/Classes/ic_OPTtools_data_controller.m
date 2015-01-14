@@ -893,8 +893,7 @@ end
                             % save volume on disk - presume OME.tiff filenames everywhere
                             iName = char(java.lang.String(imageList(k).getName().getValue()));                            
                             L = length(iName);
-                            S = iName;
-                            savefilename = [S(1:L-9) '_VOLUME.OME.tiff'];
+                            savefilename = [iName(1:L-9) '_VOLUME.OME.tiff'];
                             obj.save_volume([obj.BatchDstDirectory filesep savefilename],false); % silent
                         end   
                         waitdialog(k/length(imageList),hw,waitmsg); drawnow
@@ -932,9 +931,9 @@ end
                             end
                             %
                             % save volume on disk
-                            L = length(names_list{k});
-                            S = names_list{k};
-                            savefilename = [S(1:L-9) '_VOLUME.OME.tiff'];
+                            iName = names_list{k};
+                            L = length(iName);
+                            savefilename = [iName(1:L-9) '_VOLUME.OME.tiff'];
                             obj.save_volume([obj.BatchDstDirectory filesep savefilename],false); % silent
                         end                    
                         waitdialog(k/numel(names_list),hw,waitmsg); drawnow;                                                                            
