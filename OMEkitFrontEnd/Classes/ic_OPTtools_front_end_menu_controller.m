@@ -185,7 +185,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             obj.omero_data_manager.dataset = [];
             obj.data_controller.proj = [];
             obj.data_controller.volm = [];            
-            notify(obj.data_controller,'proj_and_volm_clear');            
+            obj.data_controller.on_proj_and_volm_clear;
             set(obj.menu_OMERO_Working_Data_Info,'Label','...','ForegroundColor','red');
         end                            
         %------------------------------------------------------------------
@@ -195,7 +195,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             obj.omero_data_manager.dataset = [];
             obj.data_controller.proj = [];
             obj.data_controller.volm = [];            
-            notify(obj.data_controller,'proj_and_volm_clear');
+            obj.data_controller.on_proj_and_volm_clear;
             set(obj.menu_OMERO_Working_Data_Info,'Label','...','ForegroundColor','red');
         end  
          %------------------------------------------------------------------
@@ -231,10 +231,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_file_set_src_single_callback(obj, ~, ~)
             [file,path] = uigetfile({'*.OME.tiff','OME.tiff Files'},'Select OPT data file',obj.data_controller.DefaultDirectory);
             if file ~= 0
-                %infostring = obj.data_controller.Set_Src_Single([path file],true); % verbose
-                
-                infostring = obj.data_controller.Set_Src_Single([path file],false);
-                
+                infostring = obj.data_controller.Set_Src_Single([path file],true); % verbose
                 if ~isempty(infostring)
                     set(obj.menu_file_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
                     set(obj.menu_OMERO_Working_Data_Info,'Label','...','Enable','off');
@@ -353,7 +350,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                     obj.omero_data_manager.dataset = [];
                     obj.data_controller.proj = [];
                     obj.data_controller.volm = [];            
-                    notify(obj.data_controller,'proj_and_volm_clear');            
+                    obj.data_controller.on_proj_and_volm_clear;            
                     set(obj.menu_OMERO_Working_Data_Info,'Label','...','ForegroundColor','red');
                     set(obj.menu_Batch_Indicator_Src,'Label','...','ForegroundColor','blue');
                     set(obj.menu_Batch_Indicator_Dst,'Label','...','ForegroundColor','blue');                
@@ -388,8 +385,9 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             
             if obj.maybe_run_batch_reconstruction('FBP'), return, end;
             
-            if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
-                obj.data_controller.FBP(true,false); % verbose, + no GPU
+            if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)              
+                obj.data_controller.perform_reconstruction('IRADON',true,false); % verbose, + no GPU
+                
             else
                 msgbox('data not loaded - can not do reconstruction');
             end            
@@ -400,7 +398,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             if obj.maybe_run_batch_reconstruction('FBP_GPU'), return, end;            
             
             if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
-                obj.data_controller.FBP(true,true); % verbose, + GPU
+                obj.data_controller.perform_reconstruction('IRADON',true,true); % verbose, + GPU                
             else
                 msgbox('data not loaded - can not do reconstruction');
             end            
@@ -411,7 +409,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             if obj.maybe_run_batch_reconstruction('FBP_Largo'), return, end;            
             
             if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
-                obj.data_controller.FBP_Largo;
+                %obj.data_controller.FBP_Largo;
+                obj.data_controller.perform_reconstruction_Largo('IRADON');
             else
                 msgbox('data not loaded - can not do reconstruction');
             end            
@@ -444,32 +443,36 @@ classdef ic_OPTtools_front_end_menu_controller < handle
          function set_pixel_downsampling(obj,factor,~)
             obj.data_controller.downsampling = factor;
             obj.data_controller.volm = [];
-            notify(obj.data_controller,'volm_clear');                        
+            obj.data_controller.on_volm_clear;
             set(obj.menu_settings_Pixel_Downsampling,'Label',['Pixel downsampling : 1/' num2str(factor)]);                                                 
          end    
         %
          %------------------------------------------------------------------        
         function menu_settings_Angle_Downsampling_1_callback(obj, ~,~)
             obj.data_controller.angle_downsampling = 1;
-            obj.data_controller.volm = []; notify(obj.data_controller,'volm_clear');
+            obj.data_controller.volm = []; 
+            obj.data_controller.on_volm_clear;
             set(obj.menu_settings_Angle_Downsampling,'Label','Angle downsampling 1/1');                                    
         end                    
          %------------------------------------------------------------------        
         function menu_settings_Angle_Downsampling_2_callback(obj, ~,~)
             obj.data_controller.angle_downsampling = 2;
-            obj.data_controller.volm = []; notify(obj.data_controller,'volm_clear');
+            obj.data_controller.volm = []; 
+            obj.data_controller.on_volm_clear;
             set(obj.menu_settings_Angle_Downsampling,'Label','Angle downsampling 1/2');                                                
         end            
          %------------------------------------------------------------------        
         function menu_settings_Angle_Downsampling_4_callback(obj, ~,~)
             obj.data_controller.angle_downsampling = 4;
-            obj.data_controller.volm = []; notify(obj.data_controller,'volm_clear'); 
+            obj.data_controller.volm = []; 
+            obj.data_controller.on_volm_clear;
             set(obj.menu_settings_Angle_Downsampling,'Label','Angle downsampling 1/4');                                                           
         end            
          %------------------------------------------------------------------
         function menu_settings_Angle_Downsampling_8_callback(obj, ~,~)
             obj.data_controller.angle_downsampling = 8;
-            obj.data_controller.volm = []; notify(obj.data_controller,'volm_clear');
+            obj.data_controller.volm = []; 
+            obj.data_controller.on_volm_clear;
             set(obj.menu_settings_Angle_Downsampling,'Label','Angle downsampling 1/8');            
         end                    
          %------------------------------------------------------------------

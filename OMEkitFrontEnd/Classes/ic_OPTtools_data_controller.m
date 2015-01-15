@@ -36,8 +36,8 @@ classdef ic_OPTtools_data_controller < handle
         
         FBP_interp = 'linear';
         FBP_filter = 'Ram-Lak';
-        FBP_fscaling = 1;    
-                
+        FBP_fscaling = 1;                    
+        
     end                    
     
     properties(Transient)
@@ -164,7 +164,11 @@ classdef ic_OPTtools_data_controller < handle
         end
 %-------------------------------------------------------------------------%
         function infostring = Set_Src_Single(obj,full_filename,verbose,~)
-            %   
+            %
+            obj.proj = [];
+            obj.volm = [];            
+            obj.on_proj_and_volm_clear;            
+            %
             infostring = [];
             obj.angles = obj.get_angles(full_filename); % temp
             if isempty(obj.angles), 
@@ -179,11 +183,7 @@ classdef ic_OPTtools_data_controller < handle
             if verbose
                 hw = waitdialog(waitmsg);
             end
-            
-            obj.proj = [];
-            obj.volm = [];            
-            notify(obj,'proj_and_volm_clear');                                                 
-            
+                        
             try
             omedata = bfopen(full_filename);
             catch err
@@ -275,7 +275,7 @@ classdef ic_OPTtools_data_controller < handle
                 obj.DefaultDirectory = filepath;
             end
                         
-            notify(obj,'new_proj_set');                        
+            obj.on_new_proj_set;
             
             infostring = obj.current_filename;
             
@@ -345,7 +345,31 @@ end
             obj.save_settings;
         end
 %-------------------------------------------------------------------------%        
-        function FBP(obj,verbose,use_GPU)
+        function reconstruction = IRADON(obj,sinogram,~)
+            step = obj.angle_downsampling;                 
+            n_angles = numel(obj.angles);
+            acting_angles = obj.angles(1:step:n_angles);
+            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
+        end
+%-------------------------------------------------------------------------%        
+        function perform_reconstruction(obj,mode,verbose,use_GPU,~)
+            
+            RF = []; % reconstruction function
+            if strcmp(mode,'IRADON')
+                RF = @obj.IRADON;
+            end
+                                                            
+            obj.volm = [];                
+            obj.on_volm_clear;
+
+            [sizeX,sizeY,sizeZ] = size(obj.proj); 
+             
+            n_angles = numel(obj.angles);
+             
+            if sizeZ ~= n_angles
+                errormsg('Incompatible settings - can not continue');
+                return;
+            end
             
             s = [];
             if use_GPU && obj.isGPU
@@ -356,38 +380,24 @@ end
                 errordlg('can not run FBP (GPU) without GPU');
                 return;
             end
-            
+                          
             hw = [];
             if verbose
                 hw = waitdialog(s);
             end
-                                    
-             obj.volm = [];                
-             notify(obj,'volm_clear');
-
-             [sizeX,sizeY,sizeZ] = size(obj.proj); 
+                          
+            f = 1/obj.downsampling;
+            [szX_r,szY_r] = size(imresize(zeros(sizeX,sizeY),f));                 
              
-             n_angles = numel(obj.angles);
-             
-             if sizeZ ~= n_angles
-                 errormsg('Incompatible settings - can not continue');
-                 return;
-             end
-                 
-                 f = 1/obj.downsampling;
-                 [szX_r,szY_r] = size(imresize(zeros(sizeX,sizeY),f));                 
-             
-                 step = obj.angle_downsampling;                 
-                 acting_angles = obj.angles(1:step:n_angles);
-                 %                                                   
-                 y_min = 1;
-                 y_max = sizeY;
-                 YL = sizeY;
-                 if ~isempty(obj.Z_range)
-                     y_min = obj.Z_range(1);
-                     y_max = obj.Z_range(2);
-                     YL = y_max - y_min;                             
-                 end                         
+            %                                                   
+            y_min = 1;
+            y_max = sizeY;
+            YL = sizeY;
+            if ~isempty(obj.Z_range)
+                y_min = obj.Z_range(1);
+                y_max = obj.Z_range(2);
+                YL = y_max - y_min;                             
+            end                         
                                                    
                  if use_GPU && obj.isGPU 
                                           
@@ -398,7 +408,7 @@ end
                          
                          for y = 1 : YL                                       
                             sinogram = squeeze(gpu_proj(:,y,:));                             
-                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
+                            reconstruction = RF(sinogram);
                             if isempty(gpu_volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
                                 gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,YL))); % XYZ
@@ -425,7 +435,7 @@ end
                          %
                          for y = 1 : szY_r 
                             sinogram = squeeze(gpu_proj_r(:,y,:));
-                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);                            
+                            reconstruction = RF(sinogram);                            
                             if isempty(gpu_volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
                                 gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,szY_r))); % XYZ
@@ -444,7 +454,7 @@ end
                          for y = 1 : YL                                       
                             sinogram = squeeze(double(obj.proj(:,y_min+y-1,:)));
                             % 
-                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
+                            reconstruction = RF(sinogram);
                             if isempty(obj.volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
                                 obj.volm = zeros(sizeR1,sizeR2,YL); % XYZ
@@ -468,7 +478,7 @@ end
                          %
                          for y = 1 : szY_r 
                             sinogram = squeeze(double(proj_r(:,y,:)));                             
-                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);                            
+                            reconstruction = RF(sinogram);                            
                             if isempty(obj.volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
                                 obj.volm = zeros(sizeR1,sizeR2,szY_r); % XYZ
@@ -487,10 +497,10 @@ end
              
              if ~isempty(hw), delete(hw), drawnow, end;
              
-             notify(obj,'new_volm_set');
+             obj.on_new_volm_set;
         end
 %-------------------------------------------------------------------------%        
-        function FBP_Largo(obj,~,~)
+        function perform_reconstruction_Largo(obj,reconstruction_algorithm,~)            
 
              if 1 ~= obj.downsampling
                  errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue')
@@ -498,7 +508,7 @@ end
              end;     
 
              obj.volm = [];                
-             notify(obj,'volm_clear');
+             obj.on_volm_clear;
              [~,sizeZ,~] = size(obj.proj);              
              
              maxV = -inf;              
@@ -531,7 +541,7 @@ end
              n_blocks = sz(1);
              for k = 1 : n_blocks
                     waitdialog((k-1)/n_blocks,hw1,s1);                                  
-                res = do_FBP_on_Z_chunk(obj,zranges(k,:),obj.isGPU);
+                res = obj.do_reconstruction_on_Z_chunk(reconstruction_algorithm,zranges(k,:),obj.isGPU);
                 curmax = max(res(:));
                 if curmax>maxV, maxV=curmax; end;
                 res(res<0)=0;
@@ -543,8 +553,8 @@ end
              [szVx,szVy,~]=size(res);
              
              try
-                 obj.proj = [];
-                 notify(obj,'proj_clear');
+                 obj.proj = [];                 
+                 obj.on_proj_clear;
                  obj.volm = zeros(szVx,szVy,sizeZ,'uint16');
              catch
                  errordlg('memory allocation failed, can not continue');
@@ -554,7 +564,7 @@ end
              s2 = 'retrieving chunks...';
              hw2 = waitdialog(s2);
              for k=1:n_blocks
-                 waitdialog((k-1)/n_blocks,hw2,s2)
+                 waitdialog((k-1)/n_blocks,hw2,s2);
                  load(num2str(k));
                  obj.volm(:,:,zranges(k,1):zranges(k,2)) = cast(res*32767/maxV,'uint16');                
                  delete([num2str(k) '.mat']);
@@ -563,7 +573,7 @@ end
              delete(hw2);drawnow;
              %
              obj.volm( obj.volm <= 0 ) = 0; % mm? 
-             notify(obj,'new_volm_set');                                   
+             obj.on_new_volm_set;
         end      
 %-------------------------------------------------------------------------%
         function infostring  = OMERO_load_single(obj,omero_data_manager,verbose,~)
@@ -615,7 +625,7 @@ end
                 
             obj.proj = [];
             obj.volm = [];
-            notify(obj,'proj_and_volm_clear');            
+            obj.on_proj_and_volm_clear;
                 
             n_planes = SizeZ;
                             
@@ -682,7 +692,7 @@ end
                          
             rawPixelsStore.close();           
             
-            notify(obj,'new_proj_set');                        
+            obj.on_new_proj_set;
             
             % infostring
             try
@@ -800,8 +810,13 @@ end
                         
         end                
 %-------------------------------------------------------------------------%                
-        function res = do_FBP_on_Z_chunk(obj,zrange,use_GPU)
-                            
+        function res = do_reconstruction_on_Z_chunk(obj,mode,zrange,use_GPU)
+                        
+            RF = []; % reconstruction function
+            if strcmp(mode,'IRADON')
+                RF = @obj.IRADON;
+            end
+                        
              res = [];
              if isempty(zrange) || 2~=numel(zrange) || ~(zrange(1)<zrange(2)) || ~(1==obj.downsampling)
                  return; 
@@ -830,7 +845,7 @@ end
                          
                          for y = 1 : YL                                       
                             sinogram = squeeze(gpu_proj(:,y,:));                             
-                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
+                            reconstruction = RF(sinogram);
                             if isempty(gpu_volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
                                 gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,YL))); % XYZ
@@ -844,7 +859,7 @@ end
                          for y = 1 : YL                                       
                             sinogram = squeeze(double(obj.proj(:,y_min+y-1,:)));
                             % 
-                            reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
+                            reconstruction = RF(sinogram);
                             if isempty(obj.volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
                                 obj.volm = zeros(sizeR1,sizeR2,YL); % XYZ
@@ -856,10 +871,20 @@ end
                                                                
              res( res <= 0 ) = 0; % mm? 
              
-        end        
-%-------------------------------------------------------------------------%
+        end
+%-------------------------------------------------------------------------%                
         function run_batch(obj,omero_data_manager,mode,~)
-                                    
+                                  
+            reconstruction_algorithm = 'IRADON';
+            if strfind(mode,'TwIST')
+                reconstruction_algorithm = 'TwIST';
+            end
+                
+            if ~isempty(strfind(mode,'Largo')) && 1 ~= obj.downsampling
+                errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue');
+                return;                     
+            end
+            %                                               
             s1 = get(obj.menu_controller.menu_OMERO_Working_Data_Info,'Label');
             s2 = get(obj.menu_controller.menu_Batch_Indicator_Src,'Label');            
             if strcmp(s1,s2) && ~isempty(omero_data_manager.session) % images should be loaded from OMERO
@@ -871,23 +896,18 @@ end
                     return;
                 end;
                 %
-                if strcmp(mode,'FBP_Largo') && 1 ~= ob.downsampling
-                    errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue');
-                    return;                     
-                end
-                %                        
                 waitmsg = 'Batch processing...';
                 hw = waitdialog(waitmsg);
                 for k = 1:length(imageList) 
                         waitdialog((k-1)/length(imageList),hw,waitmsg); drawnow                    
                         infostring = obj.OMERO_load_image(omero_data_manager,imageList(k),false);
                         if ~isempty(infostring)                    
-                            if strcmp(mode,'FBP')
-                                obj.FBP(false,false);
-                            elseif strcmp(mode,'FBP_GPU')
-                                obj.FBP(false,true);
-                            elseif strcmp(mode,'FBP_Largo')
-                                obj.FBP_Largo;
+                            if ~isempty(strfind(mode,'Largo'))
+                                obj.perform_reconstruction_Largo(reconstruction_algorithm);
+                            elseif ~isempty(strfind(mode,'GPU'))
+                                obj.perform_reconstruction(reconstruction_algorithm,false,true);
+                            else
+                                obj.perform_reconstruction(reconstruction_algorithm,false,false);
                             end
                             %
                             % save volume on disk - presume OME.tiff filenames everywhere
@@ -922,12 +942,12 @@ end
                         fname = [obj.BatchSrcDirectory filesep names_list{k}];                    
                         infostring = obj.Set_Src_Single(fname,false);                        
                         if ~isempty(infostring)  
-                            if strcmp(mode,'FBP')
-                                obj.FBP(false,false);
-                            elseif strcmp(mode,'FBP_GPU')
-                                obj.FBP(false,true);
-                            elseif strcmp(mode,'FBP_Largo')
-                                obj.FBP_Largo;
+                            if ~isempty(strfind(mode,'Largo'))
+                                obj.perform_reconstruction_Largo(reconstruction_algorithm);
+                            elseif ~isempty(strfind(mode,'GPU'))
+                                obj.perform_reconstruction(reconstruction_algorithm,false,true);
+                            else
+                                obj.perform_reconstruction(reconstruction_algorithm,false,false);
                             end
                             %
                             % save volume on disk
