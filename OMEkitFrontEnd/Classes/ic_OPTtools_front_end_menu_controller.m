@@ -72,7 +72,6 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         
         menu_settings_Zrange;
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         menu_FBP_interp;   
         menu_FBP_interp_nearest;
         menu_FBP_interp_linear;
@@ -89,11 +88,20 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         menu_FBP_filter_None;
     
         menu_FBP_freq_scaling;
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                
-        menu_reconstruction_FBP;
-        menu_reconstruction_FBP_GPU;
-        menu_reconstruction_FBP_Largo;
+        
+        menu_settings_Method;
+        menu_settings_Method_FBP;
+        menu_settings_Method_TwIST;
+        
+        menu_settings_GPU;        
+        menu_settings_GPU_ON;
+        menu_settings_GPU_OFF;
+        
+        menu_settings_Largo        
+        menu_settings_Largo_ON;
+        menu_settings_Largo_OFF;
+        
+        menu_reconstruction_Go;
                         
         menu_visualization_setup_Icy_directory;
         menu_visualization_start_Icy;
@@ -358,7 +366,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                     obj.data_controller.BatchSrcDirectory = [];                                
         end    
          %------------------------------------------------------------------            
-        function ret = maybe_run_batch_reconstruction(obj,mode,~)
+        function ret = maybe_run_batch_reconstruction(obj,~)
 
                 ret = false;
 
@@ -370,7 +378,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 button = questdlg('Do you want to run Batch or Current Single?',...
                 'Choose what exactly you want to do','Batch','Single','Clear All','Clear All');
                 if strcmp(button,'Batch')                   
-                   obj.data_controller.run_batch(obj.omero_data_manager,mode);                   
+                   obj.data_controller.run_batch(obj.omero_data_manager);                   
                    obj.clear_all;
                    ret = true;                                       
                 elseif strcmp(button,'Single')         
@@ -379,43 +387,23 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                    obj.clear_all;
                    ret = true;                                        
                 end                    
-        end
-         %------------------------------------------------------------------        
-        function menu_reconstruction_FBP_callback(obj, ~,~)
-            
-            if obj.maybe_run_batch_reconstruction('FBP'), return, end;
-            
-            if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)              
-                obj.data_controller.perform_reconstruction('IRADON',true,false); % verbose, + no GPU
-                
-            else
-                msgbox('data not loaded - can not do reconstruction');
-            end            
         end        
-         %------------------------------------------------------------------        
-        function menu_reconstruction_FBP_GPU_callback(obj, ~,~)
-            
-            if obj.maybe_run_batch_reconstruction('FBP_GPU'), return, end;            
-            
+           %------------------------------------------------------------------                
+         function menu_reconstruction_Go_callback(obj, ~,~) 
+            % 
+            if obj.maybe_run_batch_reconstruction, return, end;             
+            %
             if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
-                obj.data_controller.perform_reconstruction('IRADON',true,true); % verbose, + GPU                
+                    if strcmp(obj.data_controller.Reconstruction_Largo,'ON')
+                        obj.data_controller.perform_reconstruction_Largo;
+                    else
+                        obj.data_controller.perform_reconstruction(true); %verbose
+                    end    
             else
                 msgbox('data not loaded - can not do reconstruction');
-            end            
-        end                
-         %------------------------------------------------------------------        
-        function menu_reconstruction_FBP_Largo_callback(obj, ~,~)
-            
-            if obj.maybe_run_batch_reconstruction('FBP_Largo'), return, end;            
-            
-            if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
-                %obj.data_controller.FBP_Largo;
-                obj.data_controller.perform_reconstruction_Largo('IRADON');
-            else
-                msgbox('data not loaded - can not do reconstruction');
-            end            
-        end          
-        
+            end                            
+         end
+         
     %================================= % downsampling indicators        
         % 
          %------------------------------------------------------------------
@@ -537,7 +525,43 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 obj.data_controller.FBP_fscaling = fscaling;
                 set(obj.menu_FBP_freq_scaling,'Label',['FBP fscaling : ' num2str(fscaling)]);                    
             end
-        end            
+        end       
+        
+    %================================= % reconstruction options                
+         %------------------------------------------------------------------                                        
+        function menu_settings_Method_FBP_callback(obj, ~,~)
+            obj.data_controller.Reconstruction_Method = 'FBP';
+            set(obj.menu_settings_Method,'Label',['Method : ' obj.data_controller.Reconstruction_Method]);
+        end
+         %------------------------------------------------------------------                                
+        function menu_settings_Method_TwIST_callback(obj, ~,~)
+            obj.data_controller.Reconstruction_Method = 'FBP-TwIST';
+            set(obj.menu_settings_Method,'Label',['Method : ' obj.data_controller.Reconstruction_Method]);            
+        end
+         %------------------------------------------------------------------                                            
+        function menu_settings_GPU_ON_callback(obj, ~,~)
+            obj.data_controller.Reconstruction_GPU = 'ON';
+            set(obj.menu_settings_GPU,'Label',['GPU : ' obj.data_controller.Reconstruction_GPU]);            
+        end
+         %------------------------------------------------------------------                                            
+        function menu_settings_GPU_OFF_callback(obj, ~,~)
+            obj.data_controller.Reconstruction_GPU = 'OFF';
+            set(obj.menu_settings_GPU,'Label',['GPU : ' obj.data_controller.Reconstruction_GPU]);                        
+        end
+         %------------------------------------------------------------------                                            
+        function menu_settings_Largo_ON_callback(obj, ~,~)
+            obj.data_controller.Reconstruction_Largo = 'ON';
+            set(obj.menu_settings_Largo,'Label',['Largo : ' obj.data_controller.Reconstruction_Largo]);
+        end
+         %------------------------------------------------------------------                                            
+        function menu_settings_Largo_OFF_callback(obj, ~,~)
+            obj.data_controller.Reconstruction_Largo = 'OFF';
+            set(obj.menu_settings_Largo,'Label',['Largo : ' obj.data_controller.Reconstruction_Largo]);            
+        end
+         %------------------------------------------------------------------                                
+
+    %================================= % Z range                 
+         
          %------------------------------------------------------------------                
          function menu_settings_Zrange_callback(obj,~,~)
              if ~isempty(obj.data_controller.proj)
@@ -576,6 +600,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                           
          end
 
+    %================================= % infostring                 
+         
         %------------------------------------------------------------------
         function infostring = get_current_data_info_string(obj,~,~)
             infostring = [];
@@ -601,7 +627,6 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 infostring = [ 'Image "' iName '" [' iId '] @ Dataset "' dName '" [' dId '] @ Project "' pName '" [' pId ']'];            
             end
         end
-
 
     %================================= % Batch
     

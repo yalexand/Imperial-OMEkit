@@ -36,7 +36,30 @@ classdef ic_OPTtools_data_controller < handle
         
         FBP_interp = 'linear';
         FBP_filter = 'Ram-Lak';
-        FBP_fscaling = 1;                    
+        FBP_fscaling = 1;  
+        
+        Reconstruction_Method = 'FBP';
+        Reconstruction_GPU = 'OFF';
+        Reconstruction_Largo = 'OFF';
+        
+        % TwIST
+        TwIST_TAU = 0.0008;
+        TwIST_LAMBDA = 1e-4;
+%        TwIST_ALPHA = ;
+%        TwIST_BETA = ;
+        TwIST_STOPCRITERION = 1;
+        TwIST_TOLERANCEA = 1e-4;       
+        TwIST_TOLERANCED = 0.0001;
+        TwIST_DEBIAS = 0;
+        TwIST_MAXITERA = 10000;
+        TwIST_MAXITERD = 200;
+        TwIST_MINITERA = 5;
+        TwIST_MINITERD = 5;
+        TwIST_INITIALIZATION = 0;
+        TwIST_MONOTONE = 1;
+        TwIST_SPARSE = 1;
+        TwIST_VERBOSE = 0;                                
+        % TwIST        
         
     end                    
     
@@ -345,18 +368,112 @@ end
             obj.save_settings;
         end
 %-------------------------------------------------------------------------%        
-        function reconstruction = IRADON(obj,sinogram,~)
+        function reconstruction = FBP(obj,sinogram,~)
             step = obj.angle_downsampling;                 
             n_angles = numel(obj.angles);
             acting_angles = obj.angles(1:step:n_angles);
             reconstruction = iradon(sinogram,acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling);
-        end
+        end        
 %-------------------------------------------------------------------------%        
-        function perform_reconstruction(obj,mode,verbose,use_GPU,~)
+        function reconstruction = FBP_TwIST(obj,sinogram,~)
+                        
+            step = obj.angle_downsampling;                 
+            n_angles = numel(obj.angles);
+            acting_angles = obj.angles(1:step:n_angles);            
+            %
+            sz_sinogram = size(sinogram);
+            N = sz_sinogram(1);            
+            szproj = [N N];
+            
+            % The number of rows of the sinogram given by radon is
+            % not the size of the image and we need to zero pad the images.
+            zpt = ceil((2*ceil(norm(szproj-floor((szproj-1)/2)-1))+3 - N)/2);
+            zpb = floor((2*ceil(norm(szproj-floor((szproj-1)/2)-1))+3 - N)/2);
+            st = abs(zpb - zpt); 
+
+            % denoising function;    %Change if necessary - strength of total variarion
+            tv_iters = 5;
+            Psi = @(x,th)  tvdenoise(x,2/th,tv_iters);
+            % set the penalty function, to compute the objective
+            Phi = @(x) TVnorm(x);
+            % 
+            hR = @(x)  radon(x, acting_angles);
+            hRT = @(x) iradon(x, acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling,N);
+
+% ORIGINAL PADDING            
+%             for i=1:n_angles
+%                 Rpad = padarray(sinogram(:,i),zpt,0,'pre');
+%                 R(:,i) = padarray(Rpad,zpb,0,'post');
+%             end        
+
+            if ~strcmp(obj.Reconstruction_GPU,'ON')
+
+                R = zeros(zpt+N+zpb,n_angles);
+                R(zpt+1:zpt+N,:) = sinogram;
+                % tau - regularization parameters (empirical)  %Change if necessary - high value
+                % will blur the image            
+                tau = obj.TwIST_TAU;
+                % input (zero-padded) sinogram  
+                y = R; % R./max(R(:)); %??
+
+                 [reconstruction,dummy1,obj_twist,...
+                    times_twist,dummy2,mse_twist]= ...
+                         TwIST(y,hR,...
+                         tau,...
+                         'AT', hRT, ...
+                         'Psi', Psi, ...
+                         'Phi',Phi, ...
+                         'Lambda', obj.TwIST_LAMBDA, ...                     
+                         'Monotone',obj.TwIST_MONOTONE,...
+                         'MAXITERA', obj.TwIST_MAXITERA, ...
+                         'MAXITERD', obj.TwIST_MAXITERD, ...                     
+                         'Initialization',obj.TwIST_INITIALIZATION,...
+                         'StopCriterion',obj.TwIST_STOPCRITERION,...
+                         'ToleranceA',obj.TwIST_TOLERANCEA,...
+                         'ToleranceD',obj.TwIST_TOLERANCED,...
+                         'Verbose', obj.TwIST_VERBOSE);
+                     
+            elseif strcmp(obj.Reconstruction_GPU,'ON') && obj.isGPU
+                
+                R = gpuArray(zeros(zpt+N+zpb,n_angles));
+                R(zpt+1:zpt+N,:) = sinogram;
+                % tau - regularization parameters (empirical)  %Change if necessary - high value
+                % will blur the image            
+                tau = gpuArray(obj.TwIST_TAU);
+                % input (zero-padded) sinogram  
+                y = R; % R./max(R(:)); %??
+
+                 [reconstruction,dummy1,obj_twist,...
+                    times_twist,dummy2,mse_twist]= ...
+                         TwIST_gpu_OPT(y,hR,...
+                         tau,...
+                         'AT', hRT, ...
+                         'Psi', Psi, ...
+                         'Phi',Phi, ...
+                         'Lambda', obj.TwIST_LAMBDA, ...                     
+                         'Monotone',obj.TwIST_MONOTONE,...
+                         'MAXITERA', obj.TwIST_MAXITERA, ...
+                         'MAXITERD', obj.TwIST_MAXITERD, ...                     
+                         'Initialization',obj.TwIST_INITIALIZATION,...
+                         'StopCriterion',obj.TwIST_STOPCRITERION,...
+                         'ToleranceA',obj.TwIST_TOLERANCEA,...
+                         'ToleranceD',obj.TwIST_TOLERANCED,...
+                         'Verbose', obj.TwIST_VERBOSE);                                
+            else
+                reconstruction = obj.FBP(sinogram);
+            end
+        end        
+%-------------------------------------------------------------------------%
+        function perform_reconstruction(obj,verbose,~)
             
             RF = []; % reconstruction function
-            if strcmp(mode,'IRADON')
-                RF = @obj.IRADON;
+            if strcmp(obj.Reconstruction_Method,'FBP')
+                RF = @obj.FBP;
+            elseif ~isempty(strfind(obj.Reconstruction_Method,'TwIST'))
+                RF = @obj.FBP_TwIST;
+            else
+                % shouldn't come here
+                return;
             end
                                                             
             obj.volm = [];                
@@ -370,6 +487,8 @@ end
                 errormsg('Incompatible settings - can not continue');
                 return;
             end
+            
+            use_GPU = strcmp(obj.Reconstruction_GPU,'ON');
             
             s = [];
             if use_GPU && obj.isGPU
@@ -478,7 +597,7 @@ end
                          %
                          for y = 1 : szY_r 
                             sinogram = squeeze(double(proj_r(:,y,:)));                             
-                            reconstruction = RF(sinogram);                            
+                            reconstruction = RF(sinogram);                                                        
                             if isempty(obj.volm)
                                 [sizeR1,sizeR2] = size(reconstruction);
                                 obj.volm = zeros(sizeR1,sizeR2,szY_r); % XYZ
@@ -500,7 +619,7 @@ end
              obj.on_new_volm_set;
         end
 %-------------------------------------------------------------------------%        
-        function perform_reconstruction_Largo(obj,reconstruction_algorithm,~)            
+        function perform_reconstruction_Largo(obj,~)            
 
              if 1 ~= obj.downsampling
                  errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue')
@@ -541,7 +660,7 @@ end
              n_blocks = sz(1);
              for k = 1 : n_blocks
                     waitdialog((k-1)/n_blocks,hw1,s1);                                  
-                res = obj.do_reconstruction_on_Z_chunk(reconstruction_algorithm,zranges(k,:),obj.isGPU);
+                res = obj.do_reconstruction_on_Z_chunk(zranges(k,:));
                 curmax = max(res(:));
                 if curmax>maxV, maxV=curmax; end;
                 res(res<0)=0;
@@ -810,12 +929,14 @@ end
                         
         end                
 %-------------------------------------------------------------------------%                
-        function res = do_reconstruction_on_Z_chunk(obj,mode,zrange,use_GPU)
+        function res = do_reconstruction_on_Z_chunk(obj,zrange)
                         
-            RF = []; % reconstruction function
-            if strcmp(mode,'IRADON')
-                RF = @obj.IRADON;
-            end
+             RF = []; % reconstruction function
+             if strcmp(obj.Reconstruction_Method,'FBP')            
+                RF = @obj.FBP;
+             elseif ~isempty(strfind(obj.Reconstruction_Method,'TwIST'))
+                RF = @obj.FBP_TwIST;
+             end
                         
              res = [];
              if isempty(zrange) || 2~=numel(zrange) || ~(zrange(1)<zrange(2)) || ~(1==obj.downsampling)
@@ -838,7 +959,7 @@ end
                  y_max = zrange(2);
                  YL = y_max - y_min + 1; % mmmm
                                                    
-                 if use_GPU && obj.isGPU 
+                 if strcmp(obj.Reconstruction_GPU,'ON') && obj.isGPU 
                                           
                          gpu_proj = gpuArray(cast(obj.proj(:,y_min:y_max,:),'single'));
                          gpu_volm = [];
@@ -854,7 +975,7 @@ end
                          end                           
                          res = gather(gpu_volm);
                                               
-                 elseif ~use_GPU
+                 elseif strcmp(obj.Reconstruction_GPU,'OFF')
                                                                                                                      
                          for y = 1 : YL                                       
                             sinogram = squeeze(double(obj.proj(:,y_min+y-1,:)));
@@ -873,14 +994,9 @@ end
              
         end
 %-------------------------------------------------------------------------%                
-        function run_batch(obj,omero_data_manager,mode,~)
-                                  
-            reconstruction_algorithm = 'IRADON';
-            if strfind(mode,'TwIST')
-                reconstruction_algorithm = 'TwIST';
-            end
-                
-            if ~isempty(strfind(mode,'Largo')) && 1 ~= obj.downsampling
+        function run_batch(obj,omero_data_manager,~)
+                                                  
+            if strcmp(obj.Reconstruction_Largo,'ON') && 1 ~= obj.downsampling
                 errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue');
                 return;                     
             end
@@ -902,12 +1018,10 @@ end
                         waitdialog((k-1)/length(imageList),hw,waitmsg); drawnow                    
                         infostring = obj.OMERO_load_image(omero_data_manager,imageList(k),false);
                         if ~isempty(infostring)                    
-                            if ~isempty(strfind(mode,'Largo'))
-                                obj.perform_reconstruction_Largo(reconstruction_algorithm);
-                            elseif ~isempty(strfind(mode,'GPU'))
-                                obj.perform_reconstruction(reconstruction_algorithm,false,true);
+                            if strcmp(obj.Reconstruction_Largo,'ON')
+                                obj.perform_reconstruction_Largo;
                             else
-                                obj.perform_reconstruction(reconstruction_algorithm,false,false);
+                                obj.perform_reconstruction(false);
                             end
                             %
                             % save volume on disk - presume OME.tiff filenames everywhere
@@ -942,12 +1056,10 @@ end
                         fname = [obj.BatchSrcDirectory filesep names_list{k}];                    
                         infostring = obj.Set_Src_Single(fname,false);                        
                         if ~isempty(infostring)  
-                            if ~isempty(strfind(mode,'Largo'))
-                                obj.perform_reconstruction_Largo(reconstruction_algorithm);
-                            elseif ~isempty(strfind(mode,'GPU'))
-                                obj.perform_reconstruction(reconstruction_algorithm,false,true);
+                            if strcmp(obj.Reconstruction_Largo,'ON')
+                                obj.perform_reconstruction_Largo;
                             else
-                                obj.perform_reconstruction(reconstruction_algorithm,false,false);
+                                obj.perform_reconstruction(false);
                             end
                             %
                             % save volume on disk

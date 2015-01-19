@@ -30,7 +30,11 @@ function handles = setup_menu(obj,handles)
     
     FBP_interp = handles.data_controller.FBP_interp;
     FBP_filter = handles.data_controller.FBP_filter;
-    FBP_fscaling = handles.data_controller.FBP_fscaling;    
+    FBP_fscaling = handles.data_controller.FBP_fscaling; 
+    
+    settings_Method = handles.data_controller.Reconstruction_Method;
+    settings_GPU = handles.data_controller.Reconstruction_GPU;
+    settings_Largo = handles.data_controller.Reconstruction_Largo;
     
     %================================= file
 
@@ -79,7 +83,8 @@ function handles = setup_menu(obj,handles)
     %================================= settings
     
     menu_settings = uimenu(obj.window,'Label','Settings');
-    menu_settings_Pixel_Downsampling = uimenu(menu_settings,'Label',['Pixel downsampling : 1/' num2str(pixel_downsampling)]);
+        
+    menu_settings_Pixel_Downsampling = uimenu(menu_settings,'Label',['Pixel downsampling : 1/' num2str(pixel_downsampling)],'Separator','On');
     % menu_settings_Angle_Downsampling = uimenu(menu_settings,'Label',['Angle downsampling : 1/' num2str(angle_downsampling)]);
 
     handles.menu_settings_Pixel_Downsampling_1 = uimenu(menu_settings_Pixel_Downsampling,'Label','1/1');    
@@ -97,6 +102,22 @@ function handles = setup_menu(obj,handles)
     
     handles.menu_settings_Zrange = uimenu(menu_settings,'Label','Z range : full','Separator','On'); % oops.. who knows..   
     
+    %
+    menu_settings_Method = uimenu(menu_settings,'Label',['Method : ' settings_Method],'Separator','On');    
+        handles.menu_settings_Method_FBP = uimenu(menu_settings_Method,'Label','FBP');
+        handles.menu_settings_Method_TwIST = uimenu(menu_settings_Method,'Label','FBP-TwIST');
+    menu_settings_GPU = uimenu(menu_settings,'Label',['GPU : ' settings_GPU]);    
+        handles.menu_settings_GPU_ON = uimenu(menu_settings_GPU,'Label','ON');    
+        handles.menu_settings_GPU_OFF = uimenu(menu_settings_GPU,'Label','OFF');            
+    menu_settings_Largo = uimenu(menu_settings,'Label',['Largo : ' settings_Largo]);    
+        handles.menu_settings_Largo_ON = uimenu(menu_settings_Largo,'Label','ON');    
+        handles.menu_settings_Largo_OFF = uimenu(menu_settings_Largo,'Label','OFF');
+    %    
+    handles.menu_settings_Method = menu_settings_Method;
+    handles.menu_settings_GPU = menu_settings_GPU;
+    handles.menu_settings_Largo = menu_settings_Largo;
+    %
+        
     menu_FBP_interp = uimenu(menu_settings,'Label',['FBP interp : ' FBP_interp],'Separator','On');    
         handles.menu_FBP_interp_nearest = uimenu(menu_FBP_interp,'Label','nearest');    
         handles.menu_FBP_interp_linear = uimenu(menu_FBP_interp,'Label','linear');    
@@ -115,13 +136,14 @@ function handles = setup_menu(obj,handles)
     handles.menu_FBP_freq_scaling = uimenu(menu_settings,'Label',['FBP fscaling : ' num2str(FBP_fscaling)]);    
     handles.menu_FBP_interp = menu_FBP_interp;
     handles.menu_FBP_filter = menu_FBP_filter;
+    
+    menu_FBP_settings_TwIST = uimenu(menu_settings,'Label','TwIST','Separator','On');
+    
 
     %================================= reconstruction
     
     menu_reconstruction = uimenu(obj.window,'Label','Run reconstruction');        
-    handles.menu_reconstruction_FBP = uimenu(menu_reconstruction,'Label','FBP','Separator','on');    
-    handles.menu_reconstruction_FBP_GPU = uimenu(menu_reconstruction,'Label','FBP (GPU)');
-    handles.menu_reconstruction_FBP_Largo = uimenu(menu_reconstruction,'Label','FBP Largo');
+    handles.menu_reconstruction_Go = uimenu(menu_reconstruction,'Label','Go');    
         
     %================================= visualization
     
