@@ -45,8 +45,8 @@ classdef ic_OPTtools_data_controller < handle
         % TwIST
         TwIST_TAU = 0.0008;
         TwIST_LAMBDA = 1e-4;
-%        TwIST_ALPHA = ;
-%        TwIST_BETA = ;
+        TwIST_ALPHA = 0;
+        TwIST_BETA = 0;
         TwIST_STOPCRITERION = 1;
         TwIST_TOLERANCEA = 1e-4;       
         TwIST_TOLERANCED = 0.0001;
@@ -170,6 +170,29 @@ classdef ic_OPTtools_data_controller < handle
             settings.FBP_interp = obj.FBP_interp;
             settings.FBP_filter = obj.FBP_filter;
             settings.FBP_fscaling = obj.FBP_fscaling;            
+            
+            settings.Reconstruction_Method =  obj.Reconstruction_Method;
+            settings.Reconstruction_GPU =  obj.Reconstruction_GPU;
+            settings.Reconstruction_Largo =  obj.Reconstruction_Largo;
+            % TwIST
+            settings.TwIST_TAU = obj.TwIST_TAU;
+            settings.TwIST_LAMBDA = obj.TwIST_LAMBDA;
+            settings.TwIST_ALPHA = obj.TwIST_ALPHA;
+            settings.TwIST_BETA = obj.TwIST_BETA;
+            settings.TwIST_STOPCRITERION = obj.TwIST_STOPCRITERION; 
+            settings.TwIST_TOLERANCEA = obj.TwIST_TOLERANCEA; 
+            settings.TwIST_TOLERANCED = obj.TwIST_TOLERANCED;
+            settings.TwIST_DEBIAS = obj.TwIST_DEBIAS;
+            settings.TwIST_MAXITERA = obj.TwIST_MAXITERA;
+            settings.TwIST_MAXITERD = obj.TwIST_MAXITERD;
+            settings.TwIST_MINITERA = obj.TwIST_MINITERA;
+            settings.TwIST_MINITERD = obj.TwIST_MINITERD;
+            settings.TwIST_INITIALIZATION = obj.TwIST_INITIALIZATION;
+            settings.TwIST_MONOTONE = obj.TwIST_MONOTONE;
+            settings.TwIST_SPARSE = obj.TwIST_SPARSE;
+            settings.TwIST_VERBOSE = obj.TwIST_VERBOSE;
+            % TwIST        
+                        
             xml_write([pwd filesep obj.data_settings_filename], settings);
         end % save_settings
 %-------------------------------------------------------------------------%                        
@@ -182,7 +205,29 @@ classdef ic_OPTtools_data_controller < handle
                 obj.angle_downsampling = settings.angle_downsampling;                
                 obj.FBP_interp = settings.FBP_interp;
                 obj.FBP_filter = settings.FBP_filter;
-                obj.FBP_fscaling = settings.FBP_fscaling;                
+                obj.FBP_fscaling = settings.FBP_fscaling; 
+                %
+                obj.Reconstruction_Method = settings.Reconstruction_Method;
+                obj.Reconstruction_GPU = settings.Reconstruction_GPU;
+                obj.Reconstruction_Largo = settings.Reconstruction_Largo;
+                % TwIST
+                obj.TwIST_TAU = settings.TwIST_TAU;
+                obj.TwIST_LAMBDA = settings.TwIST_LAMBDA;
+                obj.TwIST_ALPHA = settings.TwIST_ALPHA;
+                obj.TwIST_BETA = settings.TwIST_BETA;
+                obj.TwIST_STOPCRITERION = settings.TwIST_STOPCRITERION; 
+                obj.TwIST_TOLERANCEA = settings.TwIST_TOLERANCEA; 
+                obj.TwIST_TOLERANCED = settings.TwIST_TOLERANCED;
+                obj.TwIST_DEBIAS = settings.TwIST_DEBIAS;
+                obj.TwIST_MAXITERA = settings.TwIST_MAXITERA;
+                obj.TwIST_MAXITERD = settings.TwIST_MAXITERD;
+                obj.TwIST_MINITERA = settings.TwIST_MINITERA;
+                obj.TwIST_MINITERD = settings.TwIST_MINITERD;
+                obj.TwIST_INITIALIZATION = settings.TwIST_INITIALIZATION;
+                obj.TwIST_MONOTONE = settings.TwIST_MONOTONE;
+                obj.TwIST_SPARSE = settings.TwIST_SPARSE;
+                obj.TwIST_VERBOSE = settings.TwIST_VERBOSE;
+                % TwIST                        
              end
         end
 %-------------------------------------------------------------------------%
@@ -450,9 +495,9 @@ end
                                     
             s = [];
             if use_GPU && obj.isGPU
-                s = 'applying GPU reconstruction.. please wait...';
+                s = [obj.Reconstruction_Method ' GPU reconstruction.. please wait...'];
             elseif ~use_GPU
-                s = 'applying reconstruction.. please wait...';
+                s = [obj.Reconstruction_Method ' reconstruction.. please wait...'];
             else                     
                 errordlg('can not run FBP (GPU) without GPU');
                 return;

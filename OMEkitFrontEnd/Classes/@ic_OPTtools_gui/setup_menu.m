@@ -137,7 +137,7 @@ function handles = setup_menu(obj,handles)
     handles.menu_FBP_interp = menu_FBP_interp;
     handles.menu_FBP_filter = menu_FBP_filter;
     
-    menu_FBP_settings_TwIST = uimenu(menu_settings,'Label','TwIST','Separator','On');
+    handles.menu_settings_TwIST = uimenu(menu_settings,'Label','TwIST','Separator','On');
     
 
     %================================= reconstruction

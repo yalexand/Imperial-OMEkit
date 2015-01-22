@@ -93,6 +93,8 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         menu_settings_Method_FBP;
         menu_settings_Method_TwIST;
         
+        menu_settings_TwIST;
+        
         menu_settings_GPU;        
         menu_settings_GPU_ON;
         menu_settings_GPU_OFF;
@@ -561,7 +563,11 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             set(obj.menu_settings_Largo,'Label',['Largo : ' obj.data_controller.Reconstruction_Largo]);            
         end
          %------------------------------------------------------------------                                
-
+        function menu_settings_TwIST_callback(obj, ~,~)
+            TwIST_setups = TwIST_settings(obj.data_controller);
+        end
+         
+         
     %================================= % Z range                 
          
          %------------------------------------------------------------------                
