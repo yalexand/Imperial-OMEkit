@@ -376,45 +376,27 @@ end
         end        
 %-------------------------------------------------------------------------%        
         function reconstruction = FBP_TwIST(obj,sinogram,~)
-                        
+                                    
             step = obj.angle_downsampling;                 
             n_angles = numel(obj.angles);
             acting_angles = obj.angles(1:step:n_angles);            
             %
-            sz_sinogram = size(sinogram);
-            N = sz_sinogram(1);            
-            szproj = [N N];
+            [N,~] = size(sinogram);            
             
-            % The number of rows of the sinogram given by radon is
-            % not the size of the image and we need to zero pad the images.
-            zpt = ceil((2*ceil(norm(szproj-floor((szproj-1)/2)-1))+3 - N)/2);
-            zpb = floor((2*ceil(norm(szproj-floor((szproj-1)/2)-1))+3 - N)/2);
-            st = abs(zpb - zpt); 
-
             % denoising function;    %Change if necessary - strength of total variarion
-            tv_iters = 5;
+            tv_iters = 5;            
             Psi = @(x,th)  tvdenoise(x,2/th,tv_iters);
-            % set the penalty function, to compute the objective
-            Phi = @(x) TVnorm(x);
             % 
             hR = @(x)  radon(x, acting_angles);
             hRT = @(x) iradon(x, acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling,N);
 
-% ORIGINAL PADDING            
-%             for i=1:n_angles
-%                 Rpad = padarray(sinogram(:,i),zpt,0,'pre');
-%                 R(:,i) = padarray(Rpad,zpb,0,'post');
-%             end        
-
-            if ~strcmp(obj.Reconstruction_GPU,'ON')
-
-                R = zeros(zpt+N+zpb,n_angles);
-                R(zpt+1:zpt+N,:) = sinogram;
-                % tau - regularization parameters (empirical)  %Change if necessary - high value
-                % will blur the image            
+            if strcmp(obj.Reconstruction_GPU,'OFF')
+                
+                % set the penalty function, to compute the objective
+                Phi = @(x) TVnorm(x);
                 tau = obj.TwIST_TAU;
                 % input (zero-padded) sinogram  
-                y = R; % R./max(R(:)); %??
+                y = obj.zero_pad_sinogram_for_iradon(sinogram);
 
                  [reconstruction,dummy1,obj_twist,...
                     times_twist,dummy2,mse_twist]= ...
@@ -433,39 +415,17 @@ end
                          'ToleranceD',obj.TwIST_TOLERANCED,...
                          'Verbose', obj.TwIST_VERBOSE);
                      
-            elseif strcmp(obj.Reconstruction_GPU,'ON') && obj.isGPU
-                
-                R = gpuArray(zeros(zpt+N+zpb,n_angles));
-                R(zpt+1:zpt+N,:) = sinogram;
-                % tau - regularization parameters (empirical)  %Change if necessary - high value
-                % will blur the image            
-                tau = gpuArray(obj.TwIST_TAU);
-                % input (zero-padded) sinogram  
-                y = R; % R./max(R(:)); %??
-
-                 [reconstruction,dummy1,obj_twist,...
-                    times_twist,dummy2,mse_twist]= ...
-                         TwIST_gpu_OPT(y,hR,...
-                         tau,...
-                         'AT', hRT, ...
-                         'Psi', Psi, ...
-                         'Phi',Phi, ...
-                         'Lambda', obj.TwIST_LAMBDA, ...                     
-                         'Monotone',obj.TwIST_MONOTONE,...
-                         'MAXITERA', obj.TwIST_MAXITERA, ...
-                         'MAXITERD', obj.TwIST_MAXITERD, ...                     
-                         'Initialization',obj.TwIST_INITIALIZATION,...
-                         'StopCriterion',obj.TwIST_STOPCRITERION,...
-                         'ToleranceA',obj.TwIST_TOLERANCEA,...
-                         'ToleranceD',obj.TwIST_TOLERANCED,...
-                         'Verbose', obj.TwIST_VERBOSE);                                
-            else
+            else % if strcmp(obj.Reconstruction_GPU,'ON') && obj.isGPU
+                % cheating - still not clear why TwIST_gpu fails on GPU
                 reconstruction = obj.FBP(sinogram);
             end
         end        
+%-------------------------------------------------------------------------%        
 %-------------------------------------------------------------------------%
         function perform_reconstruction(obj,verbose,~)
             
+            use_GPU = strcmp(obj.Reconstruction_GPU,'ON');
+                        
             RF = []; % reconstruction function
             if strcmp(obj.Reconstruction_Method,'FBP')
                 RF = @obj.FBP;
@@ -487,14 +447,12 @@ end
                 errormsg('Incompatible settings - can not continue');
                 return;
             end
-            
-            use_GPU = strcmp(obj.Reconstruction_GPU,'ON');
-            
+                                    
             s = [];
             if use_GPU && obj.isGPU
-                s = 'applying FBP (GPU) reconstruction.. please wait...';
+                s = 'applying GPU reconstruction.. please wait...';
             elseif ~use_GPU
-                s = 'applying FBP reconstruction.. please wait...';
+                s = 'applying reconstruction.. please wait...';
             else                     
                 errordlg('can not run FBP (GPU) without GPU');
                 return;
@@ -517,7 +475,7 @@ end
                 y_max = obj.Z_range(2);
                 YL = y_max - y_min;                             
             end                         
-                                                   
+                        
                  if use_GPU && obj.isGPU 
                                           
                      if 1 == f % no downsampling
@@ -618,7 +576,25 @@ end
              
              obj.on_new_volm_set;
         end
-%-------------------------------------------------------------------------%        
+%-------------------------------------------------------------------------% 
+function padded_sinogram = zero_pad_sinogram_for_iradon(obj,sinogram,~)
+    
+            [N,n_angles] = size(sinogram);
+            szproj = [N N];
+            
+            zpt = ceil((2*ceil(norm(szproj-floor((szproj-1)/2)-1))+3 - N)/2);
+            zpb = floor((2*ceil(norm(szproj-floor((szproj-1)/2)-1))+3 - N)/2);
+            %st = abs(zpb - zpt); 
+
+            % ORIGINAL PADDING            
+            %             for i=1:n_angles
+            %                 Rpad = padarray(sinogram(:,i),zpt,0,'pre');
+            %                 R(:,i) = padarray(Rpad,zpb,0,'post');
+            %             end                                            
+            padded_sinogram = zeros(zpt+N+zpb,n_angles);
+            padded_sinogram(zpt+1:zpt+N,:) = sinogram;            
+end
+%-------------------------------------------------------------------------% 
         function perform_reconstruction_Largo(obj,~)            
 
              if 1 ~= obj.downsampling

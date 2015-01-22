@@ -397,7 +397,9 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                     if strcmp(obj.data_controller.Reconstruction_Largo,'ON')
                         obj.data_controller.perform_reconstruction_Largo;
                     else
-                        obj.data_controller.perform_reconstruction(true); %verbose
+                        %verbose = false;
+                        verbose = true;
+                        obj.data_controller.perform_reconstruction(verbose);
                     end    
             else
                 msgbox('data not loaded - can not do reconstruction');

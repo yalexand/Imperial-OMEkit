@@ -280,7 +280,7 @@ else
        debias = varargin{i+1};
      case 'MAXITERA'
        maxiter = varargin{i+1};
-     case 'MAXIRERD'
+     case 'MAXITERD'
        maxiter_debias = varargin{i+1};
      case 'MINITERA'
        miniter = varargin{i+1};
@@ -533,7 +533,7 @@ while cont_outer
     xm2 = xm1;
     xm1 = x;
 
-imagesc(x); pause(0.01);
+%imagesc(x); pause(0.01);
 
     %update the number of nonzero components and its variation
     nz_x_prev = nz_x;
