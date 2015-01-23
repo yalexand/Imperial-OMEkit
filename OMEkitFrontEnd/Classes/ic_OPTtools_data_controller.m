@@ -43,22 +43,22 @@ classdef ic_OPTtools_data_controller < handle
         Reconstruction_Largo = 'OFF';
         
         % TwIST
-        TwIST_TAU = 0.0008;
-        TwIST_LAMBDA = 1e-4;
-        TwIST_ALPHA = 0;
-        TwIST_BETA = 0;
-        TwIST_STOPCRITERION = 1;
-        TwIST_TOLERANCEA = 1e-4;       
-        TwIST_TOLERANCED = 0.0001;
-        TwIST_DEBIAS = 0;
-        TwIST_MAXITERA = 10000;
-        TwIST_MAXITERD = 200;
-        TwIST_MINITERA = 5;
-        TwIST_MINITERD = 5;
-        TwIST_INITIALIZATION = 0;
-        TwIST_MONOTONE = 1;
-        TwIST_SPARSE = 1;
-        TwIST_VERBOSE = 0;                                
+        TwIST_TAU = 0.0008; %1
+        TwIST_LAMBDA = 1e-4; %2
+        TwIST_ALPHA = 0; %3
+        TwIST_BETA = 0; %4
+        TwIST_STOPCRITERION = 1; %5
+        TwIST_TOLERANCEA = 1e-4; %6      
+        TwIST_TOLERANCED = 0.0001; %7
+        TwIST_DEBIAS = 0; %8
+        TwIST_MAXITERA = 10000; %9
+        TwIST_MAXITERD = 200; %10
+        TwIST_MINITERA = 5; %11
+        TwIST_MINITERD = 5; %12
+        TwIST_INITIALIZATION = 0; %13
+        TwIST_MONOTONE = 1; %14
+        TwIST_SPARSE = 1; %15
+        TwIST_VERBOSE = 0; %16                               
         % TwIST        
         
     end                    
@@ -159,6 +159,25 @@ classdef ic_OPTtools_data_controller < handle
             end                                  
             obj.isGPU = exist('isgpu','var');
                                                 
+        end
+%-------------------------------------------------------------------------%
+        function set_TwIST_settings_default(obj,~,~)        
+            obj.TwIST_TAU = 0.0008; %1
+            obj.TwIST_LAMBDA = 1e-4; %2
+            obj.TwIST_ALPHA = 0; %3
+            obj.TwIST_BETA = 0; %4
+            obj.TwIST_STOPCRITERION = 1; %5
+            obj.TwIST_TOLERANCEA = 1e-4; %6      
+            obj.TwIST_TOLERANCED = 0.0001; %7
+            obj.TwIST_DEBIAS = 0; %8
+            obj.TwIST_MAXITERA = 10000; %9
+            obj.TwIST_MAXITERD = 200; %10
+            obj.TwIST_MINITERA = 5; %11
+            obj.TwIST_MINITERD = 5; %12
+            obj.TwIST_INITIALIZATION = 0; %13
+            obj.TwIST_MONOTONE = 1; %14
+            obj.TwIST_SPARSE = 1; %15
+            obj.TwIST_VERBOSE = 0; %16                                           
         end
 %-------------------------------------------------------------------------%                
         function save_settings(obj,~,~)        

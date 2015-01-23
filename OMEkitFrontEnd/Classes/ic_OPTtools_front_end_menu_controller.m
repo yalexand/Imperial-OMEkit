@@ -564,7 +564,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         end
          %------------------------------------------------------------------                                
         function menu_settings_TwIST_callback(obj, ~,~)
-            TwIST_setups = TwIST_settings(obj.data_controller);
+            TwIST_settings(obj.data_controller);
         end
          
          
