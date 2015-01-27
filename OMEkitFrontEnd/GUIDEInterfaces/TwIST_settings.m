@@ -39,7 +39,10 @@ end
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
+    try
     gui_mainfcn(gui_State, varargin{:});
+    catch
+    end
 end
 % End initialization code - DO NOT EDIT
 
