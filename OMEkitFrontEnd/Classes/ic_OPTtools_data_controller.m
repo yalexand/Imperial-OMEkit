@@ -642,21 +642,17 @@ end
         end
 %-------------------------------------------------------------------------% 
 function padded_sinogram = zero_pad_sinogram_for_iradon(obj,sinogram,~)
-    
-            [N,n_angles] = size(sinogram);
-            szproj = [N N];
             
-            zpt = ceil((2*ceil(norm(szproj-floor((szproj-1)/2)-1))+3 - N)/2);
-            zpb = floor((2*ceil(norm(szproj-floor((szproj-1)/2)-1))+3 - N)/2);
-            %st = abs(zpb - zpt); 
-
-            % ORIGINAL PADDING            
-            %             for i=1:n_angles
-            %                 Rpad = padarray(sinogram(:,i),zpt,0,'pre');
-            %                 R(:,i) = padarray(Rpad,zpb,0,'post');
-            %             end                                            
-            padded_sinogram = zeros(zpt+N+zpb,n_angles);
-            padded_sinogram(zpt+1:zpt+N,:) = sinogram;            
+           [N,n_angles] = size(sinogram);
+           szproj = [N N];
+            
+           zpt = ceil((2*ceil(norm(szproj-floor((szproj-1)/2)-1))+3 - N)/2);
+           zpb = floor((2*ceil(norm(szproj-floor((szproj-1)/2)-1))+3 - N)/2);
+           %st = abs(zpb - zpt); 
+                        
+           R = single(padarray(sinogram,[zpt 0], 'replicate' ,'pre'));
+           R = single(padarray(R,[zpb 0], 'replicate' ,'post'));                                                                                                                                   
+           padded_sinogram = R;                                                
 end
 %-------------------------------------------------------------------------% 
         function perform_reconstruction_Largo(obj,~)            
