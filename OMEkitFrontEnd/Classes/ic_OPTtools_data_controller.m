@@ -369,8 +369,17 @@ classdef ic_OPTtools_data_controller < handle
         end
 %-------------------------------------------------------------------------%
 function save_volume(obj,full_filename,verbose,~)                        
-    hw = [];
+    hw = [];   
     if verbose, hw = waitdialog(' '); end;                    
+    %
+    % mat-file
+    if ~isempty(strfind(lower(full_filename),'.mat'))
+        %
+        vol = obj.volm;
+        save(full_filename,'vol','-v7.3');
+        clear('vol');
+    elseif ~isempty(strfind(lower(full_filename),'.ome.tiff'))
+    %
         [szX,szY,szZ] = size(obj.volm);                                        
         if ~isempty(obj.PixelsPhysicalSizeX) && ~isempty(obj.PixelsPhysicalSizeX)
             metadata = createMinimalOMEXMLMetadata(reshape(obj.volm,[szX,szY,1,1,szZ]),'XYCTZ');
@@ -382,6 +391,7 @@ function save_volume(obj,full_filename,verbose,~)
         else
             bfsave(reshape(obj.volm,[szX,szY,1,1,szZ]),full_filename,'dimensionOrder','XYCTZ','Compression','LZW','BigTiff',true); 
         end                    
+    end
     if verbose, delete(hw), drawnow; end;
 end
 %-------------------------------------------------------------------------%

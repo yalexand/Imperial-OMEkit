@@ -281,15 +281,15 @@ classdef ic_OPTtools_front_end_menu_controller < handle
          %------------------------------------------------------------------       
         function menu_file_save_current_volume_callback(obj,~,~)
             if ~isempty(obj.data_controller.volm)
-                [file, path] = uiputfile({'*.OME.tiff'},'Select exported acceptor image file name',obj.data_controller.DefaultDirectory);
+                [file, path] = uiputfile({'*.OME.tiff';'*.mat'},'Select volume image file name',obj.data_controller.DefaultDirectory);
                 if file ~= 0
-                    obj.data_controller.save_volume([path filesep file],true);
+                    %obj.data_controller.save_volume([path filesep file],true);
+                    obj.data_controller.save_volume([path filesep file],false);
                 end
             else
                 errordlg('Volume was not created - nothing to save');
             end
-        end
-        
+        end        
     %================================= % call Icy visualizations
         
          %------------------------------------------------------------------        
