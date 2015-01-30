@@ -59,6 +59,10 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         menu_settings_Pixel_Downsampling;
         menu_settings_Angle_Downsampling;
 
+        menu_settings_Median_Prefiltering_Set_Size;
+        menu_settings_Median_Prefiltering_None;
+        menu_settings_Median_Prefiltering;
+                
         menu_settings_Pixel_Downsampling_1;        
         menu_settings_Pixel_Downsampling_2;
         menu_settings_Pixel_Downsampling_4;
@@ -530,7 +534,19 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 set(obj.menu_FBP_freq_scaling,'Label',['FBP fscaling : ' num2str(fscaling)]);                    
             end
         end       
-        
+    %================================= % pre-filtering                        
+         %------------------------------------------------------------------                        
+        function menu_settings_Median_Prefiltering_Set_Size_callback(obj, ~,~)
+             value = fix(enter_value());
+             if value > 5, value = 5; end
+             obj.data_controller.Prefiltering_Size = value;            
+             set(obj.menu_settings_Median_Prefiltering,'Label',['On-Load Median pre-filtering : ' num2str(obj.data_controller.Prefiltering_Size)]);                    
+        end
+         %------------------------------------------------------------------                                
+        function menu_settings_Median_Prefiltering_None_callback(obj, ~,~)
+            obj.data_controller.Prefiltering_Size = 'None';
+            set(obj.menu_settings_Median_Prefiltering,'Label',['On-Load Median pre-filtering : ' 'None']);                                
+        end                
     %================================= % reconstruction options                
          %------------------------------------------------------------------                                        
         function menu_settings_Method_FBP_callback(obj, ~,~)

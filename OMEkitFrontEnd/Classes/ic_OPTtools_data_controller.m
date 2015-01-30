@@ -42,6 +42,8 @@ classdef ic_OPTtools_data_controller < handle
         Reconstruction_GPU = 'OFF';
         Reconstruction_Largo = 'OFF';
         
+        Prefiltering_Size = 'None';
+        
         % TwIST
         TwIST_TAU = 0.0008; %1
         TwIST_LAMBDA = 1e-4; %2
@@ -210,7 +212,9 @@ classdef ic_OPTtools_data_controller < handle
             settings.TwIST_MONOTONE = obj.TwIST_MONOTONE;
             settings.TwIST_SPARSE = obj.TwIST_SPARSE;
             settings.TwIST_VERBOSE = obj.TwIST_VERBOSE;
-            % TwIST        
+            % TwIST 
+            
+            settings.Prefiltering_Size = obj.Prefiltering_Size;
                         
             xml_write([pwd filesep obj.data_settings_filename], settings);
         end % save_settings
@@ -247,6 +251,8 @@ classdef ic_OPTtools_data_controller < handle
                 obj.TwIST_SPARSE = settings.TwIST_SPARSE;
                 obj.TwIST_VERBOSE = settings.TwIST_VERBOSE;
                 % TwIST                        
+                
+                obj.Prefiltering_Size = settings.Prefiltering_Size;
              end
         end
 %-------------------------------------------------------------------------%
@@ -309,9 +315,14 @@ classdef ic_OPTtools_data_controller < handle
                             obj.previous_filenames{1} = obj.current_filename;
                         end                                                                                                
                     end %  ini - end
-                    %
-                    obj.proj(:,:,p) = plane;
-                    %
+                        %
+                        if isnumeric(obj.Prefiltering_Size)
+                            s = obj.Prefiltering_Size;
+                            obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
+                        else
+                            obj.proj(:,:,p) = plane;
+                        end
+                        %
                     if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;                    
                     %
                 end                                
@@ -340,7 +351,12 @@ classdef ic_OPTtools_data_controller < handle
                             end                                                                                                
                         end %  ini - end
                         %
-                        obj.proj(:,:,p) = plane;
+                        if isnumeric(obj.Prefiltering_Size)
+                            s = obj.Prefiltering_Size;
+                            obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
+                        else
+                            obj.proj(:,:,p) = plane;
+                        end
                         %
                         if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;                    
                         %
@@ -808,7 +824,12 @@ end
                         
                     end %  ini - end
                     %
-                    obj.proj(:,:,p) = plane;
+                        if isnumeric(obj.Prefiltering_Size)
+                            s = obj.Prefiltering_Size;
+                            obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
+                        else
+                            obj.proj(:,:,p) = plane;
+                        end
                     %
                     if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;
                     %
@@ -838,7 +859,12 @@ end
 
                             end %  ini - end
                             %
-                            obj.proj(:,:,p) = plane;
+                            if isnumeric(obj.Prefiltering_Size)
+                                s = obj.Prefiltering_Size;
+                                obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
+                            else
+                                obj.proj(:,:,p) = plane;
+                            end
                             %
                             if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;
                             %

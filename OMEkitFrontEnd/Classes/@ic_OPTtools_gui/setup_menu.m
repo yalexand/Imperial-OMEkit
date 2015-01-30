@@ -36,6 +36,8 @@ function handles = setup_menu(obj,handles)
     settings_GPU = handles.data_controller.Reconstruction_GPU;
     settings_Largo = handles.data_controller.Reconstruction_Largo;
     
+    settings_Prefiltering_Size = handles.data_controller.Prefiltering_Size;
+    
     %================================= file
 
     menu_file = uimenu(obj.window,'Label','File');
@@ -84,6 +86,12 @@ function handles = setup_menu(obj,handles)
     
     menu_settings = uimenu(obj.window,'Label','Settings');
         
+    menu_settings_Median_Prefiltering = uimenu(menu_settings,'Label',['On-Load Median pre-filtering : ' num2str(settings_Prefiltering_Size)],'Separator','On');
+    handles.menu_settings_Median_Prefiltering_Set_Size = uimenu(menu_settings_Median_Prefiltering,'Label','Set size');    
+    handles.menu_settings_Median_Prefiltering_None = uimenu(menu_settings_Median_Prefiltering,'Label','None');        
+    
+    handles.menu_settings_Median_Prefiltering = menu_settings_Median_Prefiltering;
+    
     menu_settings_Pixel_Downsampling = uimenu(menu_settings,'Label',['Pixel downsampling : 1/' num2str(pixel_downsampling)],'Separator','On');
     % menu_settings_Angle_Downsampling = uimenu(menu_settings,'Label',['Angle downsampling : 1/' num2str(angle_downsampling)]);
 
