@@ -534,7 +534,7 @@ end
             n_angles = numel(obj.angles);
              
             if sizeZ ~= n_angles
-                errormsg('Incompatible settings - can not continue');
+                errordlg('Incompatible settings - can not continue');
                 return;
             end
                                     
