@@ -384,6 +384,215 @@ classdef ic_OPTtools_data_controller < handle
             
         end
 %-------------------------------------------------------------------------%
+        function infostring = Set_Src_FLIM(obj,full_filename,mode,verbose,~)
+            %
+            obj.proj = [];
+            obj.volm = [];            
+            obj.on_proj_and_volm_clear;            
+            %
+            infostring = [];
+            obj.angles = obj.get_angles(full_filename); % temp
+            if isempty(obj.angles), 
+                if verbose
+                    errordlg('source does not contain angle specs - can not continue'), 
+                end
+                return, 
+            end;
+            %                               
+            hw = [];
+            waitmsg = 'Loading planes...';
+            if verbose
+                hw = waitdialog(waitmsg);
+            end
+                        
+            try
+            omedata = bfopen(full_filename);
+            catch err
+                errordlg(err.message);
+                if ~isempty(hw)
+                    delete(hw); 
+                    drawnow;
+                end
+                return;
+            end
+            
+            if ~isempty(omedata)
+                                
+            r = loci.formats.ChannelFiller();
+            r = loci.formats.ChannelSeparator(r);
+            OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
+            r.setMetadataStore(OMEXMLService.createOMEXMLMetadata());
+            r.setId(full_filename);
+            r.setSeries(0);            
+            omeMeta = r.getMetadataStore();             
+            % mmm - needs to check first if it isn't empty..
+            obj.PixelsPhysicalSizeX = omeMeta.getPixelsPhysicalSizeX(0).getValue;
+            obj.PixelsPhysicalSizeY = omeMeta.getPixelsPhysicalSizeY(0).getValue;
+            
+            sizeZ = omeMeta.getPixelsSizeZ(0).getValue; 
+            sizeT = omeMeta.getPixelsSizeT(0).getValue;
+            
+            imgdata = omedata{1,1};       
+            
+                if strcmp('sum',mode) && ... % sum of all FLIM time gates
+                       strcmp(omeMeta.getPixelsDimensionOrder(0).getValue,'XYZCT')
+                   
+                        for p = 1 : sizeZ,                    
+                            
+                            plane = imgdata{p,1};
+                            for t = 1:sizeT-1
+                                tind  = sizeZ*t + p;
+                                plane = plane + imgdata{tind,1};
+                            end
+                            %   
+                            if isempty(obj.proj)
+                                [sizeX,sizeY] = size(plane);
+                                obj.proj = zeros(sizeX,sizeY,sizeZ,class(plane));
+                                %
+                                obj.current_filename = full_filename;
+                                if isempty(obj.previous_filenames)
+                                    obj.previous_filenames{1} = obj.current_filename;
+                                end                                                                                                
+                            end %  ini - end
+                                %
+                                if isnumeric(obj.Prefiltering_Size)
+                                    s = obj.Prefiltering_Size;
+                                    obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
+                                else
+                                    obj.proj(:,:,p) = plane;
+                                end
+                                %
+                            if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
+                        end                                
+                        if ~isempty(hw), delete(hw), drawnow, end; 
+                        
+                         % possibly correcting orientation
+                        if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+                            %
+                            waitmsg = 'Oops.. swappig dimensions..';
+                            if verbose
+                                hw = waitdialog(waitmsg);
+                            end
+                            %
+                            obj.proj = [];                  
+                            %
+                            for p = 1 : sizeZ,                    
+                                plane = rot90(imgdata{p,1});
+                                for t = 1:sizeT-1
+                                    tind  = sizeZ*t + p;
+                                    plane = plane + rot90(imgdata{tind,1});
+                                end
+                                %   
+                                if isempty(obj.proj)
+                                    [sizeX,sizeY] = size(plane);
+                                    obj.proj = zeros(sizeX,sizeY,sizeZ,class(plane));
+                                end %  ini - end
+                                    %
+                                    if isnumeric(obj.Prefiltering_Size)
+                                        s = obj.Prefiltering_Size;
+                                        obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
+                                    else
+                                        obj.proj(:,:,p) = plane;
+                                    end
+                                    %
+                                if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
+                             end                                                                         
+                            if ~isempty(hw), delete(hw), drawnow, end;                                                                                
+                            %
+                        end
+                        % end orientation correcting...                                       
+                    %
+                elseif isnumeric(mode) && ... % load the mode-th time gate
+                       mode <= sizeT && ... 
+                       strcmp(omeMeta.getPixelsDimensionOrder(0).getValue,'XYZCT')
+                                                
+                        for p = 1 : sizeZ,                    
+                            pind =  (mode-1)*sizeZ + p;
+                            plane = imgdata{pind,1};
+                            %   
+                            if isempty(obj.proj)
+                                [sizeX,sizeY] = size(plane);
+                                obj.proj = zeros(sizeX,sizeY,sizeZ,class(plane));
+                                %
+                                obj.current_filename = full_filename;
+                                if isempty(obj.previous_filenames)
+                                    obj.previous_filenames{1} = obj.current_filename;
+                                end                                                                                                
+                            end %  ini - end
+                                %
+                                if isnumeric(obj.Prefiltering_Size)
+                                    s = obj.Prefiltering_Size;
+                                    obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
+                                else
+                                    obj.proj(:,:,p) = plane;
+                                end
+                                %
+                            if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
+                        end                                
+                        if ~isempty(hw), delete(hw), drawnow, end; 
+                      %
+                     % possibly correcting orientation
+                    if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+                        %
+                        waitmsg = 'Oops.. swappig dimensions..';
+                        if verbose
+                            hw = waitdialog(waitmsg);
+                        end
+                        %
+                        obj.proj = [];                  
+                        %
+                        for p = 1 : sizeZ,                    
+                            pind =  (mode-1)*sizeZ + p;                        
+                            plane = rot90(imgdata{pind,1});
+                            %   
+                            if isempty(obj.proj)
+                                [sizeX,sizeY] = size(plane);
+                                obj.proj = zeros(sizeX,sizeY,sizeZ,class(plane));
+                            end %  ini - end
+                                %
+                                if isnumeric(obj.Prefiltering_Size)
+                                    s = obj.Prefiltering_Size;
+                                    obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
+                                else
+                                    obj.proj(:,:,p) = plane;
+                                end
+                                %
+                            if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
+                         end                                                                         
+                        if ~isempty(hw), delete(hw), drawnow, end;                                                                                
+                        %
+                    end
+                    % end orientation correcting...                    
+
+                else % if can't load..
+                    errordlg('can not continue - plane order XYZCT is expected for FLIM');
+                    if ~isempty(hw)
+                        delete(hw); 
+                        drawnow;
+                    end                
+                end
+                                                                    
+                % that might be inadequate for transmission...
+                if min(obj.proj(:)) > 2^15
+                    obj.proj = obj.proj - 2^15;    % clear the sign bit which is set by labview
+                end
+%                  % invert if ???
+%                  max_val = max(obj.proj(:));
+%                  obj.proj = max_val - obj.proj;
+                                 
+                [filepath,~,~] = fileparts(full_filename);
+                obj.DefaultDirectory = filepath;
+
+                obj.on_new_proj_set;
+        
+                infostring = obj.current_filename;            
+                                
+            else
+                errordlg('improper input file');
+            end
+                        
+        end
+%-------------------------------------------------------------------------%
 function save_volume(obj,full_filename,verbose,~)                        
     hw = [];   
     if verbose, hw = waitdialog(' '); end;                    
@@ -960,7 +1169,43 @@ end
             catch
             end
             
-        end        
+        end
+%-------------------------------------------------------------------------%        
+        function ret = get_FLIM_times(obj,full_filename,~)
+            
+            ret = [];
+            
+            try
+            
+                r = loci.formats.ChannelFiller();
+                r = loci.formats.ChannelSeparator(r);
+
+                OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
+                r.setMetadataStore(OMEXMLService.createOMEXMLMetadata());
+                r.setId(full_filename);
+                %
+                modlo = r.getModuloT();
+                if ~isempty(modlo)
+
+                     if ~isempty(modlo.labels)
+                         ret = str2num(modlo.labels)';
+                     end
+
+                     if ~isempty(modlo.start)
+                         if modlo.end > modlo.start
+                            nsteps = round((modlo.end - modlo.start)/modlo.step);
+                            ret = 0:nsteps;
+                            ret = ret*modlo.step;
+                            ret = ret + modlo.start;
+                         end
+                     end
+                     
+                end
+                        
+            catch
+            end
+            
+        end                
 %-------------------------------------------------------------------------%
         function ret = OMERO_get_angles(obj,omero_data_manager,image,~)
             

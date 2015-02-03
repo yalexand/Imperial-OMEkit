@@ -245,7 +245,12 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_file_set_src_single_callback(obj, ~, ~)
             [file,path] = uigetfile({'*.OME.tiff','OME.tiff Files'},'Select OPT data file',obj.data_controller.DefaultDirectory);
             if file ~= 0
-                infostring = obj.data_controller.Set_Src_Single([path file],true); % verbose
+                verbose = true;
+                if isempty(obj.data_controller.get_FLIM_times([path file]))                    
+                    infostring = obj.data_controller.Set_Src_Single([path file],verbose);
+                else
+                    infostring = obj.data_controller.Set_Src_FLIM([path file],'sum',verbose);
+                end
                 if ~isempty(infostring)
                     set(obj.menu_file_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
                     set(obj.menu_OMERO_Working_Data_Info,'Label','...','Enable','off');
