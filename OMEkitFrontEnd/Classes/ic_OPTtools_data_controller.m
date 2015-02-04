@@ -85,7 +85,8 @@ classdef ic_OPTtools_data_controller < handle
         previous_filenames = [];
         previous_omero_IDs = [];
         
-        angles; 
+        angles = []; 
+        delays = []; % FLIM
 
         % current_metadata = []; % ?
         PixelsPhysicalSizeX = []; % as in loaded original
@@ -316,12 +317,7 @@ classdef ic_OPTtools_data_controller < handle
                         end                                                                                                
                     end %  ini - end
                         %
-                        if isnumeric(obj.Prefiltering_Size)
-                            s = obj.Prefiltering_Size;
-                            obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
-                        else
-                            obj.proj(:,:,p) = plane;
-                        end
+                        obj.proj(:,:,p) = plane;
                         %
                     if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;                    
                     %
@@ -351,12 +347,7 @@ classdef ic_OPTtools_data_controller < handle
                             end                                                                                                
                         end %  ini - end
                         %
-                        if isnumeric(obj.Prefiltering_Size)
-                            s = obj.Prefiltering_Size;
-                            obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
-                        else
-                            obj.proj(:,:,p) = plane;
-                        end
+                        obj.proj(:,:,p) = plane;
                         %
                         if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;                    
                         %
@@ -365,7 +356,20 @@ classdef ic_OPTtools_data_controller < handle
                     %
                 end
                 % end orientation correcting...
-                
+
+                if isnumeric(obj.Prefiltering_Size)
+                    s = obj.Prefiltering_Size;
+                        waitmsg = 'Median pre-filtering....';
+                        if verbose
+                            hw = waitdialog(waitmsg);
+                        end                                    
+                    for p = 1 : n_planes,                    
+                        obj.proj(:,:,p) = medfilt2(obj.proj(:,:,p),'symmetric',[s s]);
+                        if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;     
+                    end
+                    if ~isempty(hw), delete(hw), drawnow, end;    
+                end
+                                
                 % that might be inadequate for transmission...
                 if min(obj.proj(:)) > 2^15
                     obj.proj = obj.proj - 2^15;    % clear the sign bit which is set by labview
@@ -455,12 +459,7 @@ classdef ic_OPTtools_data_controller < handle
                                 end                                                                                                
                             end %  ini - end
                                 %
-                                if isnumeric(obj.Prefiltering_Size)
-                                    s = obj.Prefiltering_Size;
-                                    obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
-                                else
-                                    obj.proj(:,:,p) = plane;
-                                end
+                                obj.proj(:,:,p) = plane;
                                 %
                             if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
                         end                                
@@ -487,14 +486,9 @@ classdef ic_OPTtools_data_controller < handle
                                     [sizeX,sizeY] = size(plane);
                                     obj.proj = zeros(sizeX,sizeY,sizeZ,class(plane));
                                 end %  ini - end
-                                    %
-                                    if isnumeric(obj.Prefiltering_Size)
-                                        s = obj.Prefiltering_Size;
-                                        obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
-                                    else
-                                        obj.proj(:,:,p) = plane;
-                                    end
-                                    %
+                                %
+                                obj.proj(:,:,p) = plane;
+                                %
                                 if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
                              end                                                                         
                             if ~isempty(hw), delete(hw), drawnow, end;                                                                                
@@ -519,14 +513,9 @@ classdef ic_OPTtools_data_controller < handle
                                     obj.previous_filenames{1} = obj.current_filename;
                                 end                                                                                                
                             end %  ini - end
-                                %
-                                if isnumeric(obj.Prefiltering_Size)
-                                    s = obj.Prefiltering_Size;
-                                    obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
-                                else
-                                    obj.proj(:,:,p) = plane;
-                                end
-                                %
+                            %
+                            obj.proj(:,:,p) = plane;  
+                            %
                             if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
                         end                                
                         if ~isempty(hw), delete(hw), drawnow, end; 
@@ -549,21 +538,16 @@ classdef ic_OPTtools_data_controller < handle
                                 [sizeX,sizeY] = size(plane);
                                 obj.proj = zeros(sizeX,sizeY,sizeZ,class(plane));
                             end %  ini - end
-                                %
-                                if isnumeric(obj.Prefiltering_Size)
-                                    s = obj.Prefiltering_Size;
-                                    obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
-                                else
-                                    obj.proj(:,:,p) = plane;
-                                end
-                                %
+                            %
+                            obj.proj(:,:,p) = plane;
+                            %
                             if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
                          end                                                                         
                         if ~isempty(hw), delete(hw), drawnow, end;                                                                                
                         %
                     end
                     % end orientation correcting...                    
-
+                                        
                 else % if can't load..
                     errordlg('can not continue - plane order XYZCT is expected for FLIM');
                     if ~isempty(hw)
@@ -571,7 +555,20 @@ classdef ic_OPTtools_data_controller < handle
                         drawnow;
                     end                
                 end
-                                                                    
+                
+                if isnumeric(obj.Prefiltering_Size)
+                    s = obj.Prefiltering_Size;
+                        waitmsg = 'Median pre-filtering....';
+                        if verbose
+                            hw = waitdialog(waitmsg);
+                        end                                    
+                    for p = 1 : sizeZ,                    
+                        obj.proj(:,:,p) = medfilt2(obj.proj(:,:,p),'symmetric',[s s]);
+                        if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;     
+                    end
+                    if ~isempty(hw), delete(hw), drawnow, end;    
+                end
+                                                    
                 % that might be inadequate for transmission...
                 if min(obj.proj(:)) > 2^15
                     obj.proj = obj.proj - 2^15;    % clear the sign bit which is set by labview
@@ -719,7 +716,6 @@ end
                 reconstruction = obj.FBP(sinogram);
             end
         end        
-%-------------------------------------------------------------------------%        
 %-------------------------------------------------------------------------%
         function perform_reconstruction(obj,verbose,~)
             
@@ -1004,7 +1000,9 @@ end
             rawPixelsStore = omero_data_manager.session.createRawPixelsStore(); 
             rawPixelsStore.setPixelsId(pixelsId, false);    
                         
-            obj.angles = obj.OMERO_get_angles(omero_data_manager,omero_data_manager.image);
+            obj.angles = obj.OMERO_get_angles(omero_data_manager,omero_data_manager.image);            
+            obj.delays = obj.OMERO_get_delays(omero_data_manager,omero_data_manager.image);
+            
             % if isempty(obj.angles), errordlg('source does not contain angle specs - can not continue'), return, end;
                                                     
             waitmsg = 'Loading planes form Omero, please wait ...';
@@ -1033,12 +1031,7 @@ end
                         
                     end %  ini - end
                     %
-                        if isnumeric(obj.Prefiltering_Size)
-                            s = obj.Prefiltering_Size;
-                            obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
-                        else
-                            obj.proj(:,:,p) = plane;
-                        end
+                    obj.proj(:,:,p) = plane;
                     %
                     if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;
                     %
@@ -1068,12 +1061,7 @@ end
 
                             end %  ini - end
                             %
-                            if isnumeric(obj.Prefiltering_Size)
-                                s = obj.Prefiltering_Size;
-                                obj.proj(:,:,p) = medfilt2(plane,'symmetric',[s s]);
-                            else
-                                obj.proj(:,:,p) = plane;
-                            end
+                            obj.proj(:,:,p) = plane;
                             %
                             if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;
                             %
@@ -1081,7 +1069,20 @@ end
                     if ~isempty(hw), delete(hw), drawnow, end;                                                                                
                     %
                 end
-            
+
+                if isnumeric(obj.Prefiltering_Size)
+                    s = obj.Prefiltering_Size;
+                        waitmsg = 'Median pre-filtering....';
+                        if verbose
+                            hw = waitdialog(waitmsg);
+                        end                                    
+                    for p = 1 : n_planes,                    
+                        obj.proj(:,:,p) = medfilt2(obj.proj(:,:,p),'symmetric',[s s]);
+                        if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;     
+                    end
+                    if ~isempty(hw), delete(hw), drawnow, end;    
+                end
+                                
                 % that might be inadequate for transmission...
                 if min(obj.proj(:)) > 2^15
                     obj.proj = obj.proj - 2^15;    % clear the sign bit which is set by labview
@@ -1171,9 +1172,11 @@ end
             
         end
 %-------------------------------------------------------------------------%        
-        function ret = get_FLIM_times(obj,full_filename,~)
+        function ret = get_delays(obj,full_filename,~)
             
             ret = [];
+            
+            obj.delays = ret; % mmmm
             
             try
             
@@ -1205,6 +1208,8 @@ end
             catch
             end
             
+            obj.delays = ret; % mmmm
+            
         end                
 %-------------------------------------------------------------------------%
         function ret = OMERO_get_angles(obj,omero_data_manager,image,~)
@@ -1212,10 +1217,24 @@ end
            ret = [];
      
            try
-                            
-                s = read_XmlAnnotation_havingNS(omero_data_manager.session,image,'openmicroscopy.org/omero/dimension/modulo');
-                                                                                               
-                if isempty(s), errordlg('no modulo annotation - can not continue'), return, end;
+                                            
+                objId = java.lang.Long(image.getId().getValue());
+                %
+                annotators = java.util.ArrayList;    
+                metadataService = omero_data_manager.session.getMetadataService();
+                map = metadataService.loadAnnotations('omero.model.Image', java.util.Arrays.asList(objId), java.util.Arrays.asList( 'ome.model.annotations.XmlAnnotation'), annotators, omero.sys.ParametersI());
+                annotations = map.get(objId);
+                %        
+                s = [];
+                for j = 0:annotations.size()-1
+                    str = char(annotations.get(j).getTextValue.getValue);
+                    if ~isempty(strfind(str,'OPT')) && ~isempty(strfind(str,'ModuloAlongZ')) % add some more checks to make t safer?
+                        s = str;
+                        break;
+                    end
+                end 
+                                                                                                                                               
+                if isempty(s), return, end;
 
                 [parseResult,~] = xmlreadstring(s);
                 tree = xml_read(parseResult);
@@ -1245,6 +1264,59 @@ end
             end
                         
         end                
+%-------------------------------------------------------------------------%
+        function ret = OMERO_get_delays(obj,omero_data_manager,image,~)
+            
+           ret = [];
+     
+           try
+                                            
+                objId = java.lang.Long(image.getId().getValue());
+                %
+                annotators = java.util.ArrayList;    
+                metadataService = omero_data_manager.session.getMetadataService();
+                map = metadataService.loadAnnotations('omero.model.Image', java.util.Arrays.asList(objId), java.util.Arrays.asList( 'ome.model.annotations.XmlAnnotation'), annotators, omero.sys.ParametersI());
+                annotations = map.get(objId);
+                %        
+                s = [];
+                for j = 0:annotations.size()-1
+                    str = char(annotations.get(j).getTextValue.getValue);
+                    if ~isempty(strfind(str,'lifetime')) && ~isempty(strfind(str,'ModuloAlongT')) % add some more checks to make t safer?
+                        s = str;
+                        break;
+                    end
+                end 
+                                                                                                                                               
+                if isempty(s), return, end;
+
+                [parseResult,~] = xmlreadstring(s);
+                tree = xml_read(parseResult);
+                if isfield(tree,'ModuloAlongT')
+                     modlo = tree.ModuloAlongT;
+                end;               
+
+                if isfield(modlo.ATTRIBUTE,'Start')
+
+                    start = modlo.ATTRIBUTE.Start;
+                    step = modlo.ATTRIBUTE.Step;
+                    e = modlo.ATTRIBUTE.End; 
+                    nsteps = round((e - start)/step);
+                    ret = 0:nsteps;
+                    ret = ret*step;
+                    ret = ret + start;
+
+                else
+                    if isnumeric(modlo.Label)
+                        ret = modlo.Label;
+                    else
+                        ret = cell2mat(modlo.Label);
+                    end
+                end
+            
+            catch
+            end
+                        
+        end                        
 %-------------------------------------------------------------------------%                
         function res = do_reconstruction_on_Z_chunk(obj,zrange)
                         

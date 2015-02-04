@@ -246,7 +246,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             [file,path] = uigetfile({'*.OME.tiff','OME.tiff Files'},'Select OPT data file',obj.data_controller.DefaultDirectory);
             if file ~= 0
                 verbose = true;
-                if isempty(obj.data_controller.get_FLIM_times([path file]))                    
+                if isempty(obj.data_controller.get_delays([path file]))                    
                     infostring = obj.data_controller.Set_Src_Single([path file],verbose);
                 else
                     infostring = obj.data_controller.Set_Src_FLIM([path file],'sum',verbose);
