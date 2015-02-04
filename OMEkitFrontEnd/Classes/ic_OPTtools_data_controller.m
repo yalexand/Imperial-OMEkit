@@ -384,6 +384,8 @@ classdef ic_OPTtools_data_controller < handle
                         
             obj.on_new_proj_set;
             
+            obj.omero_IDs = [];
+            
             infostring = obj.current_filename;
             
         end
@@ -581,9 +583,11 @@ classdef ic_OPTtools_data_controller < handle
                 obj.DefaultDirectory = filepath;
 
                 obj.on_new_proj_set;
-        
-                infostring = obj.current_filename;            
-                                
+                
+                obj.omero_IDs = [];
+                
+                infostring = obj.current_filename;  
+                                                                
             else
                 errordlg('improper input file');
             end
@@ -1094,6 +1098,8 @@ end
             rawPixelsStore.close();           
             
             obj.on_new_proj_set;
+            
+            obj.current_filename = [];
             
             % infostring
             try
