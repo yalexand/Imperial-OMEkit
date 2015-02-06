@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration target="target.ezdeploy.standalone" target-name="MATLAB Compiler for Standalone Applications" name="ic_OPTtools_PCWIN64" location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd" file="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\ic_OPTtools_PCWIN64.prj" preferred-package-type="package.type.exe" build-checksum="3116251040" preferred-package-location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution">
+  <configuration target="target.ezdeploy.standalone" target-name="MATLAB Compiler for Standalone Applications" name="ic_OPTtools_PCWIN64" location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd" file="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\ic_OPTtools_PCWIN64.prj" preferred-package-type="package.type.exe" build-checksum="3366225570" preferred-package-location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution">
     <param.appname>ic_OPTtools_PCWIN64</param.appname>
     <param.authnamewatermark>Yuriy Alexandrov</param.authnamewatermark>
     <param.email>yalexand@ic.ac.uk</param.email>

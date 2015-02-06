@@ -103,6 +103,25 @@ classdef ic_OPTtools_data_controller < handle
         
         proj; % native projection images (processed for co-registration and artifact correction)
         volm; % reconstructed volume
+        
+        % memory mapping
+        memmap_proj = [];
+        memmap_volm = [];
+        proj_mapfile_name = [];
+        volm_mapfile_name = [];
+        
+        mm_proj_sizeY = [];
+        mm_proj_sizeX = [];
+        mm_proj_sizeZ = [];
+        mm_proj_sizeC = [];
+        mm_proj_sizeT = [];            
+
+        mm_volm_sizeY = [];
+        mm_volm_sizeX = [];
+        mm_volm_sizeZ = [];
+        mm_volm_sizeC = [];
+        mm_volm_sizeT = [];             
+        % memory mapping
                                
     end
     
@@ -259,6 +278,8 @@ classdef ic_OPTtools_data_controller < handle
 %-------------------------------------------------------------------------%
         function infostring = Set_Src_Single(obj,full_filename,verbose,~)
             %
+            obj.clear_memory_mapping();
+            %            
             obj.proj = [];
             obj.volm = [];            
             obj.on_proj_and_volm_clear;            
@@ -392,6 +413,8 @@ classdef ic_OPTtools_data_controller < handle
 %-------------------------------------------------------------------------%
         function infostring = Set_Src_FLIM(obj,full_filename,mode,verbose,~)
             %
+            obj.clear_memory_mapping;
+            %
             obj.proj = [];
             obj.volm = [];            
             obj.on_proj_and_volm_clear;            
@@ -440,6 +463,8 @@ classdef ic_OPTtools_data_controller < handle
             
             imgdata = omedata{1,1};       
             
+            obj.initialize_memmap_proj(omeMeta,imgdata,true); % verbose
+                        
                 if strcmp('sum',mode) && ... % sum of all FLIM time gates
                        strcmp(omeMeta.getPixelsDimensionOrder(0).getValue,'XYZCT')
                    
@@ -598,6 +623,13 @@ function save_volume(obj,full_filename,verbose,~)
     hw = [];   
     if verbose, hw = waitdialog(' '); end;                    
     %
+    if ~isempty(obj.delays) && ~isempty(strfind(lower(full_filename),'.ome.tiff'))
+        % FLIM
+        obj.save_volm_FLIM(full_filename,verbose);
+        if verbose, delete(hw), drawnow; end;
+        % FLIM
+        return;
+    end
     % mat-file
     if ~isempty(strfind(lower(full_filename),'.mat'))
         %
@@ -665,6 +697,7 @@ end
         end
 %-------------------------------------------------------------------------%
         function delete(obj)
+            obj.clear_memory_mapping;
             obj.save_settings;
         end
 %-------------------------------------------------------------------------%        
@@ -721,7 +754,7 @@ end
             end
         end        
 %-------------------------------------------------------------------------%
-        function perform_reconstruction(obj,verbose,~)
+        function V = perform_reconstruction(obj,verbose,~)
             
             use_GPU = strcmp(obj.Reconstruction_GPU,'ON');
                         
@@ -735,7 +768,7 @@ end
                 return;
             end
                                                             
-            obj.volm = [];                
+            V = [];                
             obj.on_volm_clear;
 
             [sizeX,sizeY,sizeZ] = size(obj.proj); 
@@ -792,7 +825,7 @@ end
                             gpu_volm(:,:,y) = reconstruction;                            
                             if ~isempty(hw), waitdialog(y/YL,hw,s); drawnow, end;
                          end                           
-                         obj.volm = gather(gpu_volm);
+                         V = gather(gpu_volm);
                          
                      else % with downsampling                         
                          
@@ -819,7 +852,7 @@ end
                             gpu_volm(:,:,y) = reconstruction;                            
                             if ~isempty(hw), waitdialog(y/szY_r,hw,s); drawnow, end;
                          end
-                         obj.volm = gather(gpu_volm);
+                         V = gather(gpu_volm);
                          
                      end
                      
@@ -831,12 +864,12 @@ end
                             sinogram = squeeze(double(obj.proj(:,y_min+y-1,:)));
                             % 
                             reconstruction = RF(sinogram);
-                            if isempty(obj.volm)
+                            if isempty(V)
                                 [sizeR1,sizeR2] = size(reconstruction);
-                                obj.volm = zeros(sizeR1,sizeR2,YL); % XYZ
+                                V = zeros(sizeR1,sizeR2,YL); % XYZ
                             end
                             %
-                            obj.volm(:,:,y) = reconstruction;
+                            V(:,:,y) = reconstruction;
                             %
                             if ~isempty(hw), waitdialog(y/YL,hw,s); drawnow, end;
                          end                                                 
@@ -855,12 +888,12 @@ end
                          for y = 1 : szY_r 
                             sinogram = squeeze(double(proj_r(:,y,:)));                             
                             reconstruction = RF(sinogram);                                                        
-                            if isempty(obj.volm)
+                            if isempty(V)
                                 [sizeR1,sizeR2] = size(reconstruction);
-                                obj.volm = zeros(sizeR1,sizeR2,szY_r); % XYZ
+                                V = zeros(sizeR1,sizeR2,szY_r); % XYZ
                             end
                             %
-                            obj.volm(:,:,y) = reconstruction;
+                            V(:,:,y) = reconstruction;
                             %
                             if ~isempty(hw), waitdialog(y/szY_r,hw,s); drawnow, end;
                          end
@@ -869,7 +902,7 @@ end
                                       
                  end                     
                                                                
-             obj.volm( obj.volm <= 0 ) = 0; % mm? 
+             V( V <= 0 ) = 0; % mm? 
              
              if ~isempty(hw), delete(hw), drawnow, end;
              
@@ -966,7 +999,7 @@ end
              obj.on_new_volm_set;
         end      
 %-------------------------------------------------------------------------%
-        function infostring  = OMERO_load_single(obj,omero_data_manager,verbose,~)
+        function infostring  = OMERO_load_single(obj,omero_data_manager,verbose,~)           
             
             infostring = [];            
             
@@ -988,6 +1021,8 @@ end
 %-------------------------------------------------------------------------%
         function infostring  = OMERO_load_image(obj,omero_data_manager,image,verbose,~)
             
+            obj.clear_memory_mapping; % mmmm             
+            
             omero_data_manager.image = image;
             
             obj.omero_IDs{1} = omero_data_manager.image.getId.getValue;
@@ -1006,6 +1041,10 @@ end
                         
             obj.angles = obj.OMERO_get_angles(omero_data_manager,omero_data_manager.image);            
             obj.delays = obj.OMERO_get_delays(omero_data_manager,omero_data_manager.image);
+            
+            if ~isempty(obj.delays)
+                obj.initialize_memmap_proj_OMERO(omero_data_manager,image,verbose); %
+            end
             
             % if isempty(obj.angles), errordlg('source does not contain angle specs - can not continue'), return, end;
                                                     
@@ -1416,7 +1455,8 @@ end
                             if strcmp(obj.Reconstruction_Largo,'ON')
                                 obj.perform_reconstruction_Largo;
                             else
-                                obj.perform_reconstruction(false);
+                                % obj.perform_reconstruction(false);
+                                obj.volm = obj.perform_reconstruction(false);
                             end
                             %
                             % save volume on disk - presume OME.tiff filenames everywhere
@@ -1454,7 +1494,8 @@ end
                             if strcmp(obj.Reconstruction_Largo,'ON')
                                 obj.perform_reconstruction_Largo;
                             else
-                                obj.perform_reconstruction(false);
+                                % obj.perform_reconstruction(false);
+                                obj.volm = obj.perform_reconstruction(false);
                             end
                             %
                             % save volume on disk
@@ -1475,7 +1516,332 @@ end
             
         end
 %-------------------------------------------------------------------------%        
+% memory mapping
+        function clear_memory_mapping(obj,~,~)
 
+                obj.memmap_proj = []; 
+                obj.memmap_volm = []; 
+
+                if exist(obj.proj_mapfile_name,'file')
+                    delete(obj.proj_mapfile_name);
+                end
+
+                if exist(obj.volm_mapfile_name,'file')
+                    delete(obj.volm_mapfile_name);
+                end            
+                
+            obj.mm_proj_sizeY = [];
+            obj.mm_proj_sizeX = [];
+            obj.mm_proj_sizeZ = [];
+            obj.mm_proj_sizeC = [];
+            obj.mm_proj_sizeT = [];            
+
+            obj.mm_volm_sizeY = [];
+            obj.mm_volm_sizeX = [];
+            obj.mm_volm_sizeZ = [];
+            obj.mm_volm_sizeC = [];
+            obj.mm_volm_sizeT = [];            
+
+        end
+%-------------------------------------------------------------------------%        
+        function initialize_memmap_proj(obj,omeMeta,imgdata,verbose,~) % XYZCT at C=1
+            
+            obj.proj_mapfile_name = global_tempname;
+            
+            sizeY = omeMeta.getPixelsSizeX(0).getValue;
+            sizeX = omeMeta.getPixelsSizeY(0).getValue;           
+            sizeZ = omeMeta.getPixelsSizeZ(0).getValue;            
+            sizeC = omeMeta.getPixelsSizeC(0).getValue;            
+            sizeT = omeMeta.getPixelsSizeT(0).getValue;            
+
+            datatype = class(imgdata{1,1});
+            sz_data = sizeX*sizeY*sizeZ*sizeC*sizeT;
+            n_planes = sizeZ*sizeC*sizeT;
+
+            mapfile = fopen(obj.proj_mapfile_name,'w');
+            ini_data = zeros(1,sz_data,datatype);
+            fwrite(mapfile,ini_data,datatype);
+            fclose(mapfile);
+
+            obj.memmap_proj = memmapfile(obj.proj_mapfile_name,'Writable',true,'Repeat',n_planes,'Format',{datatype, [sizeX sizeY], 'plane'},'Offset',0);
+
+            if verbose
+                wait_handle=waitbar(0,'Initalising memory mapping...');
+            end;
+            
+            for t = 1 : sizeT
+                for z = 1 : sizeZ
+                   index = z + (t-1)*sizeZ;
+                    obj.memmap_proj.Data(index).plane = imgdata{index,1};
+                    if verbose, waitbar(index/n_planes,wait_handle), end;
+                end
+            end            
+            if verbose, close(wait_handle), end;
+            
+            obj.mm_proj_sizeY = sizeY;
+            obj.mm_proj_sizeX = sizeX;
+            obj.mm_proj_sizeZ = sizeZ;
+            obj.mm_proj_sizeC = sizeC;
+            obj.mm_proj_sizeT = sizeT;            
+                                                
+        end
+%-------------------------------------------------------------------------%        
+        function load_proj_from_memmap(obj,t,~) % t is the index of FLIM time
+                        
+            if isempty(obj.memmap_proj) || isempty(obj.delays) || t > numel(obj.delays)
+                return;
+            end;
+            
+            sizeY = obj.mm_proj_sizeY;
+            sizeX = obj.mm_proj_sizeX;
+            sizeZ = obj.mm_proj_sizeZ;
+            sizeC = obj.mm_proj_sizeC;
+            sizeT = obj.mm_proj_sizeT;
+
+            obj.proj = [];
+            memRef = obj.memmap_proj.Data;
+                    for z = 1 : sizeZ
+                       index = z + (t-1)*sizeZ;
+                       plane = memRef(index).plane;
+                       if isempty(obj.proj)
+                           obj.proj = zeros(size(plane,1),size(plane,2),sizeZ,class(plane));
+                       end
+                       obj.proj(:,:,z) = memRef(index).plane;
+                    end                        
+        end
+%-------------------------------------------------------------------------%        
+        function initialize_memmap_volm(obj,verbose,~) % XYZCT at C=1
+            
+            if isempty(numel(obj.delays)) || isempty(obj.volm), return, end; 
+            
+            obj.volm_mapfile_name = global_tempname;
+            
+            [sizeX, sizeY, sizeZ] = size(obj.volm);
+            sizeC = 1;
+            sizeT = numel(obj.delays);
+            
+            datatype = class(obj.volm);
+            sz_data = sizeX*sizeY*sizeZ*sizeC*sizeT;
+            n_planes = sizeZ*sizeC*sizeT;
+
+            mapfile = fopen(obj.volm_mapfile_name,'w');
+            ini_data = zeros(1,sz_data,datatype);
+            fwrite(mapfile,ini_data,datatype);
+            fclose(mapfile);
+
+            obj.memmap_volm = memmapfile(obj.volm_mapfile_name,'Writable',true,'Repeat',n_planes,'Format',{datatype, [sizeX sizeY], 'plane'},'Offset',0);
+
+            if verbose
+                wait_handle=waitbar(0,'Initalising volm memory mapping...');
+            end;
+            
+                t = 1;
+                for z = 1 : sizeZ
+                   index = z + (t-1)*sizeZ;
+                   obj.memmap_volm.Data(index).plane = obj.volm(:,:,z);
+                   if verbose, waitbar(index/sizeZ,wait_handle), end;
+                end
+                        
+            if verbose, close(wait_handle), end;
+            
+            obj.mm_volm_sizeY = sizeY;
+            obj.mm_volm_sizeX = sizeX;
+            obj.mm_volm_sizeZ = sizeZ;
+            obj.mm_volm_sizeC = sizeC;
+            obj.mm_volm_sizeT = sizeT;            
+                                                
+        end
+%-------------------------------------------------------------------------%        
+        function upload_volm_to_memmap(obj,t,verbose) % XYZCT at C=1
+            
+            if verbose
+                wait_handle=waitbar(0,['Uploading current volm to memmap, t = ' num2str(t)]);
+            end;
+            
+            sizeZ = size(obj.volm,3);
+            
+            for z = 1 : sizeZ
+                index = z + (t-1)*sizeZ;
+                obj.memmap_volm.Data(index).plane = obj.volm(:,:,z);
+                if verbose, waitbar(index/sizeZ,wait_handle), end;
+            end                        
+            if verbose, close(wait_handle), end;
+                                                            
+        end        
+%-------------------------------------------------------------------------% 
+        function initialize_memmap_proj_OMERO(obj,omero_data_manager,image,verbose,~) % XYZCT at C=1
+            
+            obj.proj_mapfile_name = global_tempname;
+                                                     
+            pixelsList = image.copyPixels();    
+            pixels = pixelsList.get(0);
+                                           
+            pixelsId = pixels.getId().getValue();
+            rawPixelsStore = omero_data_manager.session.createRawPixelsStore(); 
+            rawPixelsStore.setPixelsId(pixelsId, false);    
+
+            sizeY = pixels.getSizeY.getValue;
+            sizeX = pixels.getSizeX.getValue;       
+            sizeZ = pixels.getSizeZ.getValue;           
+            sizeC = pixels.getSizeC.getValue;
+            sizeT = pixels.getSizeT.getValue;
+            
+            rawPlane = rawPixelsStore.getPlane(0,0,0);                    
+            plane = toMatrix(rawPlane, pixels)';                                 
+            datatype = class(plane);
+            
+            sz_data = sizeX*sizeY*sizeZ*sizeC*sizeT;
+            n_planes = sizeZ*sizeC*sizeT;
+
+            mapfile = fopen(obj.proj_mapfile_name,'w');
+            ini_data = zeros(1,sz_data,datatype);
+            fwrite(mapfile,ini_data,datatype);
+            fclose(mapfile);
+                                                
+            obj.memmap_proj = memmapfile(obj.proj_mapfile_name,'Writable',true,'Repeat',n_planes,'Format',{datatype, [sizeX sizeY], 'plane'},'Offset',0);
+
+            if verbose
+                wait_handle=waitbar(0,'Initalising memory mapping...');
+            end;
+            
+            for t = 1 : sizeT
+                for z = 1 : sizeZ
+                    index = z + (t-1)*sizeZ;                   
+                    rawPlane = rawPixelsStore.getPlane(z-1,0,t-1);                    
+                    plane = toMatrix(rawPlane, pixels)';                                 
+                    obj.memmap_proj.Data(index).plane = plane;
+                    if verbose, waitbar(index/n_planes,wait_handle), end;
+                end
+            end            
+            if verbose, close(wait_handle), end;
+            
+            obj.mm_proj_sizeY = sizeY;
+            obj.mm_proj_sizeX = sizeX;
+            obj.mm_proj_sizeZ = sizeZ;
+            obj.mm_proj_sizeC = sizeC;
+            obj.mm_proj_sizeT = sizeT;            
+                           
+            rawPixelsStore.close();
+            
+        end
+%-------------------------------------------------------------------------%         
+    function save_volm_FLIM(obj,full_filename,verbose,~)             
+        %
+        if isempty(obj.memmap_volm) || isempty(obj.delays), return, end;
+        sizeT = numel(obj.delays);
+        memRef = obj.memmap_volm.Data;
+        n_planes = numel(memRef);
+        sizeZ = n_planes/sizeT; % mmm
+        sizeC = 1;
+        plane = memRef(1).plane;
+        sizeX = size(plane,1);
+        sizeY = size(plane,2);
+        datatype = class(plane);
+        
+        I = zeros(sizeX,sizeY,sizeZ,sizeC,sizeT,datatype);        
+        for t = 1 : sizeT
+           for z = 1 : sizeZ
+                index = z + (t-1)*sizeZ;   
+                plane = obj.memmap_volm.Data(index).plane;
+                I(:,:,z,1,t) = plane;
+           end          
+        end
+        bfsave(I,full_filename,'dimensionOrder','XYZCT','Compression','LZW','BigTiff',true); 
+        
+% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
+% % OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
+% % metadata = OMEXMLService.createOMEXMLMetadata();
+% % metadata.createRoot();
+% % metadata.setImageID('Image:0', 0);
+% % metadata.setPixelsID('Pixels:0', 0);
+% % metadata.setPixelsBinDataBigEndian(java.lang.Boolean.TRUE, 0, 0);
+% %                                 
+% % % Set pixels type
+% % pixelTypeEnumHandler = ome.xml.model.enums.handlers.PixelTypeEnumHandler();
+% % if strcmp(datatype, 'single')
+% %     pixelsType = pixelTypeEnumHandler.getEnumeration('float');
+% % else
+% %     pixelsType = pixelTypeEnumHandler.getEnumeration(datatype);
+% % end
+% % metadata.setPixelsType(pixelsType, 0);
+% % 
+% % % Set dimension order
+% % dimensionOrderEnumHandler = ome.xml.model.enums.handlers.DimensionOrderEnumHandler();
+% % dimensionOrder = dimensionOrderEnumHandler.getEnumeration('XYZCT');
+% % metadata.setPixelsDimensionOrder(dimensionOrder, 0);
+% % 
+% % % Set channels ID and samples per pixel
+% % for i = 1: sizeC
+% %     metadata.setChannelID(['Channel:0:' num2str(i-1)], 0, i-1);
+% %     metadata.setChannelSamplesPerPixel(toInt(1), 0, i-1);
+% % end
+% % 
+% %     metadata.setPixelsSizeX(toInt(sizeX), 0);
+% %     metadata.setPixelsSizeY(toInt(sizeY), 0);
+% %     metadata.setPixelsSizeZ(toInt(sizeZ), 0);
+% %     metadata.setPixelsSizeC(toInt(sizeC), 0);
+% %     metadata.setPixelsSizeT(toInt(sizeT), 0);   
+% %     %
+% %     % NEEDS TO FIX THIS
+% %     metadata.setPixelsPhysicalSizeX(ome.xml.model.primitives.PositiveFloat(java.lang.Double(1)),0);
+% %     metadata.setPixelsPhysicalSizeY(ome.xml.model.primitives.PositiveFloat(java.lang.Double(1)),0);    
+% %     %
+% %     % FLIM
+% %     modlo = loci.formats.CoreMetadata();
+% %     modlo.moduloT.type = loci.formats.FormatTools.LIFETIME;
+% %     modlo.moduloT.unit = 'ps'; % NEEDS TO FIX THIS
+% %     modlo.moduloT.typeDescription = 'Gated'; % NEEDS TO FIX THIS                                  
+% %     modlo.moduloT.labels = javaArray('java.lang.String',length(obj.delays));                                  
+% %     for i=1:length(obj.delays)
+% %         modlo.moduloT.labels(i)= java.lang.String(num2str(obj.delays(i)));
+% %     end                                                                                            
+% %     %  
+% %     OMEXMLService.addModuloAlong(metadata, modlo, 0);     
+% %     %
+% %     % Create ImageWriter
+% %     writer = loci.formats.ImageWriter();
+% %     writer.setWriteSequentially(true);
+% %     writer.setMetadataRetrieve(metadata);        
+% %         
+% %     writer.setCompression('LZW');
+% %     writer.getWriter(full_filename).setBigTiff(true);
+% %         
+% %     writer.setId(full_filename);
+% % 
+% %         % Load conversion tools for saving planes
+% %         switch datatype
+% %             case {'int8', 'uint8'}
+% %                 getBytes = @(x) x(:);
+% %             case {'uint16','int16'}
+% %                 getBytes = @(x) loci.common.DataTools.shortsToBytes(x(:), 0);
+% %             case {'uint32','int32'}
+% %                 getBytes = @(x) loci.common.DataTools.intsToBytes(x(:), 0);
+% %             case {'single'}
+% %                 getBytes = @(x) loci.common.DataTools.floatsToBytes(x(:), 0);
+% %             case 'double'
+% %                 getBytes = @(x) loci.common.DataTools.doublesToBytes(x(:), 0);
+% %         end
+% %            
+% %         if verbose
+% %             wait_handle=waitbar(0,['Saving planes to ' full_filename]);
+% %         end;     
+% %         
+% %         for t = 1 : sizeT
+% %            for z = 1 : sizeZ
+% %                 index = z + (t-1)*sizeZ;
+% %                 plane = obj.memmap_volm.Data(index).plane;
+% %                 writer.saveBytes(index-1, getBytes(plane));
+% %                 if verbose, waitbar(index/n_planes,wait_handle), end;
+% %            end          
+% %         end
+% %         if verbose, close(wait_handle), end;
+% %         
+% %     writer.close();
+% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+    end
+%-------------------------------------------------------------------------%             
     end
     
 end
