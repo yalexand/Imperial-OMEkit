@@ -87,7 +87,10 @@ classdef ic_OPTtools_data_controller < handle
         
         angles = []; 
         delays = []; % FLIM
-
+        %
+        FLIM_unit = 'ps';
+        FLIM_typeDescription = 'Gated';
+        
         % current_metadata = []; % ?
         PixelsPhysicalSizeX = []; % as in loaded original
         PixelsPhysicalSizeY = [];
@@ -1253,6 +1256,9 @@ end
             catch
             end
             
+            obj.FLIM_unit = char(modlo.unit);
+            obj.FLIM_typeDescription = char(modlo.typeDescription);
+                        
             obj.delays = ret; % mmmm
             
         end                
@@ -1357,6 +1363,9 @@ end
                         ret = cell2mat(modlo.Label);
                     end
                 end
+                
+                obj.FLIM_unit = modlo.ATTRIBUTE.Unit;
+                obj.FLIM_typeDescription = modlo.ATTRIBUTE.TypeDescription;
             
             catch
             end
@@ -1571,7 +1580,7 @@ end
             
             for t = 1 : sizeT
                 for z = 1 : sizeZ
-                   index = z + (t-1)*sizeZ;
+                    index = z + (t-1)*sizeZ;
                     obj.memmap_proj.Data(index).plane = imgdata{index,1};
                     if verbose, waitbar(index/n_planes,wait_handle), end;
                 end
@@ -1612,8 +1621,13 @@ end
 %-------------------------------------------------------------------------%        
         function initialize_memmap_volm(obj,verbose,~) % XYZCT at C=1
             
-            if isempty(numel(obj.delays)) || isempty(obj.volm), return, end; 
-            
+            if isempty(numel(obj.delays)) || isempty(obj.volm), return, end;             
+            % 
+            obj.memmap_volm = [];
+            if exist(obj.volm_mapfile_name,'file')
+                delete(obj.volm_mapfile_name);
+            end 
+                        
             obj.volm_mapfile_name = global_tempname;
             
             [sizeX, sizeY, sizeZ] = size(obj.volm);
@@ -1649,7 +1663,7 @@ end
             obj.mm_volm_sizeZ = sizeZ;
             obj.mm_volm_sizeC = sizeC;
             obj.mm_volm_sizeT = sizeT;            
-                                                
+
         end
 %-------------------------------------------------------------------------%        
         function upload_volm_to_memmap(obj,t,verbose) % XYZCT at C=1
@@ -1665,12 +1679,17 @@ end
                 obj.memmap_volm.Data(index).plane = obj.volm(:,:,z);
                 if verbose, waitbar(index/sizeZ,wait_handle), end;
             end                        
+
             if verbose, close(wait_handle), end;
                                                             
         end        
 %-------------------------------------------------------------------------% 
         function initialize_memmap_proj_OMERO(obj,omero_data_manager,image,verbose,~) % XYZCT at C=1
-            
+
+            obj.memmap_proj = [];
+            if exist(obj.proj_mapfile_name,'file')
+                delete(obj.proj_mapfile_name);
+            end                         
             obj.proj_mapfile_name = global_tempname;
                                                      
             pixelsList = image.copyPixels();    
@@ -1704,15 +1723,24 @@ end
                 wait_handle=waitbar(0,'Initalising memory mapping...');
             end;
             
-            for t = 1 : sizeT
-                for z = 1 : sizeZ
-                    index = z + (t-1)*sizeZ;                   
-                    rawPlane = rawPixelsStore.getPlane(z-1,0,t-1);                    
-                    plane = toMatrix(rawPlane, pixels)';                                 
-                    obj.memmap_proj.Data(index).plane = plane;
-                    if verbose, waitbar(index/n_planes,wait_handle), end;
-                end
-            end            
+            memRef = obj.memmap_proj.Data; 
+%             for t = 1 : sizeT
+%                 for z = 1 : sizeZ
+%                     index = z + (t-1)*sizeZ;                   
+%                     rawPlane = rawPixelsStore.getPlane(z-1,0,t-1);                    
+%                     plane = toMatrix(rawPlane, pixels)';                                 
+%                     memRef(index).plane = plane;
+%                     if verbose, waitbar(index/n_planes,wait_handle), end;
+%                 end
+%             end            
+            for index = 1 : n_planes
+                [z, c, t] = ind2sub([sizeZ sizeC sizeT],index);
+                rawPlane = rawPixelsStore.getPlane(z-1,c-1,t-1);                    
+                plane = toMatrix(rawPlane, pixels)';                                 
+                memRef(index).plane = plane;                                               
+                if verbose, waitbar(index/n_planes,wait_handle), end;
+            end
+
             if verbose, close(wait_handle), end;
             
             obj.mm_proj_sizeY = sizeY;
@@ -1725,122 +1753,107 @@ end
             
         end
 %-------------------------------------------------------------------------%         
-    function save_volm_FLIM(obj,full_filename,verbose,~)             
-        %
-        if isempty(obj.memmap_volm) || isempty(obj.delays), return, end;
-        sizeT = numel(obj.delays);
-        memRef = obj.memmap_volm.Data;
-        n_planes = numel(memRef);
-        sizeZ = n_planes/sizeT; % mmm
-        sizeC = 1;
-        plane = memRef(1).plane;
-        sizeX = size(plane,1);
-        sizeY = size(plane,2);
-        datatype = class(plane);
-        
-        I = zeros(sizeX,sizeY,sizeZ,sizeC,sizeT,datatype);        
-        for t = 1 : sizeT
-           for z = 1 : sizeZ
-                index = z + (t-1)*sizeZ;   
-                plane = obj.memmap_volm.Data(index).plane;
-                I(:,:,z,1,t) = plane;
-           end          
+        function save_volm_FLIM(obj,full_filename,verbose,~) % from memmap to OME.tiff
+            %
+            if isempty(obj.memmap_volm) || isempty(obj.delays), return, end;
+
+            sizeT = numel(obj.delays);
+            memRef = obj.memmap_volm.Data;
+            n_planes = numel(memRef);
+            sizeZ = n_planes/sizeT; % mmm
+            sizeC = 1;
+            plane = memRef(1).plane;
+            sizeX = size(plane,1);
+            sizeY = size(plane,2);
+            datatype = class(plane);
+
+            toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
+            OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
+            metadata = OMEXMLService.createOMEXMLMetadata();
+            metadata.createRoot();
+            metadata.setImageID('Image:0', 0);
+            metadata.setPixelsID('Pixels:0', 0);
+            metadata.setPixelsBinDataBigEndian(java.lang.Boolean.TRUE, 0, 0);
+
+            % Set pixels type
+            pixelTypeEnumHandler = ome.xml.model.enums.handlers.PixelTypeEnumHandler();
+            if strcmp(datatype,'single')
+                pixelsType = pixelTypeEnumHandler.getEnumeration('float');
+            else
+                pixelsType = pixelTypeEnumHandler.getEnumeration(datatype);
+            end
+            metadata.setPixelsType(pixelsType, 0);
+
+            % Set dimension order
+            dimensionOrderEnumHandler = ome.xml.model.enums.handlers.DimensionOrderEnumHandler();
+            dimensionOrder = dimensionOrderEnumHandler.getEnumeration('XYZCT');
+            metadata.setPixelsDimensionOrder(dimensionOrder, 0);
+
+            % Set channels ID and samples per pixel
+            for i = 1: sizeC
+                metadata.setChannelID(['Channel:0:' num2str(i-1)], 0, i-1);
+                metadata.setChannelSamplesPerPixel(toInt(1), 0, i-1);
+            end
+
+            metadata.setPixelsSizeX(toInt(sizeX), 0);
+            metadata.setPixelsSizeY(toInt(sizeY), 0);
+            metadata.setPixelsSizeZ(toInt(sizeZ), 0);
+            metadata.setPixelsSizeC(toInt(sizeC), 0);
+            metadata.setPixelsSizeT(toInt(sizeT), 0);   
+            %
+            % NEEDS TO FIX THIS
+            metadata.setPixelsPhysicalSizeX(ome.xml.model.primitives.PositiveFloat(java.lang.Double(1)),0);
+            metadata.setPixelsPhysicalSizeY(ome.xml.model.primitives.PositiveFloat(java.lang.Double(1)),0);    
+            %            
+            modlo = loci.formats.CoreMetadata();% FLIM
+            modlo.moduloT.type = loci.formats.FormatTools.LIFETIME;                        
+            modlo.moduloT.unit = obj.FLIM_unit;
+            modlo.moduloT.typeDescription = obj.FLIM_typeDescription;                                                         
+            modlo.moduloT.labels = javaArray('java.lang.String',length(obj.delays));                   
+            
+            for i=1:length(obj.delays)
+                modlo.moduloT.labels(i)= java.lang.String(num2str(obj.delays(i)));
+            end                                                                                            
+            %  
+            OMEXMLService.addModuloAlong(metadata, modlo, 0);     
+            %
+            % Create ImageWriter
+            writer = loci.formats.ImageWriter();
+            writer.setWriteSequentially(true);
+            writer.setMetadataRetrieve(metadata);        
+
+            writer.setCompression('LZW');
+            writer.getWriter(full_filename).setBigTiff(true);
+
+            writer.setId(full_filename);
+
+                % Load conversion tools for saving planes
+                switch datatype
+                    case {'int8', 'uint8'}
+                        getBytes = @(x) x(:);
+                    case {'uint16','int16'}
+                        getBytes = @(x) loci.common.DataTools.shortsToBytes(x(:), 0);
+                    case {'uint32','int32'}
+                        getBytes = @(x) loci.common.DataTools.intsToBytes(x(:), 0);
+                    case {'single'}
+                        getBytes = @(x) loci.common.DataTools.floatsToBytes(x(:), 0);
+                    case 'double'
+                        getBytes = @(x) loci.common.DataTools.doublesToBytes(x(:), 0);
+                end
+
+                if verbose
+                    wait_handle=waitbar(0,['Saving planes to ' full_filename]);
+                end;     
+
+                for index = 1 : n_planes
+                    plane = memRef(index).plane;
+                    writer.saveBytes(index-1, getBytes(plane));
+                    if verbose, waitbar(index/n_planes,wait_handle), end;
+                end
+                if verbose, close(wait_handle), end;
+
+                writer.close();        
         end
-        bfsave(I,full_filename,'dimensionOrder','XYZCT','Compression','LZW','BigTiff',true); 
-        
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
-% % OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
-% % metadata = OMEXMLService.createOMEXMLMetadata();
-% % metadata.createRoot();
-% % metadata.setImageID('Image:0', 0);
-% % metadata.setPixelsID('Pixels:0', 0);
-% % metadata.setPixelsBinDataBigEndian(java.lang.Boolean.TRUE, 0, 0);
-% %                                 
-% % % Set pixels type
-% % pixelTypeEnumHandler = ome.xml.model.enums.handlers.PixelTypeEnumHandler();
-% % if strcmp(datatype, 'single')
-% %     pixelsType = pixelTypeEnumHandler.getEnumeration('float');
-% % else
-% %     pixelsType = pixelTypeEnumHandler.getEnumeration(datatype);
-% % end
-% % metadata.setPixelsType(pixelsType, 0);
-% % 
-% % % Set dimension order
-% % dimensionOrderEnumHandler = ome.xml.model.enums.handlers.DimensionOrderEnumHandler();
-% % dimensionOrder = dimensionOrderEnumHandler.getEnumeration('XYZCT');
-% % metadata.setPixelsDimensionOrder(dimensionOrder, 0);
-% % 
-% % % Set channels ID and samples per pixel
-% % for i = 1: sizeC
-% %     metadata.setChannelID(['Channel:0:' num2str(i-1)], 0, i-1);
-% %     metadata.setChannelSamplesPerPixel(toInt(1), 0, i-1);
-% % end
-% % 
-% %     metadata.setPixelsSizeX(toInt(sizeX), 0);
-% %     metadata.setPixelsSizeY(toInt(sizeY), 0);
-% %     metadata.setPixelsSizeZ(toInt(sizeZ), 0);
-% %     metadata.setPixelsSizeC(toInt(sizeC), 0);
-% %     metadata.setPixelsSizeT(toInt(sizeT), 0);   
-% %     %
-% %     % NEEDS TO FIX THIS
-% %     metadata.setPixelsPhysicalSizeX(ome.xml.model.primitives.PositiveFloat(java.lang.Double(1)),0);
-% %     metadata.setPixelsPhysicalSizeY(ome.xml.model.primitives.PositiveFloat(java.lang.Double(1)),0);    
-% %     %
-% %     % FLIM
-% %     modlo = loci.formats.CoreMetadata();
-% %     modlo.moduloT.type = loci.formats.FormatTools.LIFETIME;
-% %     modlo.moduloT.unit = 'ps'; % NEEDS TO FIX THIS
-% %     modlo.moduloT.typeDescription = 'Gated'; % NEEDS TO FIX THIS                                  
-% %     modlo.moduloT.labels = javaArray('java.lang.String',length(obj.delays));                                  
-% %     for i=1:length(obj.delays)
-% %         modlo.moduloT.labels(i)= java.lang.String(num2str(obj.delays(i)));
-% %     end                                                                                            
-% %     %  
-% %     OMEXMLService.addModuloAlong(metadata, modlo, 0);     
-% %     %
-% %     % Create ImageWriter
-% %     writer = loci.formats.ImageWriter();
-% %     writer.setWriteSequentially(true);
-% %     writer.setMetadataRetrieve(metadata);        
-% %         
-% %     writer.setCompression('LZW');
-% %     writer.getWriter(full_filename).setBigTiff(true);
-% %         
-% %     writer.setId(full_filename);
-% % 
-% %         % Load conversion tools for saving planes
-% %         switch datatype
-% %             case {'int8', 'uint8'}
-% %                 getBytes = @(x) x(:);
-% %             case {'uint16','int16'}
-% %                 getBytes = @(x) loci.common.DataTools.shortsToBytes(x(:), 0);
-% %             case {'uint32','int32'}
-% %                 getBytes = @(x) loci.common.DataTools.intsToBytes(x(:), 0);
-% %             case {'single'}
-% %                 getBytes = @(x) loci.common.DataTools.floatsToBytes(x(:), 0);
-% %             case 'double'
-% %                 getBytes = @(x) loci.common.DataTools.doublesToBytes(x(:), 0);
-% %         end
-% %            
-% %         if verbose
-% %             wait_handle=waitbar(0,['Saving planes to ' full_filename]);
-% %         end;     
-% %         
-% %         for t = 1 : sizeT
-% %            for z = 1 : sizeZ
-% %                 index = z + (t-1)*sizeZ;
-% %                 plane = obj.memmap_volm.Data(index).plane;
-% %                 writer.saveBytes(index-1, getBytes(plane));
-% %                 if verbose, waitbar(index/n_planes,wait_handle), end;
-% %            end          
-% %         end
-% %         if verbose, close(wait_handle), end;
-% %         
-% %     writer.close();
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-    end
 %-------------------------------------------------------------------------%             
     end
     
