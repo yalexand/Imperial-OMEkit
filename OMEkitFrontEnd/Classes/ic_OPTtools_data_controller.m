@@ -281,13 +281,17 @@ classdef ic_OPTtools_data_controller < handle
 %-------------------------------------------------------------------------%
         function infostring = Set_Src_Single(obj,full_filename,verbose,~)
             %
+            infostring = [];
+            %            
+            obj.delays = obj.get_delays(full_filename);
+            if ~isempty(obj.delays), return, end; % can't load FLIM properly
+            %
             obj.clear_memory_mapping();
             %            
             obj.proj = [];
             obj.volm = [];            
             obj.on_proj_and_volm_clear;            
             %
-            infostring = [];
             obj.angles = obj.get_angles(full_filename); % temp
             if isempty(obj.angles), 
                 if verbose
@@ -1493,28 +1497,39 @@ end
                         %? - can't arrive here?
                     end
 
-                    waitmsg = 'Batch processing...';
-                    hw = waitdialog(waitmsg);                    
-                    for k=1:numel(names_list)
+                   waitmsg = 'Batch processing...';
+                   hw = waitdialog(waitmsg);                    
+                   for k=1:numel(names_list)
                         waitdialog((k-1)/numel(names_list),hw,waitmsg); drawnow;
                         fname = [obj.BatchSrcDirectory filesep names_list{k}];                    
-                        infostring = obj.Set_Src_Single(fname,false);                        
-                        if ~isempty(infostring)  
-                            if strcmp(obj.Reconstruction_Largo,'ON')
-                                obj.perform_reconstruction_Largo;
+                        infostring = obj.Set_Src_Single(fname,false);
+                        if isempty(infostring)
+                            infostring = obj.Set_Src_FLIM(fname,'sum',false);
+                        end
+                        if ~isempty(infostring) 
+                            if ~isempty(obj.delays) %FLIM
+                                obj.perform_reconstruction_FLIM;
                             else
-                                % obj.perform_reconstruction(false);
-                                obj.volm = obj.perform_reconstruction(false);
+                                if strcmp(obj.Reconstruction_Largo,'ON')
+                                    obj.perform_reconstruction_Largo;
+                                else
+                                    obj.volm = obj.perform_reconstruction(false);
+                                end
                             end
                             %
                             % save volume on disk
                             iName = names_list{k};
                             L = length(iName);
                             savefilename = [iName(1:L-9) '_VOLUME.OME.tiff'];
-                            obj.save_volume([obj.BatchDstDirectory filesep savefilename],false); % silent
+                            if isempty(obj.delays) % non-FLIM
+                                obj.save_volume([obj.BatchDstDirectory filesep savefilename],false); % silent
+                            else
+                                obj.save_volm_FLIM([obj.BatchDstDirectory filesep savefilename],false); % silent
+                            end
                         end                    
                         waitdialog(k/numel(names_list),hw,waitmsg); drawnow;                                                                            
                     end
+
                     delete(hw);drawnow;
 
                 else
