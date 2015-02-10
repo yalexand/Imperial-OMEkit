@@ -114,12 +114,27 @@ function handles = setup_menu(obj,handles)
     menu_settings_Method = uimenu(menu_settings,'Label',['Method : ' settings_Method],'Separator','On');    
         handles.menu_settings_Method_FBP = uimenu(menu_settings_Method,'Label','FBP');
         handles.menu_settings_Method_TwIST = uimenu(menu_settings_Method,'Label','FBP-TwIST');
-    menu_settings_GPU = uimenu(menu_settings,'Label',['GPU : ' settings_GPU]);    
-        handles.menu_settings_GPU_ON = uimenu(menu_settings_GPU,'Label','ON');    
-        handles.menu_settings_GPU_OFF = uimenu(menu_settings_GPU,'Label','OFF');            
-    menu_settings_Largo = uimenu(menu_settings,'Label',['Largo : ' settings_Largo]);    
-        handles.menu_settings_Largo_ON = uimenu(menu_settings_Largo,'Label','ON');    
-        handles.menu_settings_Largo_OFF = uimenu(menu_settings_Largo,'Label','OFF');
+        %
+        if strcmp(settings_GPU,'ON')
+            set_menu = 'ON';
+            set_fun = 'OFF';
+        elseif strcmp(settings_GPU,'OFF')
+            set_menu = 'OFF';
+            set_fun = 'ON'; 
+        end;
+    menu_settings_GPU = uimenu(menu_settings,'Label',['GPU : ' set_menu]);    
+        handles.menu_settings_GPU_ON = uimenu(menu_settings_GPU,'Label',set_fun);              
+        %
+        if strcmp(settings_Largo,'ON')
+            set_menu = 'ON';
+            set_fun = 'OFF';
+        elseif strcmp(settings_Largo,'OFF')
+            set_menu = 'OFF';
+            set_fun = 'ON'; 
+        end;
+    menu_settings_Largo = uimenu(menu_settings,'Label',['Largo : ' set_menu]);    
+        handles.menu_settings_Largo_ON = uimenu(menu_settings_Largo,'Label',set_fun);          
+        
     %    
     handles.menu_settings_Method = menu_settings_Method;
     handles.menu_settings_GPU = menu_settings_GPU;

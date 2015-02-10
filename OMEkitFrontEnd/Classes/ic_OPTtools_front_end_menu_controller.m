@@ -101,11 +101,9 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         
         menu_settings_GPU;        
         menu_settings_GPU_ON;
-        menu_settings_GPU_OFF;
         
         menu_settings_Largo        
         menu_settings_Largo_ON;
-        menu_settings_Largo_OFF;
         
         menu_reconstruction_Go;
                         
@@ -598,23 +596,25 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         end
          %------------------------------------------------------------------                                            
         function menu_settings_GPU_ON_callback(obj, ~,~)
-            obj.data_controller.Reconstruction_GPU = 'ON';
-            set(obj.menu_settings_GPU,'Label',['GPU : ' obj.data_controller.Reconstruction_GPU]);            
-        end
-         %------------------------------------------------------------------                                            
-        function menu_settings_GPU_OFF_callback(obj, ~,~)
-            obj.data_controller.Reconstruction_GPU = 'OFF';
-            set(obj.menu_settings_GPU,'Label',['GPU : ' obj.data_controller.Reconstruction_GPU]);                        
+            state = obj.data_controller.Reconstruction_GPU;
+            if strcmp(state,'OFF')
+                obj.data_controller.Reconstruction_GPU = 'ON';
+            elseif strcmp(state,'ON')
+                obj.data_controller.Reconstruction_GPU = 'OFF';
+            end
+            set(obj.menu_settings_GPU,'Label',['GPU : ' obj.data_controller.Reconstruction_GPU]);
+            set(obj.menu_settings_GPU_ON,'Label',state);
         end
          %------------------------------------------------------------------                                            
         function menu_settings_Largo_ON_callback(obj, ~,~)
-            obj.data_controller.Reconstruction_Largo = 'ON';
+            state = obj.data_controller.Reconstruction_Largo;
+            if strcmp(state,'OFF')
+                obj.data_controller.Reconstruction_Largo = 'ON';
+            elseif strcmp(state,'ON')
+                obj.data_controller.Reconstruction_Largo = 'OFF';
+            end
             set(obj.menu_settings_Largo,'Label',['Largo : ' obj.data_controller.Reconstruction_Largo]);
-        end
-         %------------------------------------------------------------------                                            
-        function menu_settings_Largo_OFF_callback(obj, ~,~)
-            obj.data_controller.Reconstruction_Largo = 'OFF';
-            set(obj.menu_settings_Largo,'Label',['Largo : ' obj.data_controller.Reconstruction_Largo]);            
+            set(obj.menu_settings_Largo_ON,'Label',state);
         end
          %------------------------------------------------------------------                                
         function menu_settings_TwIST_callback(obj, ~,~)
