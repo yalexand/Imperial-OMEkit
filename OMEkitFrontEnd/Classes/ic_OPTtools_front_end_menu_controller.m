@@ -300,7 +300,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
     %================================= % call Icy visualizations
         
          %------------------------------------------------------------------        
-        function menu_visualization_send_current_proj_to_Icy_callback(obj, ~,~)
+        function menu_visualization_send_current_proj_to_Icy_callback(obj, ~,~)            
             if ~isempty(obj.data_controller.proj)
                 try
                     f = 1/obj.data_controller.downsampling;
@@ -325,6 +325,33 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         end
          %------------------------------------------------------------------        
         function menu_visualization_send_current_volm_to_Icy_callback(obj, ~,~)
+            
+            %FLIM
+            if ~isempty(obj.data_controller.delays) && ~isempty(obj.data_controller.memmap_volm)
+                sizeT = numel(obj.data_controller.delays);
+                memRef = obj.data_controller.memmap_volm.Data;
+                n_planes = numel(memRef);
+                sizeZ = n_planes/sizeT; % mmm
+                sizeC = 1;
+                plane = memRef(1).plane;
+                sizeX = size(plane,1);
+                sizeY = size(plane,2);
+                datatype = class(plane);
+                try
+                    volm = zeros(sizeX,sizeY,sizeZ,sizeC,sizeT,datatype);
+                         for index = 1:n_planes
+                             [z, c, t] = ind2sub([sizeZ sizeC sizeT],index);
+                             volm(:,:,z,c,t) = memRef(index).plane;
+                         end
+                    icy_im3show(cast(volm,'single'),['volm scale 1/' num2str(obj.data_controller.downsampling) ' : ' obj.get_current_data_info_string]);
+                    return; % :)
+                catch
+                    % nothing
+                end
+                %
+            end
+            %FLIM
+            
             if ~isempty(obj.data_controller.volm)
                 try
                     icy_im3show(cast(obj.data_controller.volm,'single'),['volm scale 1/' num2str(obj.data_controller.downsampling) ' : ' obj.get_current_data_info_string]);
