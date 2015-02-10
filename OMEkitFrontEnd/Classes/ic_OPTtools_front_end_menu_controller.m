@@ -405,35 +405,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             if ~isempty(obj.data_controller.proj) && ~isempty(obj.data_controller.angles)
                 
                 if ~isempty(obj.data_controller.delays)
-                    % FLIM
-                        % this block is just clearing memmap - start
-                        obj.data_controller.memmap_volm = [];
-                        if exist(obj.data_controller.volm_mapfile_name,'file')
-                            delete(obj.data_controller.volm_mapfile_name);
-                        end 
-                        obj.data_controller.mm_volm_sizeY = [];
-                        obj.data_controller.mm_volm_sizeX = [];
-                        obj.data_controller.mm_volm_sizeZ = [];
-                        obj.data_controller.mm_volm_sizeC = [];
-                        obj.data_controller.mm_volm_sizeT = [];            
-                        % this block is just clearing memmap - ends                                                                        
-                        sizeT = numel(obj.data_controller.delays);
-                        for t = 1 : sizeT
-                            obj.data_controller.load_proj_from_memmap(t);
-                                if strcmp(obj.data_controller.Reconstruction_Largo,'ON')
-                                    obj.data_controller.perform_reconstruction_Largo;
-                                else
-                                    %verbose = false;
-                                    verbose = true;
-                                    obj.data_controller.volm = obj.data_controller.perform_reconstruction(verbose);
-                                end    
-                            if isempty(obj.data_controller.memmap_volm) 
-                                obj.data_controller.initialize_memmap_volm(true);
-                            end
-                            obj.data_controller.upload_volm_to_memmap(t,verbose);
-                            %icy_im3show(cast(obj.data_controller.volm,'single'));
-                        end                                        
-                    % FLIM
+                    obj.data_controller.perform_reconstruction_FLIM;
                 else                
                     if strcmp(obj.data_controller.Reconstruction_Largo,'ON')
                         obj.data_controller.perform_reconstruction_Largo;

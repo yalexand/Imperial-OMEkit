@@ -1755,6 +1755,10 @@ end
 %-------------------------------------------------------------------------%         
         function save_volm_FLIM(obj,full_filename,verbose,~) % from memmap to OME.tiff
             %
+            if exist(full_filename,'file')
+                delete(full_filename);
+            end                                     
+            %
             if isempty(obj.memmap_volm) || isempty(obj.delays), return, end;
 
             sizeT = numel(obj.delays);
@@ -1854,7 +1858,36 @@ end
 
                 writer.close();        
         end
-%-------------------------------------------------------------------------%             
+%-------------------------------------------------------------------------% 
+        function perform_reconstruction_FLIM(obj,~,~) 
+                        % this block is just clearing memmap - start
+                        obj.memmap_volm = [];
+                        if exist(obj.volm_mapfile_name,'file')
+                            delete(obj.volm_mapfile_name);
+                        end 
+                        obj.mm_volm_sizeY = [];
+                        obj.mm_volm_sizeX = [];
+                        obj.mm_volm_sizeZ = [];
+                        obj.mm_volm_sizeC = [];
+                        obj.mm_volm_sizeT = [];            
+                        % this block is just clearing memmap - ends                                                                        
+                        sizeT = numel(obj.delays);
+                        for t = 1 : sizeT
+                            obj.load_proj_from_memmap(t);
+                                if strcmp(obj.Reconstruction_Largo,'ON')
+                                    obj.perform_reconstruction_Largo;
+                                else
+                                    %verbose = false;
+                                    verbose = true;
+                                    obj.volm = obj.perform_reconstruction(verbose);
+                                end    
+                            if isempty(obj.memmap_volm) 
+                                obj.initialize_memmap_volm(true);
+                            end
+                            obj.upload_volm_to_memmap(t,verbose);
+                            %icy_im3show(cast(obj.volm,'single'));
+                        end              
+        end
     end
     
 end
