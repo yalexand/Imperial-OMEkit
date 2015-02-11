@@ -1465,18 +1465,25 @@ end
                         waitdialog((k-1)/length(imageList),hw,waitmsg); drawnow                    
                         infostring = obj.OMERO_load_image(omero_data_manager,imageList(k),false);
                         if ~isempty(infostring)                    
-                            if strcmp(obj.Reconstruction_Largo,'ON')
-                                obj.perform_reconstruction_Largo;
+                            if ~isempty(obj.delays) %FLIM
+                                obj.perform_reconstruction_FLIM;
                             else
-                                % obj.perform_reconstruction(false);
-                                obj.volm = obj.perform_reconstruction(false);
+                                if strcmp(obj.Reconstruction_Largo,'ON')
+                                    obj.perform_reconstruction_Largo;
+                                else
+                                    obj.volm = obj.perform_reconstruction(false);
+                                end
                             end
                             %
                             % save volume on disk - presume OME.tiff filenames everywhere
                             iName = char(java.lang.String(imageList(k).getName().getValue()));                            
                             L = length(iName);
                             savefilename = [iName(1:L-9) '_VOLUME.OME.tiff'];
-                            obj.save_volume([obj.BatchDstDirectory filesep savefilename],false); % silent
+                            if isempty(obj.delays) % non-FLIM
+                                obj.save_volume([obj.BatchDstDirectory filesep savefilename],false); % silent
+                            else
+                                obj.save_volm_FLIM([obj.BatchDstDirectory filesep savefilename],false); % silent
+                            end
                         end   
                         waitdialog(k/length(imageList),hw,waitmsg); drawnow
                 end 
