@@ -1714,8 +1714,8 @@ end
             rawPixelsStore = omero_data_manager.session.createRawPixelsStore(); 
             rawPixelsStore.setPixelsId(pixelsId, false);    
 
-            sizeY = pixels.getSizeY.getValue;
-            sizeX = pixels.getSizeX.getValue;       
+            sizeX = pixels.getSizeY.getValue;
+            sizeY = pixels.getSizeX.getValue;       
             sizeZ = pixels.getSizeZ.getValue;           
             sizeC = pixels.getSizeC.getValue;
             sizeT = pixels.getSizeT.getValue;
@@ -1738,23 +1738,15 @@ end
                 wait_handle=waitbar(0,'Initalising memory mapping...');
             end;
             
-            memRef = obj.memmap_proj.Data; 
-%             for t = 1 : sizeT
-%                 for z = 1 : sizeZ
-%                     index = z + (t-1)*sizeZ;                   
-%                     rawPlane = rawPixelsStore.getPlane(z-1,0,t-1);                    
-%                     plane = toMatrix(rawPlane, pixels)';                                 
-%                     memRef(index).plane = plane;
-%                     if verbose, waitbar(index/n_planes,wait_handle), end;
-%                 end
-%             end            
-            for index = 1 : n_planes
-                [z, c, t] = ind2sub([sizeZ sizeC sizeT],index);
-                rawPlane = rawPixelsStore.getPlane(z-1,c-1,t-1);                    
-                plane = toMatrix(rawPlane, pixels)';                                 
-                memRef(index).plane = plane;                                               
-                if verbose, waitbar(index/n_planes,wait_handle), end;
-            end
+            for t = 1 : sizeT
+                for z = 1 : sizeZ
+                    index = z + (t-1)*sizeZ;                   
+                    rawPlane = rawPixelsStore.getPlane(z-1,0,t-1);                    
+                    plane = toMatrix(rawPlane, pixels)';                                 
+                    obj.memmap_proj.Data(index).plane = plane;
+                    if verbose, waitbar(index/n_planes,wait_handle), end;
+                end
+            end            
 
             if verbose, close(wait_handle), end;
             
@@ -1819,10 +1811,15 @@ end
             metadata.setPixelsSizeZ(toInt(sizeZ), 0);
             metadata.setPixelsSizeC(toInt(sizeC), 0);
             metadata.setPixelsSizeT(toInt(sizeT), 0);   
-            %
-            % NEEDS TO FIX THIS
+            %            
             metadata.setPixelsPhysicalSizeX(ome.xml.model.primitives.PositiveFloat(java.lang.Double(1)),0);
-            metadata.setPixelsPhysicalSizeY(ome.xml.model.primitives.PositiveFloat(java.lang.Double(1)),0);    
+            metadata.setPixelsPhysicalSizeY(ome.xml.model.primitives.PositiveFloat(java.lang.Double(1)),0); 
+            if ~isempty(obj.PixelsPhysicalSizeX) && ~isempty(obj.PixelsPhysicalSizeX)
+                toPosFloat = @(x) ome.xml.model.primitives.PositiveFloat(java.lang.Double(x));
+                metadata.setPixelsPhysicalSizeX(toPosFloat(obj.PixelsPhysicalSizeX*obj.downsampling),0);
+                metadata.setPixelsPhysicalSizeY(toPosFloat(obj.PixelsPhysicalSizeY*obj.downsampling),0);
+                metadata.setPixelsPhysicalSizeZ(toPosFloat(obj.PixelsPhysicalSizeX*obj.downsampling),0);
+            end                                                            
             %            
             modlo = loci.formats.CoreMetadata();% FLIM
             modlo.moduloT.type = loci.formats.FormatTools.LIFETIME;                        
@@ -1888,7 +1885,7 @@ end
                         % this block is just clearing memmap - ends                                                                        
                         sizeT = numel(obj.delays);
                         for t = 1 : sizeT
-                            obj.load_proj_from_memmap(t);
+                            obj.load_proj_from_memmap(t);                            
                                 if strcmp(obj.Reconstruction_Largo,'ON')
                                     obj.perform_reconstruction_Largo;
                                 else
@@ -1900,7 +1897,6 @@ end
                                 obj.initialize_memmap_volm(true);
                             end
                             obj.upload_volm_to_memmap(t,verbose);
-                            %icy_im3show(cast(obj.volm,'single'));
                         end              
         end
     end
