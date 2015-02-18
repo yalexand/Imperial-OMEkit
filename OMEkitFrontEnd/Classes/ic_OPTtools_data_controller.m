@@ -1629,6 +1629,10 @@ end
             sizeC = obj.mm_proj_sizeC;
             sizeT = obj.mm_proj_sizeT;
 
+            sizeT = numel(obj.delays);
+            n_planes = numel(obj.memmap_proj.Data);
+            sizeZ = n_planes/sizeT;
+            
             obj.proj = [];
             memRef = obj.memmap_proj.Data;
                     for z = 1 : sizeZ
@@ -1783,7 +1787,7 @@ end
             plane = memRef(1).plane;
             sizeX = size(plane,1);
             sizeY = size(plane,2);
-            datatype = class(plane);
+            datatype = class(plane); % 'uint16'; % mmmmm
 
             toInt = @(x) ome.xml.model.primitives.PositiveInteger(java.lang.Integer(x));
             OMEXMLService = loci.formats.services.OMEXMLServiceImpl();
@@ -1869,7 +1873,7 @@ end
                 end;     
 
                 for index = 1 : n_planes
-                    plane = memRef(index).plane;
+                    plane = cast(memRef(index).plane,datatype);
                     writer.saveBytes(index-1, getBytes(plane));
                     if verbose, waitbar(index/n_planes,wait_handle), end;
                 end

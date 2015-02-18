@@ -23,7 +23,17 @@ addpath_OMEkit;
             for i = 1 : num_files                                   
                 try I = imread([folder filesep file_names{i}],extension); catch err, msgbox(err.mesasge), return, end;                
                 % telapsed = add_plane_to_OMEtiff_with_metadata(I, i, num_files, folder, ometiffilename);                
-                telapsed = add_plane_to_OMEtiff_with_metadata(I, i, num_files, folder, ometiffilename, varargin{:} );
+                
+                % telapsed = add_plane_to_OMEtiff_with_metadata(I, i, num_files, folder, ometiffilename, varargin{:} );
+                
+                z = i;
+                c = 1;
+                t = 1;
+                sizeZ = num_files;
+                sizeC = 1;
+                sizeT = 1;
+                telapsed = add_plane_to_OMEtiff_with_metadata_ZCT(I, [z c t], [sizeZ sizeC sizeT], folder, ometiffilename, varargin{:} );
+                
                 acc(i)=telapsed;                                                   
             end
             speed = mean(acc);
