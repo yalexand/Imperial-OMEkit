@@ -34,6 +34,8 @@ function handles = setup_menu(obj,handles)
     
     settings_Method = handles.data_controller.Reconstruction_Method;
     settings_GPU = handles.data_controller.Reconstruction_GPU;
+    isGPU = handles.data_controller.isGPU;
+        
     settings_Largo = handles.data_controller.Reconstruction_Largo;
     
     settings_Prefiltering_Size = handles.data_controller.Prefiltering_Size;
@@ -115,15 +117,21 @@ function handles = setup_menu(obj,handles)
         handles.menu_settings_Method_FBP = uimenu(menu_settings_Method,'Label','FBP');
         handles.menu_settings_Method_TwIST = uimenu(menu_settings_Method,'Label','FBP-TwIST');
         %
-        if strcmp(settings_GPU,'ON')
-            set_menu = 'ON';
-            set_fun = 'OFF';
-        elseif strcmp(settings_GPU,'OFF')
-            set_menu = 'OFF';
-            set_fun = 'ON'; 
-        end;
-    menu_settings_GPU = uimenu(menu_settings,'Label',['GPU : ' set_menu]);    
-        handles.menu_settings_GPU_ON = uimenu(menu_settings_GPU,'Label',set_fun);              
+        if isGPU
+            if strcmp(settings_GPU,'ON')
+                set_menu = 'ON';
+                set_fun = 'OFF';
+            elseif strcmp(settings_GPU,'OFF')
+                set_menu = 'OFF';
+                set_fun = 'ON'; 
+            end;
+            menu_settings_GPU = uimenu(menu_settings,'Label',['GPU : ' set_menu]);    
+            handles.menu_settings_GPU_ON = uimenu(menu_settings_GPU,'Label',set_fun);                          
+        else
+            menu_settings_GPU = uimenu(menu_settings,'Label',['GPU : ' 'OFF']);    
+            handles.menu_settings_GPU_ON = uimenu(menu_settings_GPU,'Label','OFF');
+            set(handles.menu_settings_GPU_ON,'Enable','off')
+        end
         %
         if strcmp(settings_Largo,'ON')
             set_menu = 'ON';
