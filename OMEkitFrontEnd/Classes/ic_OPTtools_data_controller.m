@@ -930,8 +930,8 @@ function padded_sinogram = zero_pad_sinogram_for_iradon(obj,sinogram,~)
            padded_sinogram = R;                                                
 end
 %-------------------------------------------------------------------------% 
-        function perform_reconstruction_Largo(obj,~)            
-
+        function perform_reconstruction_Largo(obj,~) % uses memory mapping            
+            
              if 1 ~= obj.downsampling
                  errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue')
                  return; 
@@ -939,72 +939,81 @@ end
 
              obj.volm = [];                
              obj.on_volm_clear;
-             [~,sizeZ,~] = size(obj.proj);              
-             
-             maxV = -inf;              
-             
-             % not hooked
-             Max_vox_chunk = 71*1e6;
-             n_chunks = floor(numel(obj.proj(:))/Max_vox_chunk);                          
-             if n_chunks <= 1, n_chunks = 2; end;
                           
-             n_chunks = 8;             
+             [sizeX,sizeY,sizeZ] = size(obj.proj);
+             wait_handle = waitbar(0,'Ini proj memmap...');
+             [mapfile_name_proj,memmap_PROJ] = initialize_memmap([sizeX,sizeY,sizeZ],'pixels',class(obj.proj),'ini_data',obj.proj);                 
+             close(wait_handle);
+       
+             % to free some RAM
+             obj.proj = [];                
+             obj.on_proj_clear;
              
-             sz_chunk = floor(sizeZ/n_chunks);             
+             PROJ = memmap_PROJ.Data.pixels; % reference
+             
+             RF = []; % reconstruction function
+             if strcmp(obj.Reconstruction_Method,'FBP')            
+                RF = @obj.FBP;
+             elseif ~isempty(strfind(obj.Reconstruction_Method,'TwIST'))
+                RF = @obj.FBP_TwIST;
+             end             
+                                                        
+             % to define reconstruction size
+             if strcmp(obj.Reconstruction_GPU,'ON') && obj.isGPU                                          
+                         gpu_sinogram = squeeze(gpuArray(cast(PROJ(:,1,:),'single')));
+                         reconstruction = gather(RF(gpu_sinogram));
+                         [size_volm_X,size_volm_Y] = size(reconstruction);                                               
+             elseif strcmp(obj.Reconstruction_GPU,'OFF')                                                                                                                     
+                         sinogram = squeeze(cast(PROJ(:,1,:),'single'));
+                         reconstruction = RF(sinogram);
+                         [size_volm_X,size_volm_Y] = size(reconstruction);
+             end                     
+             % to define reconstruction size - ends
              %
-             rest_z = mod(sizeZ,n_chunks);
-             % 
-             z2 = (1:n_chunks)*sz_chunk;
-             z1 = z2 - sz_chunk+1;
-             zranges = [z1;z2]';
-                           
-             if 0~=rest_z
-                  lastel = zranges(n_chunks,:);
-                  lastel(1) = lastel(2) + 1;
-                  lastel(2) = lastel(2) + rest_z;                  
-                  zranges = [zranges; lastel];
-             end
-              
-             s1 = 'processing chunks & saving...';
-             hw1 = waitdialog(s1);
-             sz = size(zranges);
-             n_blocks = sz(1);
-             for k = 1 : n_blocks
-                    waitdialog((k-1)/n_blocks,hw1,s1);                                  
-                res = obj.do_reconstruction_on_Z_chunk(zranges(k,:));
-                curmax = max(res(:));
-                if curmax>maxV, maxV=curmax; end;
-                res(res<0)=0;
-                save(num2str(k),'res');
-                    waitdialog(k/n_blocks,hw1,s1);                 
-             end
-             delete(hw1);drawnow;
-                 
-             [szVx,szVy,~]=size(res);
-             
+             % output_datatype = class(reconstruction); % fair
+             output_datatype = 'uint16'; % some economy on RAM..             
              try
-                 obj.proj = [];                 
-                 obj.on_proj_clear;
-                 obj.volm = zeros(szVx,szVy,sizeZ,'uint16');
+                % output_datatype = class(reconstruction); % fair
+                output_datatype = 'uint16'; % some economy on RAM..
+                obj.volm = zeros(size_volm_X,size_volm_Y,sizeY,output_datatype);                
              catch
-                 errordlg('memory allocation failed, can not continue');
-                 return;
-             end
-             %
-             s2 = 'retrieving chunks...';
-             hw2 = waitdialog(s2);
-             for k=1:n_blocks
-                 waitdialog((k-1)/n_blocks,hw2,s2);
-                 load(num2str(k));
-                 obj.volm(:,:,zranges(k,1):zranges(k,2)) = cast(res*32767/maxV,'uint16');                
-                 delete([num2str(k) '.mat']);
-                 waitdialog(k/n_blocks,hw2,s2);
-             end
-             delete(hw2);drawnow;
-             %
-             obj.volm( obj.volm <= 0 ) = 0; % mm? 
-             obj.on_new_volm_set;
-        end      
+                clear('memmap_PROJ');
+                delete(mapfile_name_proj);
+                return;
+             end;
+                                       
+             % main loop - starts
+             verbose = true;
+             if verbose
+                wait_handle=waitbar(0,'Reconstructing and memory mapping, please wait...');
+             end;
+             %                       
+             if strcmp(obj.Reconstruction_GPU,'ON') && obj.isGPU                                                           
+                 for y = 1 : sizeY
+                    gpu_sinogram = squeeze(gpuArray(cast(PROJ(:,y,:),'single')));
+                    gpu_recon = RF(gpu_sinogram);
+                    gpu_recon( gpu_recon < 0 ) = 0;
+                    reconstruction = gather(gpu_recon);
+                    obj.volm(:,:,y) = cast(reconstruction,output_datatype);
+                    if verbose, waitbar(y/sizeY,wait_handle), end;                    
+                 end                                                                    
+             elseif strcmp(obj.Reconstruction_GPU,'OFF')                                                                                                                     
+                 for y = 1 : sizeY
+                    sinogram = squeeze(cast(PROJ(:,y,:),'single'));
+                    reconstruction = RF(sinogram);
+                    reconstruction( reconstruction <= 0 ) = 0; % mm? 
+                    obj.volm(:,:,y) = cast(reconstruction,output_datatype);
+                    if verbose, waitbar(y/sizeY,wait_handle), end;                    
+                 end
+             end                     
+             if verbose, close(wait_handle), end;             
+             % main loop - ends          
+             
+             obj.on_new_volm_set;  
+                          
+             clear('memmap_PROJ');
+             delete(mapfile_name_proj);
+        end
 %-------------------------------------------------------------------------%
         function infostring  = OMERO_load_single(obj,omero_data_manager,verbose,~)           
             
@@ -1645,7 +1654,7 @@ end
                     end                        
         end
 %-------------------------------------------------------------------------%        
-        function initialize_memmap_volm(obj,verbose,~) % XYZCT at C=1
+        function initialize_memmap_volm_FLIM(obj,verbose,~) % XYZCT at C=1
             
             if isempty(numel(obj.delays)) || isempty(obj.volm), return, end;             
             % 
@@ -1690,7 +1699,7 @@ end
             obj.mm_volm_sizeC = sizeC;
             obj.mm_volm_sizeT = sizeT;            
 
-        end
+        end                              
 %-------------------------------------------------------------------------%        
         function upload_volm_to_memmap(obj,t,verbose) % XYZCT at C=1
             
@@ -1895,17 +1904,16 @@ end
                         obj.mm_volm_sizeT = [];            
                         % this block is just clearing memmap - ends                                                                        
                         sizeT = numel(obj.delays);
+                        verbose = true;
                         for t = 1 : sizeT
                             obj.load_proj_from_memmap(t);                            
                                 if strcmp(obj.Reconstruction_Largo,'ON')
                                     obj.perform_reconstruction_Largo;
                                 else
-                                    %verbose = false;
-                                    verbose = true;
                                     obj.volm = obj.perform_reconstruction(verbose);
                                 end    
                             if isempty(obj.memmap_volm) 
-                                obj.initialize_memmap_volm(true);
+                                obj.initialize_memmap_volm_FLIM(true);
                             end
                             obj.upload_volm_to_memmap(t,verbose);
                         end              

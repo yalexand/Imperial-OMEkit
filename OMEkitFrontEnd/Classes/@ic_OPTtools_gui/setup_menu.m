@@ -129,7 +129,7 @@ function handles = setup_menu(obj,handles)
             handles.menu_settings_GPU_ON = uimenu(menu_settings_GPU,'Label',set_fun);                          
         else
             menu_settings_GPU = uimenu(menu_settings,'Label',['GPU : ' 'OFF']);    
-            handles.menu_settings_GPU_ON = uimenu(menu_settings_GPU,'Label','OFF');
+            handles.menu_settings_GPU_ON = uimenu(menu_settings_GPU,'Label','ON');
             set(handles.menu_settings_GPU_ON,'Enable','off')
         end
         %
