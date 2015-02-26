@@ -1579,7 +1579,13 @@ end
             for t = 1 : sizeT
                 for z = 1 : sizeZ
                     index = z + (t-1)*sizeZ;
-                    obj.memmap_proj.Data(index).plane = imgdata{index,1};
+                    %
+                    s = obj.Prefiltering_Size;
+                    if ~isnumeric(s)
+                        obj.memmap_proj.Data(index).plane = imgdata{index,1};
+                    else
+                        obj.memmap_proj.Data(index).plane = medfilt2(imgdata{index,1},'symmetric',[s s]); 
+                    end
                     if verbose, waitbar(index/n_planes,wait_handle), end;
                 end
             end            
@@ -1655,7 +1661,6 @@ end
         end        
 %-------------------------------------------------------------------------% 
         function initialize_memmap_proj_OMERO(obj,omero_data_manager,image,verbose,~) % XYZCT at C=1
-
             
             obj.memmap_proj = [];
             if exist(obj.proj_mapfile_name,'file')
@@ -1692,6 +1697,14 @@ end
                     index = z + (t-1)*sizeZ;                   
                     rawPlane = rawPixelsStore.getPlane(z-1,0,t-1);                    
                     plane = toMatrix(rawPlane, pixels)';                                 
+                    %
+                    s = obj.Prefiltering_Size;
+                    if ~isnumeric(s)
+                        obj.memmap_proj.Data(index).plane = plane;
+                    else
+                        obj.memmap_proj.Data(index).plane = medfilt2(plane,'symmetric',[s s]); 
+                    end
+                    %
                     obj.memmap_proj.Data(index).plane = plane;
                     if verbose, waitbar(index/n_planes,wait_handle), end;
                 end
