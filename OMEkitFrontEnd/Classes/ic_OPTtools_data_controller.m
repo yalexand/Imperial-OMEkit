@@ -112,20 +112,7 @@ classdef ic_OPTtools_data_controller < handle
         memmap_volm = [];
         proj_mapfile_name = [];
         volm_mapfile_name = [];
-        
-        mm_proj_sizeY = [];
-        mm_proj_sizeX = [];
-        mm_proj_sizeZ = [];
-        mm_proj_sizeC = [];
-        mm_proj_sizeT = [];            
-
-        mm_volm_sizeY = [];
-        mm_volm_sizeX = [];
-        mm_volm_sizeZ = [];
-        mm_volm_sizeC = [];
-        mm_volm_sizeT = [];             
-        % memory mapping
-                               
+                                       
     end
     
     events
@@ -942,7 +929,7 @@ end
                           
              [sizeX,sizeY,sizeZ] = size(obj.proj);
              wait_handle = waitbar(0,'Ini proj memmap...');
-             [mapfile_name_proj,memmap_PROJ] = initialize_memmap([sizeX,sizeY,sizeZ],'pixels',class(obj.proj),'ini_data',obj.proj);                 
+             [mapfile_name_proj,memmap_PROJ] = initialize_memmap([sizeX,sizeY,sizeZ],1,'pixels',class(obj.proj),'ini_data',obj.proj);                 
              close(wait_handle);
        
              % to free some RAM
@@ -1569,23 +1556,10 @@ end
                 if exist(obj.volm_mapfile_name,'file')
                     delete(obj.volm_mapfile_name);
                 end            
-                
-            obj.mm_proj_sizeY = [];
-            obj.mm_proj_sizeX = [];
-            obj.mm_proj_sizeZ = [];
-            obj.mm_proj_sizeC = [];
-            obj.mm_proj_sizeT = [];            
-
-            obj.mm_volm_sizeY = [];
-            obj.mm_volm_sizeX = [];
-            obj.mm_volm_sizeZ = [];
-            obj.mm_volm_sizeC = [];
-            obj.mm_volm_sizeT = [];            
-
         end
 %-------------------------------------------------------------------------%        
         function initialize_memmap_proj(obj,omeMeta,imgdata,verbose,~) % XYZCT at C=1
-            
+
             obj.proj_mapfile_name = global_tempname;
             
             sizeY = omeMeta.getPixelsSizeX(0).getValue;
@@ -1594,16 +1568,9 @@ end
             sizeC = omeMeta.getPixelsSizeC(0).getValue;            
             sizeT = omeMeta.getPixelsSizeT(0).getValue;            
 
-            datatype = class(imgdata{1,1});
-            sz_data = sizeX*sizeY*sizeZ*sizeC*sizeT;
             n_planes = sizeZ*sizeC*sizeT;
-
-            mapfile = fopen(obj.proj_mapfile_name,'w');
-            ini_data = zeros(1,sz_data,datatype);
-            fwrite(mapfile,ini_data,datatype);
-            fclose(mapfile);
-
-            obj.memmap_proj = memmapfile(obj.proj_mapfile_name,'Writable',true,'Repeat',n_planes,'Format',{datatype, [sizeX sizeY], 'plane'},'Offset',0);
+            
+            [obj.proj_mapfile_name,obj.memmap_proj] = initialize_memmap([sizeX,sizeY],n_planes,'plane',class(imgdata{1,1}));
 
             if verbose
                 wait_handle=waitbar(0,'Initalising memory mapping...');
@@ -1618,12 +1585,6 @@ end
             end            
             if verbose, close(wait_handle), end;
             
-            obj.mm_proj_sizeY = sizeY;
-            obj.mm_proj_sizeX = sizeX;
-            obj.mm_proj_sizeZ = sizeZ;
-            obj.mm_proj_sizeC = sizeC;
-            obj.mm_proj_sizeT = sizeT;            
-                                                
         end
 %-------------------------------------------------------------------------%        
         function load_proj_from_memmap(obj,t,~) % t is the index of FLIM time
@@ -1632,12 +1593,6 @@ end
                 return;
             end;
             
-            sizeY = obj.mm_proj_sizeY;
-            sizeX = obj.mm_proj_sizeX;
-            sizeZ = obj.mm_proj_sizeZ;
-            sizeC = obj.mm_proj_sizeC;
-            sizeT = obj.mm_proj_sizeT;
-
             sizeT = numel(obj.delays);
             n_planes = numel(obj.memmap_proj.Data);
             sizeZ = n_planes/sizeT;
@@ -1655,49 +1610,29 @@ end
         end
 %-------------------------------------------------------------------------%        
         function initialize_memmap_volm_FLIM(obj,verbose,~) % XYZCT at C=1
-            
+
             if isempty(numel(obj.delays)) || isempty(obj.volm), return, end;             
             % 
             obj.memmap_volm = [];
             if exist(obj.volm_mapfile_name,'file')
                 delete(obj.volm_mapfile_name);
             end 
-                        
-            obj.volm_mapfile_name = global_tempname;
-            
+                                    
             [sizeX, sizeY, sizeZ] = size(obj.volm);
             sizeC = 1;
-            sizeT = numel(obj.delays);
-            
-            datatype = class(obj.volm);
-            sz_data = sizeX*sizeY*sizeZ*sizeC*sizeT;
+            sizeT = numel(obj.delays);            
             n_planes = sizeZ*sizeC*sizeT;
-
-            mapfile = fopen(obj.volm_mapfile_name,'w');
-            ini_data = zeros(1,sz_data,datatype);
-            fwrite(mapfile,ini_data,datatype);
-            fclose(mapfile);
-
-            obj.memmap_volm = memmapfile(obj.volm_mapfile_name,'Writable',true,'Repeat',n_planes,'Format',{datatype, [sizeX sizeY], 'plane'},'Offset',0);
+            
+            [obj.volm_mapfile_name,obj.memmap_volm] = initialize_memmap([sizeX,sizeY],n_planes,'plane',class(obj.volm));                        
 
             if verbose
                 wait_handle=waitbar(0,'Initalising volm memory mapping...');
-            end;
-            
-                t = 1;
                 for z = 1 : sizeZ
-                   index = z + (t-1)*sizeZ;
-                   obj.memmap_volm.Data(index).plane = obj.volm(:,:,z);
-                   if verbose, waitbar(index/sizeZ,wait_handle), end;
+                       obj.memmap_volm.Data(z).plane = obj.volm(:,:,z);
+                       if verbose, waitbar(z/sizeZ,wait_handle), end;
                 end
-                        
-            if verbose, close(wait_handle), end;
-            
-            obj.mm_volm_sizeY = sizeY;
-            obj.mm_volm_sizeX = sizeX;
-            obj.mm_volm_sizeZ = sizeZ;
-            obj.mm_volm_sizeC = sizeC;
-            obj.mm_volm_sizeT = sizeT;            
+                close(wait_handle);
+            end
 
         end                              
 %-------------------------------------------------------------------------%        
@@ -1721,6 +1656,7 @@ end
 %-------------------------------------------------------------------------% 
         function initialize_memmap_proj_OMERO(obj,omero_data_manager,image,verbose,~) % XYZCT at C=1
 
+            
             obj.memmap_proj = [];
             if exist(obj.proj_mapfile_name,'file')
                 delete(obj.proj_mapfile_name);
@@ -1742,17 +1678,10 @@ end
             
             rawPlane = rawPixelsStore.getPlane(0,0,0);                    
             plane = toMatrix(rawPlane, pixels)';                                 
-            datatype = class(plane);
             
-            sz_data = sizeX*sizeY*sizeZ*sizeC*sizeT;
             n_planes = sizeZ*sizeC*sizeT;
 
-            mapfile = fopen(obj.proj_mapfile_name,'w');
-            ini_data = zeros(1,sz_data,datatype);
-            fwrite(mapfile,ini_data,datatype);
-            fclose(mapfile);
-                                                
-            obj.memmap_proj = memmapfile(obj.proj_mapfile_name,'Writable',true,'Repeat',n_planes,'Format',{datatype, [sizeX sizeY], 'plane'},'Offset',0);
+            [obj.proj_mapfile_name,obj.memmap_proj] = initialize_memmap([sizeX,sizeY],n_planes,'plane',class(plane));
 
             if verbose
                 wait_handle=waitbar(0,'Initalising memory mapping...');
@@ -1769,13 +1698,7 @@ end
             end            
 
             if verbose, close(wait_handle), end;
-            
-            obj.mm_proj_sizeY = sizeY;
-            obj.mm_proj_sizeX = sizeX;
-            obj.mm_proj_sizeZ = sizeZ;
-            obj.mm_proj_sizeC = sizeC;
-            obj.mm_proj_sizeT = sizeT;            
-                           
+                                       
             rawPixelsStore.close();
             
         end
@@ -1897,11 +1820,6 @@ end
                         if exist(obj.volm_mapfile_name,'file')
                             delete(obj.volm_mapfile_name);
                         end 
-                        obj.mm_volm_sizeY = [];
-                        obj.mm_volm_sizeX = [];
-                        obj.mm_volm_sizeZ = [];
-                        obj.mm_volm_sizeC = [];
-                        obj.mm_volm_sizeT = [];            
                         % this block is just clearing memmap - ends                                                                        
                         sizeT = numel(obj.delays);
                         verbose = true;
