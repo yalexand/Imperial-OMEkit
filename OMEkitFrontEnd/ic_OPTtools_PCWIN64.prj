@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration target="target.ezdeploy.standalone" target-name="MATLAB Compiler for Standalone Applications" name="ic_OPTtools_PCWIN64" location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd" file="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\ic_OPTtools_PCWIN64.prj" preferred-package-type="package.type.exe" build-checksum="3366225570" preferred-package-location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution">
+  <configuration target="target.ezdeploy.standalone" target-name="MATLAB Compiler for Standalone Applications" name="ic_OPTtools_PCWIN64" location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd" file="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\ic_OPTtools_PCWIN64.prj" preferred-package-type="package.type.exe" build-checksum="3683271035" preferred-package-location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution">
     <param.appname>ic_OPTtools_PCWIN64</param.appname>
     <param.authnamewatermark>Yuriy Alexandrov</param.authnamewatermark>
     <param.email>yalexand@ic.ac.uk</param.email>
@@ -105,6 +105,8 @@
       <file>${PROJECT_ROOT}\GUIDEInterfaces\enter_value.m</file>
       <file>${PROJECT_ROOT}\GUIDEInterfaces\OMERO_logon.fig</file>
       <file>${PROJECT_ROOT}\GUIDEInterfaces\OMERO_logon.m</file>
+      <file>${PROJECT_ROOT}\GUIDEInterfaces\TwIST_settings.fig</file>
+      <file>${PROJECT_ROOT}\GUIDEInterfaces\TwIST_settings.m</file>
       <file>${PROJECT_ROOT}\HelperFunctions\doubleops_PCWIN64\@double\power.mexw64</file>
       <file>${PROJECT_ROOT}\HelperFunctions\genops.m</file>
       <file>${PROJECT_ROOT}\HelperFunctions\getapplicationdatadir.m</file>
@@ -133,6 +135,7 @@
       <file>${PROJECT_ROOT}\HelperFunctions\xml_io_toos\xml_write.m</file>
       <file>${PROJECT_ROOT}\HelperFunctions\xml_io_toos\xmlreadstring.m</file>
       <file>${PROJECT_ROOT}\HelperFunctions\xml_io_toos\xmlwrite_xerces.m</file>
+      <file>${PROJECT_ROOT}\ICUtilities\initialize_memmap.m</file>
       <file>${PROJECT_ROOT}\ICY_Matlab\matlabcommunicator\icy_command.m</file>
       <file>${PROJECT_ROOT}\ICY_Matlab\matlabxserver\icy_figure.m</file>
       <file>${PROJECT_ROOT}\ICY_Matlab\matlabxserver\icy_gettitle.m</file>
@@ -140,6 +143,7 @@
       <file>${PROJECT_ROOT}\ICY_Matlab\matlabxserver\icy_imshow.m</file>
       <file>${PROJECT_ROOT}\InternalHelperFunctions\args2struct.m</file>
       <file>${PROJECT_ROOT}\InternalHelperFunctions\assign_handles.m</file>
+      <file>${PROJECT_ROOT}\InternalHelperFunctions\global_tempname.m</file>
       <file>${PROJECT_ROOT}\InternalHelperFunctions\split.m</file>
       <file>${PROJECT_ROOT}\OMEROMatlab\connectOmero.m</file>
       <file>${PROJECT_ROOT}\OMEROMatlab\createObjectDictionary.m</file>
@@ -161,6 +165,13 @@
       <file>${PROJECT_ROOT}\OMEROUtilities\read_XmlAnnotation_havingNS.m</file>
       <file>${PROJECT_ROOT}\OMEROUtilities\select_Dataset.m</file>
       <file>${PROJECT_ROOT}\OMEROUtilities\select_Image.m</file>
+      <file>${PROJECT_ROOT}\OMEuiUtils\OMEuiUtils.jar</file>
+      <file>${PROJECT_ROOT}\TwIST_OPT\conv2c.m</file>
+      <file>${PROJECT_ROOT}\TwIST_OPT\diffh.m</file>
+      <file>${PROJECT_ROOT}\TwIST_OPT\diffv.m</file>
+      <file>${PROJECT_ROOT}\TwIST_OPT\tvdenoise.m</file>
+      <file>${PROJECT_ROOT}\TwIST_OPT\TVnorm.m</file>
+      <file>${PROJECT_ROOT}\TwIST_OPT\TwIST.m</file>
     </fileset.resources>
     <fileset.package />
     <build-deliverables>
