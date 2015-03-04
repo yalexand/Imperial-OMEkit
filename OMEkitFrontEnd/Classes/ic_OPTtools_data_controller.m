@@ -1003,15 +1003,10 @@ end
         end
 %-------------------------------------------------------------------------%
         function infostring  = OMERO_load_single(obj,omero_data_manager,verbose,~)           
-            
-            infostring = [];            
-            
-            if ~isempty(omero_data_manager.dataset)
-                image = select_Image(omero_data_manager.session,omero_data_manager.userid,omero_data_manager.dataset);
-            else
-                errordlg('Please set Dataset or Plate before trying to load images'); 
-                return; 
-            end;
+                        
+            chooser = OMEuiUtils.OMEROImageChooser(omero_data_manager.client,omero_data_manager.userid, false); % single image
+            images = chooser.getSelectedImages();
+            image = images(1);
             
             if isempty(image), return, end;
 
@@ -1019,7 +1014,7 @@ end
             if isempty(angleS), errordlg('source does not contain angle specs - can not continue'), return, end;
                         
             infostring = obj.OMERO_load_image(omero_data_manager,image,verbose);
-                        
+                                                
         end
 %-------------------------------------------------------------------------%
         function infostring  = OMERO_load_image(obj,omero_data_manager,image,verbose,~)
@@ -1143,22 +1138,9 @@ end
             
             obj.current_filename = [];
             
-            % infostring
-            try
-                pName = char(java.lang.String(omero_data_manager.project.getName().getValue()));            
-                pId = num2str(omero_data_manager.project.getId().getValue());                        
-            catch
-            end
-            if ~exist('pName','var')
-                pName = 'NO PROJECT!!';
-                pId = 'xxx';
-            end            
-            dName = char(java.lang.String(omero_data_manager.dataset.getName().getValue()));                    
             iName = char(java.lang.String(omero_data_manager.image.getName().getValue()));            
-            dId = num2str(omero_data_manager.dataset.getId().getValue());            
             iId = num2str(omero_data_manager.image.getId().getValue());            
-            
-            infostring = [ 'Image "' iName '" [' iId '] @ Dataset "' dName '" [' dId '] @ Project "' pName '" [' pId ']'];            
+            infostring = [ 'Image "' iName '" [' iId ']' ] ;            
              
         end        
          %------------------------------------------------------------------        

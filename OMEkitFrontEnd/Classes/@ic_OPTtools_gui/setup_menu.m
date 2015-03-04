@@ -59,12 +59,11 @@ function handles = setup_menu(obj,handles)
     handles.menu_OMERO_Working_Data_Info = uimenu(menu_OMERO,'Label','...','ForegroundColor','red','Enable','off');
     handles.menu_OMERO_login = uimenu(menu_OMERO,'Label','Log in to OMERO');    
 
-    menu_OMERO_Set_Data = uimenu(menu_OMERO,'Label','Set Working Data');
-    handles.menu_OMERO_Set_Dataset = uimenu(menu_OMERO_Set_Data,'Label','Dataset','Enable','off');
+    menu_OMERO_Set_Data = uimenu(menu_OMERO,'Label','Set User');
     handles.menu_OMERO_Switch_User = uimenu(menu_OMERO_Set_Data,'Label','Switch User...','Separator','on','Enable','off');    
 
-    handles.menu_OMERO_Connect_To_Another_User = uimenu(menu_OMERO_Set_Data,'Label','Connect to another user...','Enable','off');    
-    handles.menu_OMERO_Connect_To_Logon_User = uimenu(menu_OMERO_Set_Data,'Label','Connect to logon user...','Enable','off');    
+    handles.menu_OMERO_Connect_To_Another_User = uimenu(menu_OMERO_Set_Data,'Label','Connect to another User...','Enable','off');    
+    handles.menu_OMERO_Connect_To_Logon_User = uimenu(menu_OMERO_Set_Data,'Label','Connect to Logon User...','Enable','off');    
 
     handles.menu_OMERO_Reset_Logon = uimenu(menu_OMERO_Set_Data,'Label','Restore Logon','Separator','on','Enable','off');                
     

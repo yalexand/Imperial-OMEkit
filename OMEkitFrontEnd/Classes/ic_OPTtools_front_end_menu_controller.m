@@ -193,7 +193,6 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         %------------------------------------------------------------------
         function menu_OMERO_Connect_To_Another_User_callback(obj,~,~)
             obj.omero_data_manager.Select_Another_User();
-            obj.omero_data_manager.project = [];
             obj.omero_data_manager.dataset = [];
             obj.data_controller.proj = [];
             obj.data_controller.volm = [];            
@@ -203,7 +202,6 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         %------------------------------------------------------------------
         function menu_OMERO_Connect_To_Logon_User_callback(obj,~,~)            
             obj.omero_data_manager.userid = obj.omero_data_manager.session.getAdminService().getEventContext().userId;
-            obj.omero_data_manager.project = [];
             obj.omero_data_manager.dataset = [];
             obj.data_controller.proj = [];
             obj.data_controller.volm = [];            
@@ -211,7 +209,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             set(obj.menu_OMERO_Working_Data_Info,'Label','...','ForegroundColor','red');
         end  
          %------------------------------------------------------------------
-        function menu_OMERO_set_single_callback(obj, ~, ~)
+        function menu_OMERO_set_single_callback(obj, ~, ~)                                               
             infostring = obj.data_controller.OMERO_load_single(obj.omero_data_manager,true); % verbose
             if ~isempty(infostring)
                 set(obj.menu_OMERO_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
@@ -390,7 +388,6 @@ classdef ic_OPTtools_front_end_menu_controller < handle
 
          %------------------------------------------------------------------                
         function clear_all(obj,~,~)
-                    obj.omero_data_manager.project = [];
                     obj.omero_data_manager.dataset = [];
                     obj.data_controller.proj = [];
                     obj.data_controller.volm = [];            
@@ -667,24 +664,10 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             infostring = [];
             if ~isempty(obj.data_controller.current_filename)
                 infostring = obj.data_controller.current_filename;
-            elseif ~isempty(obj.omero_data_manager.image) 
-                
-                try
-                    pName = char(java.lang.String(obj.omero_data_manager.project.getName().getValue()));            
-                    pId = num2str(obj.omero_data_manager.project.getId().getValue());            
-                catch
-                end
-                if ~exist('pName','var')
-                    pName = 'NO PROJECT!!';
-                    pId = 'xxx';
-                end
-                                                
-                dName = char(java.lang.String(obj.omero_data_manager.dataset.getName().getValue()));                    
-                iName = char(java.lang.String(obj.omero_data_manager.image.getName().getValue()));            
-                    
-                    dId = num2str(obj.omero_data_manager.dataset.getId().getValue());            
-                    iId = num2str(obj.omero_data_manager.image.getId().getValue());                        
-                infostring = [ 'Image "' iName '" [' iId '] @ Dataset "' dName '" [' dId '] @ Project "' pName '" [' pId ']'];            
+            elseif ~isempty(obj.omero_data_manager.image)                 
+                iName = char(java.lang.String(obj.omero_data_manager.image.getName().getValue()));                                
+                iId = num2str(obj.omero_data_manager.image.getId().getValue());                        
+                infostring = [ 'Image "' iName '" [' iId ']' ];            
             end
         end
 

@@ -31,7 +31,6 @@ classdef ic_OPTtools_omero_data_manager < handle
         client;     
         session;    
         dataset;    
-        project;    
         %
         image;
         %
@@ -55,23 +54,16 @@ classdef ic_OPTtools_omero_data_manager < handle
             %
             infostring = [];            
             %
-            [ Dataset, Project ] = select_Dataset(obj.session,obj.userid,'Select a Dataset:'); 
+            chooser = OMEuiUtils.OMEROImageChooser(obj.client, obj.userid, int32(1));
+            Dataset = chooser.getSelectedDataset();
             %
             if isempty(Dataset), return, end;
             %
             obj.dataset = Dataset;
-            obj.project = Project;
             %            
-            if ~isempty(obj.project)
-                pName = char(java.lang.String(obj.project.getName().getValue()));
-                pIdName = num2str(obj.project.getId().getValue());
-            else
-                pName = 'NO PROJECT!';
-                pIdName = 'XXXX';
-            end;
             dName = char(java.lang.String(obj.dataset.getName().getValue()));                    
             dIdName = num2str(obj.dataset.getId().getValue());                       
-            infostring = [ 'Dataset "' dName '" [' dIdName '] @ Project "' pName '" [' pIdName ']' ];
+            infostring = [ 'Dataset "' dName '" [' dIdName ']' ];
             %
         end                
                         
@@ -231,7 +223,6 @@ classdef ic_OPTtools_omero_data_manager < handle
                 obj.userid = obj.session.getAdminService().getEventContext().userId;                
             end                                                                     
             %
-            obj.project = [];
             obj.dataset = [];
             %
         end         
