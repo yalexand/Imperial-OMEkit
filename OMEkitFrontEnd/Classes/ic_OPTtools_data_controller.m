@@ -1003,7 +1003,9 @@ end
         end
 %-------------------------------------------------------------------------%
         function infostring  = OMERO_load_single(obj,omero_data_manager,verbose,~)           
-                        
+
+            infostring = [];
+            
             chooser = OMEuiUtils.OMEROImageChooser(omero_data_manager.client,omero_data_manager.userid, false); % single image
             images = chooser.getSelectedImages();
             image = images(1);
