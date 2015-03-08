@@ -723,7 +723,7 @@ end
                 Phi = @(x) TVnorm(x);
                 tau = obj.TwIST_TAU;
                 % input (zero-padded) sinogram  
-                y = obj.zero_pad_sinogram_for_iradon(sinogram);
+                y = obj.pad_sinogram_for_iradon(sinogram);
 
                  [reconstruction,dummy1,obj_twist,...
                     times_twist,dummy2,mse_twist]= ...
@@ -745,6 +745,57 @@ end
             else % if strcmp(obj.Reconstruction_GPU,'ON') && obj.isGPU
                 % cheating - still not clear why TwIST_gpu fails on GPU
                 reconstruction = obj.FBP(sinogram);
+                %
+                % THIS DOESN'T WORK BY SOME REASON - checked on gpuDevice:
+                %{                                 
+                                  Name: 'Tesla K40c'
+                                 Index: 1
+                     ComputeCapability: '3.5'
+                        SupportsDouble: 1
+                         DriverVersion: 6
+                        ToolkitVersion: 5.5000
+                    MaxThreadsPerBlock: 1024
+                      MaxShmemPerBlock: 49152
+                    MaxThreadBlockSize: [1024 1024 64]
+                           MaxGridSize: [2.1475e+09 65535 65535]
+                             SIMDWidth: 32
+                           TotalMemory: 1.2079e+10
+                            FreeMemory: 1.1949e+10
+                   MultiprocessorCount: 15
+                          ClockRateKHz: 875500
+                           ComputeMode: 'Default'
+                  GPUOverlapsTransfers: 1
+                KernelExecutionTimeout: 0
+                      CanMapHostMemory: 1
+                       DeviceSupported: 1
+                        DeviceSelected: 1
+                %}
+                
+                %{
+                % set the penalty function, to compute the objective
+                Phi = @(x) TVnorm_gpu(x);
+                tau = gpuArray(obj.TwIST_TAU);
+                % input (zero-padded) sinogram  
+                y = obj.pad_sinogram_for_iradon(sinogram);
+
+                 [reconstruction,dummy1,obj_twist,...
+                    times_twist,dummy2,mse_twist]= ...
+                         TwIST_gpu(y,hR,...
+                         tau,...
+                         'AT', hRT, ...
+                         'Psi', Psi, ...
+                         'Phi',Phi, ...
+                         'Lambda', obj.TwIST_LAMBDA, ...                     
+                         'Monotone',obj.TwIST_MONOTONE,...
+                         'MAXITERA', obj.TwIST_MAXITERA, ...
+                         'MAXITERD', obj.TwIST_MAXITERD, ...                     
+                         'Initialization',obj.TwIST_INITIALIZATION,...
+                         'StopCriterion',obj.TwIST_STOPCRITERION,...
+                         'ToleranceA',obj.TwIST_TOLERANCEA,...
+                         'ToleranceD',obj.TwIST_TOLERANCED,...
+                         'Verbose', obj.TwIST_VERBOSE);
+                %}
+                                
             end
         end        
 %-------------------------------------------------------------------------%
@@ -903,7 +954,7 @@ end
              obj.on_new_volm_set;
         end
 %-------------------------------------------------------------------------% 
-function padded_sinogram = zero_pad_sinogram_for_iradon(obj,sinogram,~)
+function padded_sinogram = pad_sinogram_for_iradon(obj,sinogram,~)
             
            [N,n_angles] = size(sinogram);
            szproj = [N N];
