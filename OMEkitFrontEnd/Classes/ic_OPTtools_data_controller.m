@@ -94,6 +94,8 @@ classdef ic_OPTtools_data_controller < handle
         % current_metadata = []; % ?
         PixelsPhysicalSizeX = []; % as in loaded original
         PixelsPhysicalSizeY = [];
+        
+        FLIM_proj_load_swap_XY_dimensions = false;                            
                         
     end    
         
@@ -411,7 +413,8 @@ classdef ic_OPTtools_data_controller < handle
             %
             obj.proj = [];
             obj.volm = [];            
-            obj.on_proj_and_volm_clear;            
+            obj.on_proj_and_volm_clear; 
+            obj.FLIM_proj_load_swap_XY_dimensions = false;                            
             %
             infostring = [];
             obj.angles = obj.get_angles(full_filename); % temp
@@ -489,6 +492,8 @@ classdef ic_OPTtools_data_controller < handle
                          % possibly correcting orientation
                         if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
                             %
+                            obj.FLIM_proj_load_swap_XY_dimensions = true;                            
+                            %
                             waitmsg = 'Oops.. swappig dimensions..';
                             if verbose
                                 hw = waitdialog(waitmsg);
@@ -543,6 +548,8 @@ classdef ic_OPTtools_data_controller < handle
                       %
                      % possibly correcting orientation
                     if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+                        %
+                        obj.FLIM_proj_load_swap_XY_dimensions = true;
                         %
                         waitmsg = 'Oops.. swappig dimensions..';
                         if verbose
@@ -1643,10 +1650,15 @@ end
                     for z = 1 : sizeZ
                        index = z + (t-1)*sizeZ;
                        plane = memRef(index).plane;
+                       
+                       if obj.FLIM_proj_load_swap_XY_dimensions
+                           plane = rot90(plane);
+                       end
+                       
                        if isempty(obj.proj)
                            obj.proj = zeros(size(plane,1),size(plane,2),sizeZ,class(plane));
                        end
-                       obj.proj(:,:,z) = memRef(index).plane;
+                       obj.proj(:,:,z) = plane;
                     end                        
         end
 %-------------------------------------------------------------------------%        
