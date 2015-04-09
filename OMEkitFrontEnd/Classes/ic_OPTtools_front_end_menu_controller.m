@@ -55,7 +55,10 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         menu_Batch_Src_HD;
         menu_Batch_Src_OMERO;
         menu_Batch_SetDst;
-                                
+        
+        menu_Batch_Src_slctd_HD;
+        menu_Batch_Src_slctd_OMERO;
+                                        
         menu_settings_Pixel_Downsampling;
         menu_settings_Angle_Downsampling;
 
@@ -397,13 +400,18 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                     set(obj.menu_Batch_Indicator_Dst,'Label','...','ForegroundColor','blue');                
                     obj.data_controller.BatchDstDirectory = [];                    
                     obj.data_controller.BatchSrcDirectory = [];                                
+                    obj.data_controller.file_names = [];
+                    obj.data_controller.omero_Image_IDs = [];
         end    
          %------------------------------------------------------------------            
         function ret = maybe_run_batch_reconstruction(obj,~)
 
                 ret = false;
 
-                batch_src_OK = isdir(obj.data_controller.BatchSrcDirectory) || ~isempty(obj.omero_data_manager.dataset);
+                batch_src_OK = isdir(obj.data_controller.BatchSrcDirectory) ...
+                                || ~isempty(obj.omero_data_manager.dataset) ...
+                                || ~isempty(obj.data_controller.omero_Image_IDs);
+                %
                 batch_dst_OK = isdir(obj.data_controller.BatchDstDirectory);
 
                 if ~(batch_src_OK && batch_dst_OK), return, end;        
@@ -700,10 +708,37 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         function menu_Batch_SetDst_callback(obj,~,~)
             [path] = uigetdir(obj.data_controller.DefaultDirectory,'Set Destination directory');
             if path ~= 0
+                obj.data_controller.file_names = [];                
                 obj.data_controller.BatchDstDirectory = path;                
                 set(obj.menu_Batch_Indicator_Dst,'Label',path,'ForegroundColor','blue');
             end                                               
         end            
+
+        %------------------------------------------------------------------                
+        function menu_Batch_Src_slctd_HD_callback(obj,~,~)
+            obj.data_controller.file_names = [];
+            [filenames, path] = uigetfile({'*.OME.tiff';'*.ome.tiff'},'MultiSelect','on');
+            if path ~= 0
+                obj.data_controller.file_names = filenames;                
+                obj.data_controller.BatchSrcDirectory = path;
+                set(obj.menu_Batch_Indicator_Src,'Label',path,'ForegroundColor','blue');
+                obj.data_controller.DefaultDirectory = path;                
+            end
+        end
+        %------------------------------------------------------------------                
+        function menu_Batch_Src_slctd_OMERO_callback(obj,~,~)
+            obj.data_controller.omero_Image_IDs = [];
+            try
+                infostring = obj.omero_data_manager.Set_Images(obj.data_controller);
+            catch
+                errordlg('OMERO might be not active - please log on');
+                return;
+            end
+            if ~isempty(infostring)
+                set(obj.menu_OMERO_Working_Data_Info,'Label','...','ForegroundColor','blue');
+                set(obj.menu_Batch_Indicator_Src,'Label',infostring,'ForegroundColor','blue');                
+            end;                      
+        end
                         
     %================================= % VANITY       
     

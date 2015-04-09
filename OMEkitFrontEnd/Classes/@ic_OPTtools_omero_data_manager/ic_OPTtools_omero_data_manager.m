@@ -66,7 +66,23 @@ classdef ic_OPTtools_omero_data_manager < handle
             infostring = [ 'Dataset "' dName '" [' dIdName ']' ];
             %
         end                
-                        
+
+        %------------------------------------------------------------------                
+        function infostring = Set_Images(obj,data_controller,~)
+            %
+            infostring = [];            
+            %
+            chooser = OMEuiUtils.OMEROImageChooser(obj.client, obj.userid, true);
+            Images = chooser.getSelectedImages();
+            %
+            if isempty(Images), return, end;
+            %
+            data_controller.omero_Image_IDs = Images;
+            I1_name = char(java.lang.String(Images(1).getName().getValue()));
+            infostring = [ 'Selected Images: "' I1_name '" et all' ];
+            %
+        end                
+                
         %------------------------------------------------------------------                
         function Omero_logon(obj,~) 
             

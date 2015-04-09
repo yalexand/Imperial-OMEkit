@@ -76,11 +76,15 @@ function handles = setup_menu(obj,handles)
     menu_Batch = uimenu(obj.window,'Label','Batch');
     handles.menu_Batch_Indicator_Src = uimenu(menu_Batch,'Label','...','ForegroundColor','red','Enable','off');    
     handles.menu_Batch_Indicator_Dst = uimenu(menu_Batch,'Label','...','ForegroundColor','red','Enable','off');        
-    menu_Batch_SetSrc = uimenu(menu_Batch,'Label','Set Source');
-
-    handles.menu_Batch_Src_HD = uimenu(menu_Batch_SetSrc,'Label','HD Directory');
-    handles.menu_Batch_Src_OMERO = uimenu(menu_Batch_SetSrc,'Label','OMERO Dataset');
     
+    menu_Batch_SetSrc = uimenu(menu_Batch,'Label','Set Source');
+    handles.menu_Batch_Src_HD = uimenu(menu_Batch_SetSrc,'Label','Folder');
+    handles.menu_Batch_Src_OMERO = uimenu(menu_Batch_SetSrc,'Label','OMERO Dataset');
+
+    menu_Batch_SetSrc_slctd = uimenu(menu_Batch,'Label','Set Selected');
+    handles.menu_Batch_Src_slctd_HD = uimenu(menu_Batch_SetSrc_slctd,'Label','Image files');
+    handles.menu_Batch_Src_slctd_OMERO = uimenu(menu_Batch_SetSrc_slctd,'Label','OMERO Images');
+        
     handles.menu_Batch_SetDst = uimenu(menu_Batch,'Label','Set Destination');
     
     %================================= settings
