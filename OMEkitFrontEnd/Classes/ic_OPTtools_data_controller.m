@@ -80,7 +80,7 @@ classdef ic_OPTtools_data_controller < handle
         current_filename = []; % not sure
         
         file_names = [];
-        omero_IDs = [];
+        omero_Image_IDs = [];
         
         previous_filenames = [];
         previous_omero_IDs = [];
@@ -401,7 +401,7 @@ classdef ic_OPTtools_data_controller < handle
                         
             obj.on_new_proj_set;
             
-            obj.omero_IDs = [];
+            obj.omero_Image_IDs = [];
             
             infostring = obj.current_filename;
             
@@ -610,7 +610,7 @@ classdef ic_OPTtools_data_controller < handle
 
                 obj.on_new_proj_set;
                 
-                obj.omero_IDs = [];
+                obj.omero_Image_IDs = [];
                 
                 infostring = obj.current_filename;  
                                                                 
@@ -750,8 +750,10 @@ end
                          'Verbose', obj.TwIST_VERBOSE);
                      
             else % if strcmp(obj.Reconstruction_GPU,'ON') && obj.isGPU
+                %
                 % cheating - still not clear why TwIST_gpu fails on GPU
-                reconstruction = obj.FBP(sinogram);
+                % reconstruction = obj.FBP(sinogram);
+                
                 %
                 % THIS DOESN'T WORK BY SOME REASON - checked on gpuDevice:
                 %{                                 
@@ -777,8 +779,7 @@ end
                        DeviceSupported: 1
                         DeviceSelected: 1
                 %}
-                
-                %{
+                                
                 % set the penalty function, to compute the objective
                 Phi = @(x) TVnorm_gpu(x);
                 tau = gpuArray(obj.TwIST_TAU);
@@ -800,8 +801,7 @@ end
                          'StopCriterion',obj.TwIST_STOPCRITERION,...
                          'ToleranceA',obj.TwIST_TOLERANCEA,...
                          'ToleranceD',obj.TwIST_TOLERANCED,...
-                         'Verbose', obj.TwIST_VERBOSE);
-                %}
+                         'Verbose', obj.TwIST_VERBOSE);                
                                 
             end
         end        
@@ -1083,7 +1083,7 @@ end
             
             omero_data_manager.image = image;
             
-            obj.omero_IDs{1} = omero_data_manager.image.getId.getValue;
+            % obj.omero_Image_IDs{1} = omero_data_manager.image.getId.getValue;
                              
             pixelsList = omero_data_manager.image.copyPixels();    
             pixels = pixelsList.get(0);
@@ -1488,9 +1488,14 @@ end
             %                                               
             s1 = get(obj.menu_controller.menu_OMERO_Working_Data_Info,'Label');
             s2 = get(obj.menu_controller.menu_Batch_Indicator_Src,'Label');            
-            if strcmp(s1,s2) && ~isempty(omero_data_manager.session) % images should be loaded from OMERO
+            if ( strcmp(s1,s2) || ~isempty(obj.omero_Image_IDs) ) && ~isempty(omero_data_manager.session) % images should be loaded from OMERO
                 %
-                imageList = getImages(omero_data_manager.session, 'dataset', omero_data_manager.dataset.getId.getValue);
+                imageList = [];
+                if ~isempty(obj.omero_Image_IDs)
+                    imageList = obj.omero_Image_IDs;
+                else
+                    imageList = getImages(omero_data_manager.session, 'dataset', omero_data_manager.dataset.getId.getValue);
+                end
                 
                 if isempty(imageList)
                     errordlg(['Dataset ' pName ' have no images'])
@@ -1525,21 +1530,24 @@ end
                         end   
                         waitdialog(k/length(imageList),hw,waitmsg); drawnow
                 end 
+                obj.omero_Image_IDs = [];
                 delete(hw);drawnow;                  
                 
             else % images should be loaded from HD
                 
                 if isdir(obj.BatchSrcDirectory)
 
-                    files = dir([obj.BatchSrcDirectory filesep '*.OME.tiff']);
-                    num_files = length(files);
-                    if 0 ~= num_files
-                        names_list = cell(1,num_files);
-                        for k = 1:num_files
-                            names_list{k} = char(files(k).name);
+                    if ~isempty(obj.file_names)
+                        names_list = obj.file_names;
+                    else                    
+                        files = dir([obj.BatchSrcDirectory filesep '*.OME.tiff']);
+                        num_files = length(files);
+                        if 0 ~= num_files
+                            names_list = cell(1,num_files);
+                            for k = 1:num_files
+                                names_list{k} = char(files(k).name);
+                            end
                         end
-                    else
-                        %? - can't arrive here?
                     end
 
                    waitmsg = 'Batch processing...';
