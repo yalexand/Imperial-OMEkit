@@ -710,22 +710,22 @@ end
         end        
 %-------------------------------------------------------------------------%        
         function reconstruction = FBP_TwIST(obj,sinogram,~)
-                                    
-            step = obj.angle_downsampling;                 
-            n_angles = numel(obj.angles);
-            acting_angles = obj.angles(1:step:n_angles);            
-            %
-            [N,~] = size(sinogram);            
-            
+                                                
             % denoising function;    %Change if necessary - strength of total variarion
             tv_iters = 5;            
             Psi = @(x,th)  tvdenoise(x,2/th,tv_iters);
-            % 
-            hR = @(x)  radon(x, acting_angles);
-            hRT = @(x) iradon(x, acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling,N);
 
             if strcmp(obj.Reconstruction_GPU,'OFF')
+
+                step = obj.angle_downsampling;                 
+                n_angles = numel(obj.angles);
+                acting_angles = obj.angles(1:step:n_angles);            
                 
+                [N,~] = size(sinogram);                                            
+                % 
+                hR = @(x)  radon(x, acting_angles);
+                hRT = @(x) iradon(x, acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling,N);
+                                                
                 % set the penalty function, to compute the objective
                 Phi = @(x) TVnorm(x);
                 tau = obj.TwIST_TAU;
@@ -750,41 +750,26 @@ end
                          'Verbose', obj.TwIST_VERBOSE);
                      
             else % if strcmp(obj.Reconstruction_GPU,'ON') && obj.isGPU
-                %
-                % cheating - still not clear why TwIST_gpu fails on GPU
-                % reconstruction = obj.FBP(sinogram);
-                
-                %
-                % THIS DOESN'T WORK BY SOME REASON - checked on gpuDevice:
-                %{                                 
-                                  Name: 'Tesla K40c'
-                                 Index: 1
-                     ComputeCapability: '3.5'
-                        SupportsDouble: 1
-                         DriverVersion: 6
-                        ToolkitVersion: 5.5000
-                    MaxThreadsPerBlock: 1024
-                      MaxShmemPerBlock: 49152
-                    MaxThreadBlockSize: [1024 1024 64]
-                           MaxGridSize: [2.1475e+09 65535 65535]
-                             SIMDWidth: 32
-                           TotalMemory: 1.2079e+10
-                            FreeMemory: 1.1949e+10
-                   MultiprocessorCount: 15
-                          ClockRateKHz: 875500
-                           ComputeMode: 'Default'
-                  GPUOverlapsTransfers: 1
-                KernelExecutionTimeout: 0
-                      CanMapHostMemory: 1
-                       DeviceSupported: 1
-                        DeviceSelected: 1
-                %}
                                 
+                Na_ = length(obj.angles);
+                a_max_ = obj.angles(Na_);
+                a_min_ = 0;
+                astep = (a_max_ - a_min_)/Na_;                
+                Na = floor(180/astep); % last index, angle can't exceed 180                                
+                % acting_angles = obj.angles(1:Na);                
+                acting_angles = astep*(0:Na-1);
+                
+                sinogram_ = sinogram(:,1:Na);
+                [N,~] = size(sinogram); 
+                % 
+                hR = @(x)  radon(x, acting_angles);
+                hRT = @(x) iradon(x, acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling,N);
+                                                                                                
                 % set the penalty function, to compute the objective
                 Phi = @(x) TVnorm_gpu(x);
                 tau = gpuArray(obj.TwIST_TAU);
                 % input (zero-padded) sinogram  
-                y = obj.pad_sinogram_for_iradon(sinogram);
+                y = obj.pad_sinogram_for_iradon(sinogram_);
 
                  [reconstruction,dummy1,obj_twist,...
                     times_twist,dummy2,mse_twist]= ...
@@ -801,8 +786,7 @@ end
                          'StopCriterion',obj.TwIST_STOPCRITERION,...
                          'ToleranceA',obj.TwIST_TOLERANCEA,...
                          'ToleranceD',obj.TwIST_TOLERANCED,...
-                         'Verbose', obj.TwIST_VERBOSE);                
-                                
+                         'Verbose', obj.TwIST_VERBOSE);                                                
             end
         end        
 %-------------------------------------------------------------------------%
