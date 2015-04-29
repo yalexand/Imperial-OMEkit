@@ -750,26 +750,29 @@ end
                          'Verbose', obj.TwIST_VERBOSE);
                      
             else % if strcmp(obj.Reconstruction_GPU,'ON') && obj.isGPU
-                                
+                                              
+                % TERES'A FIX - WORKS
                 Na_ = length(obj.angles);
-                a_max_ = obj.angles(Na_);
-                a_min_ = 0;
-                astep = (a_max_ - a_min_)/Na_;                
-                Na = floor(180/astep); % last index, angle can't exceed 180                                
-                % acting_angles = obj.angles(1:Na);                
-                acting_angles = astep*(0:Na-1);
-                
-                sinogram_ = sinogram(:,1:Na);
+                                 a_max_ = obj.angles(Na_);
+                                 a_min_ = 0;
+                                 angle = (a_max_ - a_min_)/Na_; 
+                angles_total = linspace(0,a_max_ - angle,Na_);      % for hRT
+
+                Rangles = angles_total;
+                Rangles_half = Rangles(Rangles<180);                % for hR 
+                Rangles_half2 = Rangles(Rangles>=180)-180;
+
                 [N,~] = size(sinogram); 
-                % 
-                hR = @(x)  radon(x, acting_angles);
-                hRT = @(x) iradon(x, acting_angles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling,N);
-                                                                                                
+
+                hR = @(x)  hR2(x, Rangles_half, Rangles_half2);
+                hRT = @(x) iradon(x, Rangles,obj.FBP_interp,obj.FBP_filter,obj.FBP_fscaling,N);
+                % TERES'A FIX - WORKS
+
                 % set the penalty function, to compute the objective
                 Phi = @(x) TVnorm_gpu(x);
                 tau = gpuArray(obj.TwIST_TAU);
                 % input (zero-padded) sinogram  
-                y = obj.pad_sinogram_for_iradon(sinogram_);
+                y = obj.pad_sinogram_for_iradon(sinogram);
 
                  [reconstruction,dummy1,obj_twist,...
                     times_twist,dummy2,mse_twist]= ...
@@ -788,6 +791,7 @@ end
                          'ToleranceD',obj.TwIST_TOLERANCED,...
                          'Verbose', obj.TwIST_VERBOSE);                                                
             end
+            
         end        
 %-------------------------------------------------------------------------%
         function V = perform_reconstruction(obj,verbose,~)
