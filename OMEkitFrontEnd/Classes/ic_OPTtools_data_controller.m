@@ -144,8 +144,8 @@ classdef ic_OPTtools_data_controller < handle
             end
             
             if isempty(obj.IcyDirectory)
-                hw = waitdialog('looking for Icy directory..');
-                waitdialog(0.1,hw,'looking for Icy directory..');                
+                hw = waitbar(0,'looking for Icy directory..');
+                waitbar(0.1,hw);                
                 if ispc
                        prevdir = pwd;
                        cd('c:\');
@@ -292,7 +292,7 @@ classdef ic_OPTtools_data_controller < handle
             hw = [];
             waitmsg = 'Loading planes...';
             if verbose
-                hw = waitdialog(waitmsg);
+                hw = waitbar(0,waitmsg);
             end
                         
             try
@@ -336,7 +336,7 @@ classdef ic_OPTtools_data_controller < handle
                         %
                         obj.proj(:,:,p) = plane;
                         %
-                    if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;                    
+                    if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;                    
                     %
                 end                                
                 if ~isempty(hw), delete(hw), drawnow, end;
@@ -346,7 +346,7 @@ classdef ic_OPTtools_data_controller < handle
                     %
                     waitmsg = 'Oops.. swappig dimensions..';
                     if verbose
-                        hw = waitdialog(waitmsg);
+                        hw = waitbar(0,waitmsg);
                     end
                     %
                     obj.proj = [];                  
@@ -366,7 +366,7 @@ classdef ic_OPTtools_data_controller < handle
                         %
                         obj.proj(:,:,p) = plane;
                         %
-                        if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;                    
+                        if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;                    
                         %
                     end                                
                     if ~isempty(hw), delete(hw), drawnow, end;                                                                                
@@ -378,11 +378,11 @@ classdef ic_OPTtools_data_controller < handle
                     s = obj.Prefiltering_Size;
                         waitmsg = 'Median pre-filtering....';
                         if verbose
-                            hw = waitdialog(waitmsg);
+                            hw = waitbar(0,waitmsg);
                         end                                    
                     for p = 1 : n_planes,                    
                         obj.proj(:,:,p) = medfilt2(obj.proj(:,:,p),'symmetric',[s s]);
-                        if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;     
+                        if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;     
                     end
                     if ~isempty(hw), delete(hw), drawnow, end;    
                 end
@@ -428,7 +428,7 @@ classdef ic_OPTtools_data_controller < handle
             hw = [];
             waitmsg = 'Loading planes...';
             if verbose
-                hw = waitdialog(waitmsg);
+                hw = waitbar(0,waitmsg);
             end
                         
             try
@@ -485,7 +485,7 @@ classdef ic_OPTtools_data_controller < handle
                                 %
                                 obj.proj(:,:,p) = plane;
                                 %
-                            if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
+                            if ~isempty(hw), waitbar(p/sizeZ,hw); drawnow, end;                    
                         end                                
                         if ~isempty(hw), delete(hw), drawnow, end; 
                         
@@ -496,7 +496,7 @@ classdef ic_OPTtools_data_controller < handle
                             %
                             waitmsg = 'Oops.. swappig dimensions..';
                             if verbose
-                                hw = waitdialog(waitmsg);
+                                hw = waitbar(0,waitmsg);
                             end
                             %
                             obj.proj = [];                  
@@ -515,7 +515,7 @@ classdef ic_OPTtools_data_controller < handle
                                 %
                                 obj.proj(:,:,p) = plane;
                                 %
-                                if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
+                                if ~isempty(hw), waitbar(p/sizeZ,hw); drawnow, end;                    
                              end                                                                         
                             if ~isempty(hw), delete(hw), drawnow, end;                                                                                
                             %
@@ -542,7 +542,7 @@ classdef ic_OPTtools_data_controller < handle
                             %
                             obj.proj(:,:,p) = plane;  
                             %
-                            if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
+                            if ~isempty(hw), waitbar(p/sizeZ,hw); drawnow, end;                    
                         end                                
                         if ~isempty(hw), delete(hw), drawnow, end; 
                       %
@@ -553,7 +553,7 @@ classdef ic_OPTtools_data_controller < handle
                         %
                         waitmsg = 'Oops.. swappig dimensions..';
                         if verbose
-                            hw = waitdialog(waitmsg);
+                            hw = waitbar(0,waitmsg);
                         end
                         %
                         obj.proj = [];                  
@@ -569,7 +569,7 @@ classdef ic_OPTtools_data_controller < handle
                             %
                             obj.proj(:,:,p) = plane;
                             %
-                            if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;                    
+                            if ~isempty(hw), waitbar(p/sizeZ,hw); drawnow, end;                    
                          end                                                                         
                         if ~isempty(hw), delete(hw), drawnow, end;                                                                                
                         %
@@ -588,11 +588,11 @@ classdef ic_OPTtools_data_controller < handle
                     s = obj.Prefiltering_Size;
                         waitmsg = 'Median pre-filtering....';
                         if verbose
-                            hw = waitdialog(waitmsg);
+                            hw = waitbar(0,waitmsg);
                         end                                    
                     for p = 1 : sizeZ,                    
                         obj.proj(:,:,p) = medfilt2(obj.proj(:,:,p),'symmetric',[s s]);
-                        if ~isempty(hw), waitdialog(p/sizeZ,hw,waitmsg); drawnow, end;     
+                        if ~isempty(hw), waitbar(p/sizeZ,hw); drawnow, end;     
                     end
                     if ~isempty(hw), delete(hw), drawnow, end;    
                 end
@@ -622,7 +622,7 @@ classdef ic_OPTtools_data_controller < handle
 %-------------------------------------------------------------------------%
 function save_volume(obj,full_filename,verbose,~)                        
     hw = [];   
-    if verbose, hw = waitdialog(' '); end;                    
+    if verbose, hw = waitbar(0,' '); end;                    
     %
     if ~isempty(obj.delays) && ~isempty(strfind(lower(full_filename),'.ome.tiff'))
         % FLIM
@@ -832,7 +832,7 @@ end
                           
             hw = [];
             if verbose
-                hw = waitdialog(s);
+                hw = waitbar(0,s);
             end
                           
             f = 1/obj.downsampling;
@@ -863,7 +863,7 @@ end
                                 gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,YL))); % XYZ
                             end                            
                             gpu_volm(:,:,y) = reconstruction;                            
-                            if ~isempty(hw), waitdialog(y/YL,hw,s); drawnow, end;
+                            if ~isempty(hw), waitbar(y/YL,hw); drawnow, end;
                          end                           
                          V = gather(gpu_volm);
                          
@@ -890,7 +890,7 @@ end
                                 gpu_volm = gpuArray(single(zeros(sizeR1,sizeR2,szY_r))); % XYZ
                             end                            
                             gpu_volm(:,:,y) = reconstruction;                            
-                            if ~isempty(hw), waitdialog(y/szY_r,hw,s); drawnow, end;
+                            if ~isempty(hw), waitbar(y/szY_r,hw); drawnow, end;
                          end
                          V = gather(gpu_volm);
                          
@@ -911,7 +911,7 @@ end
                             %
                             V(:,:,y) = reconstruction;
                             %
-                            if ~isempty(hw), waitdialog(y/YL,hw,s); drawnow, end;
+                            if ~isempty(hw), waitbar(y/YL,hw); drawnow, end;
                          end                                                 
                          
                      else % with downsampling                         
@@ -935,7 +935,7 @@ end
                             %
                             V(:,:,y) = reconstruction;
                             %
-                            if ~isempty(hw), waitdialog(y/szY_r,hw,s); drawnow, end;
+                            if ~isempty(hw), waitbar(y/szY_r,hw); drawnow, end;
                          end
 
                      end
@@ -1097,7 +1097,7 @@ end
             waitmsg = 'Loading planes form Omero, please wait ...';
             hw = [];
             if verbose
-                hw = waitdialog(waitmsg);
+                hw = waitbar(0,waitmsg);
             end            
                 
             obj.proj = [];
@@ -1122,7 +1122,7 @@ end
                     %
                     obj.proj(:,:,p) = plane;
                     %
-                    if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;
+                    if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;
                     %
             end
             if ~isempty(hw), delete(hw), drawnow; end;   
@@ -1132,7 +1132,7 @@ end
                     %
                     waitmsg = 'Oops.. swappig dimensions..';
                     if verbose
-                        hw = waitdialog(waitmsg);
+                        hw = waitbar(0,waitmsg);
                     end
                     %
                     obj.proj = [];                  
@@ -1152,7 +1152,7 @@ end
                             %
                             obj.proj(:,:,p) = plane;
                             %
-                            if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;
+                            if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;
                             %
                     end                          
                     if ~isempty(hw), delete(hw), drawnow, end;                                                                                
@@ -1163,11 +1163,11 @@ end
                     s = obj.Prefiltering_Size;
                         waitmsg = 'Median pre-filtering....';
                         if verbose
-                            hw = waitdialog(waitmsg);
+                            hw = waitbar(0,waitmsg);
                         end                                    
                     for p = 1 : n_planes,                    
                         obj.proj(:,:,p) = medfilt2(obj.proj(:,:,p),'symmetric',[s s]);
-                        if ~isempty(hw), waitdialog(p/n_planes,hw,waitmsg); drawnow, end;     
+                        if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;     
                     end
                     if ~isempty(hw), delete(hw), drawnow, end;    
                 end
@@ -1491,9 +1491,9 @@ end
                 end;
                 %
                 waitmsg = 'Batch processing...';
-                hw = waitdialog(waitmsg);
+                hw = waitbar(0,waitmsg);
                 for k = 1:length(imageList) 
-                        waitdialog((k-1)/length(imageList),hw,waitmsg); drawnow                    
+                        waitbar((k-1)/length(imageList),hw); drawnow                    
                         infostring = obj.OMERO_load_image(omero_data_manager,imageList(k),false);
                         if ~isempty(infostring)                    
                             if ~isempty(obj.delays) %FLIM
@@ -1516,7 +1516,7 @@ end
                                 obj.save_volm_FLIM([obj.BatchDstDirectory filesep savefilename],false); % silent
                             end
                         end   
-                        waitdialog(k/length(imageList),hw,waitmsg); drawnow
+                        waitbar(k/length(imageList),hw); drawnow
                 end 
                 obj.omero_Image_IDs = [];
                 delete(hw);drawnow;                  
@@ -1539,9 +1539,9 @@ end
                     end
 
                    waitmsg = 'Batch processing...';
-                   hw = waitdialog(waitmsg);                    
+                   hw = waitbar(0,waitmsg);                    
                    for k=1:numel(names_list)
-                        waitdialog((k-1)/numel(names_list),hw,waitmsg); drawnow;
+                        waitbar((k-1)/numel(names_list),hw); drawnow;
                         fname = [obj.BatchSrcDirectory filesep names_list{k}];                    
                         infostring = obj.Set_Src_Single(fname,false);
                         if isempty(infostring)
@@ -1568,7 +1568,7 @@ end
                                 obj.save_volm_FLIM([obj.BatchDstDirectory filesep savefilename],false); % silent
                             end
                         end                    
-                        waitdialog(k/numel(names_list),hw,waitmsg); drawnow;                                                                            
+                        waitbar(k/numel(names_list),hw); drawnow;                                                                            
                     end
 
                     delete(hw);drawnow;
