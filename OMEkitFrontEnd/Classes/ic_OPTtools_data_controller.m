@@ -314,10 +314,17 @@ classdef ic_OPTtools_data_controller < handle
             r.setMetadataStore(OMEXMLService.createOMEXMLMetadata());
             r.setId(full_filename);
             r.setSeries(0);            
-            omeMeta = r.getMetadataStore();             
-            obj.PixelsPhysicalSizeX = omeMeta.getPixelsPhysicalSizeX(0).getValue;
-            obj.PixelsPhysicalSizeY = omeMeta.getPixelsPhysicalSizeY(0).getValue;
-                                                                    
+            omeMeta = r.getMetadataStore();  
+            
+            obj.PixelsPhysicalSizeX = 1;
+            obj.PixelsPhysicalSizeY = 1;
+            try
+                omeMeta.getPixelsPhysicalSizeX(0).getValue;
+                omeMeta.getPixelsPhysicalSizeY(0).getValue;
+            catch
+                disp('no PixelsPhysicalSize info, set to 1');
+            end
+            
             imgdata = omedata{1,1};                
             n_planes = length(imgdata(:,1));
                                 
