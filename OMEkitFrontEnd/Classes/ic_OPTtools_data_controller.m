@@ -319,8 +319,8 @@ classdef ic_OPTtools_data_controller < handle
             obj.PixelsPhysicalSizeX = 1;
             obj.PixelsPhysicalSizeY = 1;
             try
-                omeMeta.getPixelsPhysicalSizeX(0).getValue;
-                omeMeta.getPixelsPhysicalSizeY(0).getValue;
+                obj.PixelsPhysicalSizeX = omeMeta.getPixelsPhysicalSizeX(0).getValue;
+                obj.PixelsPhysicalSizeY = omeMeta.getPixelsPhysicalSizeY(0).getValue;
             catch
                 disp('no PixelsPhysicalSize info, set to 1');
             end
