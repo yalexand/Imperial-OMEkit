@@ -33,6 +33,7 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         menu_file_Working_Data_Info;        
         menu_file_new_window;
         menu_file_set_src_single;
+        menu_file_set_src_single_imstack;
         menu_file_set_src_dir;
         menu_file_reset_previous;
         menu_file_set_dst_dir;
@@ -739,7 +740,37 @@ classdef ic_OPTtools_front_end_menu_controller < handle
                 set(obj.menu_Batch_Indicator_Src,'Label',infostring,'ForegroundColor','blue');                
             end;                      
         end
-                        
+
+        
+         %------------------------------------------------------------------
+        function menu_file_set_src_single_imstack_callback(obj, ~, ~)
+            
+            ItemList = uipickfiles('FilterSpec',obj.data_controller.DefaultDirectory,'redirs',1,'output','cell');
+            %
+            if isempty(ItemList) || ~iscell(ItemList), return, end;
+            %
+            if 1~=numel(ItemList) || ~isdir(char(ItemList(1)))
+                errordlg('single folder is expected - can not continue');
+            end
+            %
+            path = char(ItemList{1});
+            verbose = true;
+            %            
+            if isempty(obj.data_controller.imstack_get_delays(path))                    
+                infostring = obj.data_controller.imstack_Set_Src_Single(path,verbose);
+            else
+                infostring = obj.data_controller.imstack_Set_Src_Single_FLIM(path,'sum',verbose);
+            end
+                if ~isempty(infostring)
+                    set(obj.menu_file_Working_Data_Info,'Label',infostring,'ForegroundColor','blue','Enable','on');
+                    set(obj.menu_OMERO_Working_Data_Info,'Label','...','Enable','off');
+                    set(obj.menu_settings_Zrange,'Label','Z range : full');
+                    obj.data_controller.Z_range = []; % no selection                    
+                    obj.omero_data_manager.image = [];
+                end;                
+        end   
+        
+        
     %================================= % VANITY       
     
         %------------------------------------------------------------------

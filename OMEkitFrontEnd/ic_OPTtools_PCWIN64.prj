@@ -1,85 +1,61 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration target="target.ezdeploy.standalone" target-name="MATLAB Compiler for Standalone Applications" name="ic_OPTtools_PCWIN64" location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd" file="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\ic_OPTtools_PCWIN64.prj" preferred-package-type="package.type.exe" build-checksum="3683271035" preferred-package-location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution">
+  <configuration build-checksum="299805726" file="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\ic_OPTtools_PCWIN64.prj" location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd" name="ic_OPTtools_PCWIN64" preferred-package-location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>ic_OPTtools_PCWIN64</param.appname>
+    <param.icon />
+    <param.icons />
+    <param.version>1.0</param.version>
     <param.authnamewatermark>Yuriy Alexandrov</param.authnamewatermark>
     <param.email>yalexand@ic.ac.uk</param.email>
     <param.company>Imperial College London</param.company>
-    <param.icon />
-    <param.icons />
     <param.summary />
     <param.description />
     <param.screenshot />
-    <param.version>1.0</param.version>
-    <param.namespace>ic_OPTtools_PCWIN64</param.namespace>
     <param.guid />
     <param.installpath.string>\Imperial College London\ic_OPTtools_PCWIN64\</param.installpath.string>
     <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
     <param.logo />
     <param.install.notes />
+    <param.target.install.notes />
     <param.intermediate>${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_testing</param.intermediate>
+    <param.files.only>${PROJECT_ROOT}\ic_OPTtools_PCWIN64\for_redistribution_files_only</param.files.only>
     <param.output>${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution</param.output>
+    <param.logdir>${PROJECT_ROOT}\ic_OPTtools_PCWIN64</param.logdir>
+    <param.enable.clean.build>false</param.enable.clean.build>
+    <param.user.defined.mcr.options />
     <param.embed.ctf>true</param.embed.ctf>
     <param.target.type>subtarget.standalone</param.target.type>
-    <param.classorg />
+    <param.support.packages />
     <param.web.mcr>false</param.web.mcr>
     <param.package.mcr>true</param.package.mcr>
     <param.no.mcr>false</param.no.mcr>
     <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
     <param.package.mcr.name>ic_OPTtools_PCWIN64Installer_mcr</param.package.mcr.name>
     <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
-    <param.user.defined.mcr.options />
     <param.windows.command.prompt>true</param.windows.command.prompt>
-    <param.user.only.registration>false</param.user.only.registration>
-    <param.mads.no.java>false</param.mads.no.java>
-    <param.mads.exclusive.mcr>false</param.mads.exclusive.mcr>
-    <param.net.framework>option.net.framework.default</param.net.framework>
-    <param.assembly.type>false</param.assembly.type>
-    <param.encryption.key.file />
-    <param.net.enable.remoting>false</param.net.enable.remoting>
-    <param.net.tsa.enable>false</param.net.tsa.enable>
-    <param.net.tsa.assembly />
-    <param.net.tsa.interface />
-    <param.net.tsa.namespace>ic_OPTtools_PCWIN64</param.net.tsa.namespace>
-    <param.net.tsa.superclass />
-    <param.net.tsa.metadata />
-    <param.net.tsa.metadata.assembly>C:\Users\yalexand\Documents\MATLAB</param.net.tsa.metadata.assembly>
     <param.create.log>true</param.create.log>
     <param.log.file>ic_OPTtools_PCWIN64_log</param.log.file>
     <unset>
       <param.icon />
       <param.icons />
+      <param.version />
       <param.summary />
       <param.description />
       <param.screenshot />
-      <param.version />
-      <param.namespace />
       <param.guid />
       <param.installpath.string />
       <param.logo />
-      <param.install.notes />
+      <param.target.install.notes />
+      <param.files.only />
+      <param.logdir />
+      <param.enable.clean.build />
+      <param.user.defined.mcr.options />
       <param.embed.ctf />
       <param.target.type />
-      <param.classorg />
+      <param.support.packages />
       <param.no.mcr />
       <param.web.mcr.name />
       <param.no.mcr.name />
-      <param.user.defined.mcr.options />
       <param.windows.command.prompt />
-      <param.user.only.registration />
-      <param.mads.no.java />
-      <param.mads.exclusive.mcr />
-      <param.net.framework />
-      <param.assembly.type />
-      <param.encryption.key.file />
-      <param.net.enable.remoting />
-      <param.net.tsa.enable />
-      <param.net.tsa.assembly />
-      <param.net.tsa.interface />
-      <param.net.tsa.namespace />
-      <param.net.tsa.superclass />
-      <param.net.tsa.metadata />
-      <param.net.tsa.metadata.assembly />
     </unset>
     <fileset.main>
       <file>${PROJECT_ROOT}\ic_OPTtools.m</file>
@@ -174,16 +150,45 @@
       <file>${PROJECT_ROOT}\TwIST_OPT\TwIST.m</file>
     </fileset.resources>
     <fileset.package />
+    <fileset.depfun>
+      <file>${PROJECT_ROOT}\TwIST_OPT\hR2.m</file>
+      <file>${PROJECT_ROOT}\TwIST_OPT\TVnorm_gpu.m</file>
+      <file>${PROJECT_ROOT}\TwIST_OPT\TwIST_gpu.m</file>
+    </fileset.depfun>
     <build-deliverables>
-      <file name="readme.txt" location="${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_testing" optional="true">C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_testing\readme.txt</file>
-      <file name="ic_OPTtools_PCWIN64.exe" location="${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_testing" optional="false">C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_testing\ic_OPTtools_PCWIN64.exe</file>
+      <file location="${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_testing" name="readme.txt" optional="true">C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_testing\readme.txt</file>
+      <file location="${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_testing" name="ic_OPTtools_PCWIN64.exe" optional="false">C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_testing\ic_OPTtools_PCWIN64.exe</file>
+      <file location="${PROJECT_ROOT}\DeployFiles\ic_OPTtools_PCWIN64\for_testing" name="splash.png" optional="false">C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_testing\splash.png</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>C:\matlab\R2013b</root>
+      <root>C:\Program Files\MATLAB\R2016b</root>
       <toolboxes>
         <toolbox name="fixedpoint" />
+        <toolbox name="matlabcoder" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="embeddedcoder" />
       </toolboxes>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
     </matlab>
     <platform>
       <unix>false</unix>
@@ -194,7 +199,7 @@
       <vista>false</vista>
       <linux>false</linux>
       <solaris>false</solaris>
-      <osver>6.2</osver>
+      <osver>6.1</osver>
       <os32>false</os32>
       <os64>true</os64>
       <arch>win64</arch>
@@ -202,4 +207,3 @@
     </platform>
   </configuration>
 </deployment-project>
-

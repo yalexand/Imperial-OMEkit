@@ -944,7 +944,7 @@ end
                             %
                             if ~isempty(hw), waitbar(y/szY_r,hw); drawnow, end;
                          end
-
+%disp('imhere');
                      end
                                       
                  end                     
@@ -1351,8 +1351,8 @@ end
             catch
             end
                         
-        end                
-%-------------------------------------------------------------------------%
+        end                     
+%-------------------------------------------------------------------------%        
         function ret = OMERO_get_delays(obj,omero_data_manager,image,~)
             
            ret = [];
@@ -1887,8 +1887,8 @@ end
                         sizeT = numel(obj.delays);
                         verbose = true;
                         for t = 1 : sizeT
-                            obj.load_proj_from_memmap(t);                            
                                 if strcmp(obj.Reconstruction_Largo,'ON')
+                                    obj.load_proj_from_memmap(t);                                                                
                                     obj.perform_reconstruction_Largo;
                                 else
                                     obj.volm = obj.perform_reconstruction(verbose);
@@ -1899,6 +1899,133 @@ end
                             obj.upload_volm_to_memmap(t,verbose);
                         end              
         end
-    end
-    
+%-------------------------------------------------------------------------%         
+        function infostring = imstack_Set_Src_Single(obj,path,verbose,~)
+            
+            infostring = [];
+            
+            if ~isdir(path), return, end; % shouldn't happen
+            
+            ext = '*.tif';
+            D = dir( fullfile(path,ext) );
+            if isempty(D), ext = '*.tiff';D = dir( fullfile(path,ext) ); end;
+            if isempty(D), return, end;
+            %
+            % try to get angles
+            obj.angles = zeros(1,numel(D));
+            try
+                for k=1:numel(D)
+                    out = parse_string_for_attribute_value(char(D(k).name),{'Rot'});
+                    obj.angles(k)=out{1}.value;
+                end
+            catch
+                obj.angles = [];
+            end
+            % try to get angles
+            %
+            % next attempt if 'Rot' convention fails - simply try to cast
+            % everyhting before extension as numeric
+            if isempty(obj.angles)
+                obj.angles = zeros(1,numel(D));
+                try
+                    for k=1:numel(D)
+                        str = char(D(k).name);
+                        pointpos = strfind(str,'.');
+                        obj.angles(k) = str2num(str(1:pointpos-1));
+                    end
+                catch
+                    obj.angles = [];
+                    return;
+                end                                
+            end
+            %
+            % swapXY = true;
+            swapXY = false;
+            %
+            n_planes = numel(obj.angles);            
+            obj.proj = [];
+            %            
+                if verbose
+                    str = strsplit(path,filesep);
+                    wait_handle = waitbar(0,['reading planes from ' char(str(length(str)))]);
+                end;                 
+                %                
+                for k=1:n_planes
+                    plane = imread([path filesep char(D(k).name)]);
+                    if swapXY
+                        plane = rot90(plane);
+                    end
+                    if isempty(obj.proj)
+                        [szx,szy] = size(plane);
+                        obj.proj = zeros(szx,szy,n_planes,class(plane));
+                    end
+                    obj.proj(:,:,k)=plane;
+                    if verbose, waitbar(k/n_planes,wait_handle), end;
+                end                                
+                if verbose, close(wait_handle), end;
+                
+                if min(obj.proj(:)) > 2^15
+                    obj.proj = obj.proj - 2^15;    % clear the sign bit which is set by labview
+                end
+                
+%                 % possibly correcting orientation
+%                 if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+%                     %
+%                     waitmsg = 'Oops.. swappig dimensions..';
+%                     if verbose
+%                         hw = waitbar(0,waitmsg);
+%                     end
+%                     %
+%                     obj.proj = [];                  
+%                     %
+%                     for p = 1 : n_planes,    
+%                         plane = imread([path filesep char(D(p).name)]);
+%                         plane = rot90(plane);
+%                         %   
+%                         if isempty(obj.proj)
+%                             [sizeX,sizeY] = size(plane);
+%                             obj.proj = zeros(sizeX,sizeY,n_planes,class(plane));
+%                             %
+%                             obj.current_filename = full_filename;
+%                             if isempty(obj.previous_filenames)
+%                                 obj.previous_filenames{1} = obj.current_filename;
+%                             end                                                                                                
+%                         end %  ini - end
+%                         %
+%                         obj.proj(:,:,p) = plane;
+%                         %
+%                         if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;                    
+%                         %
+%                     end                                
+%                     if ~isempty(hw), delete(hw), drawnow, end;                                                                                
+%                     %
+%                 end
+%                 % end orientation correcting...
+                                            
+            infostring = path;
+            
+            obj.DefaultDirectory = path;
+            
+            obj.on_new_proj_set;
+            
+            obj.omero_Image_IDs = [];
+                                                
+        end
+%-------------------------------------------------------------------------%         
+        function infostring = imstack_Set_Src_Single_FLIM(obj,path,verbose,~)
+            infostring = [];
+        end
+%-------------------------------------------------------------------------%
+     function ret = imstack_get_delays(obj,path,~)            
+            ret = [];
+                                    
+            try
+            catch
+                return;
+            end
+     end
+%-------------------------------------------------------------------------%
+        
+        
+    end               
 end

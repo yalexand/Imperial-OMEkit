@@ -46,7 +46,8 @@ function handles = setup_menu(obj,handles)
     
     handles.menu_file_Working_Data_Info = uimenu(menu_file,'Label','...','ForegroundColor','red','Enable','off');    
     handles.menu_file_new_window = uimenu(menu_file,'Label','New Window','Accelerator','N');
-    handles.menu_file_set_src_single = uimenu(menu_file,'Label','Load single file..','Separator','on');
+    handles.menu_file_set_src_single = uimenu(menu_file,'Label','Load single - OME.tiff','Separator','on');
+    handles.menu_file_set_src_single_imstack = uimenu(menu_file,'Label','Load single - image stack');
     % handles.menu_file_set_src_dir = uimenu(menu_file,'Label','Set Src - multiple files (directory)');
     handles.menu_file_reset_previous = uimenu(menu_file,'Label','Reset to previous');    
     % handles.menu_file_set_dst_dir = uimenu(menu_file,'Label','Set Dst - directory','Separator','on');

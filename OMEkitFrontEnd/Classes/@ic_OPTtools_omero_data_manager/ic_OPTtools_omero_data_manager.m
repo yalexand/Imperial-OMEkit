@@ -115,7 +115,8 @@ classdef ic_OPTtools_omero_data_manager < handle
             if isempty(settings)
                 obj.logon = OMERO_logon();
             end
-                                               
+                        
+            try
            if isempty(obj.logon{4})
                if neverTriedLog == true
                    ret_string = questdlg('Respond "Yes" ONLY if you intend NEVER to use OMEkit with OMERO on this machine!');
@@ -125,6 +126,8 @@ classdef ic_OPTtools_omero_data_manager < handle
                end
                return
            end
+            catch
+            end
             
                 keeptrying = false;     % only try again in the event of failure to logon
                 
