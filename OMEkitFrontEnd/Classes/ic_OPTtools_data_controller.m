@@ -63,6 +63,11 @@ classdef ic_OPTtools_data_controller < handle
         TwIST_VERBOSE = 0; %16                               
         % TwIST        
         
+        swap_XY_dimensions = 'AUTO'; % 'N' and 'AUTO'
+        registration_method = 'NONE'; % this is done on loading
+        %
+        imstack_filename_convention_for_angle = 'C1';
+                
     end                    
     
     properties(Transient)
@@ -95,8 +100,8 @@ classdef ic_OPTtools_data_controller < handle
         PixelsPhysicalSizeX = []; % as in loaded original
         PixelsPhysicalSizeY = [];
         
-        FLIM_proj_load_swap_XY_dimensions = false;                            
-                        
+        FLIM_proj_load_swap_XY_dimensions = false;
+                                
     end    
         
     properties(Transient,Hidden)
@@ -225,9 +230,13 @@ classdef ic_OPTtools_data_controller < handle
             settings.TwIST_SPARSE = obj.TwIST_SPARSE;
             settings.TwIST_VERBOSE = obj.TwIST_VERBOSE;
             % TwIST 
-            
-            settings.Prefiltering_Size = obj.Prefiltering_Size;
                         
+            settings.Prefiltering_Size = obj.Prefiltering_Size;
+            %
+            settings.swap_XY_dimensions = obj.swap_XY_dimensions;
+            settings.registration_method = obj.registration_method;
+            settings.imstack_filename_convention_for_angle = obj.imstack_filename_convention_for_angle;
+                                    
             xml_write([pwd filesep obj.data_settings_filename], settings);
         end % save_settings
 %-------------------------------------------------------------------------%                        
@@ -262,9 +271,13 @@ classdef ic_OPTtools_data_controller < handle
                 obj.TwIST_MONOTONE = settings.TwIST_MONOTONE;
                 obj.TwIST_SPARSE = settings.TwIST_SPARSE;
                 obj.TwIST_VERBOSE = settings.TwIST_VERBOSE;
-                % TwIST                        
-                
+                % TwIST                                        
                 obj.Prefiltering_Size = settings.Prefiltering_Size;
+                %
+                obj.swap_XY_dimensions = settings.swap_XY_dimensions;
+                obj.registration_method = settings.registration_method;
+                obj.imstack_filename_convention_for_angle = settings.imstack_filename_convention_for_angle;                
+                
              end
         end
 %-------------------------------------------------------------------------%
@@ -282,7 +295,7 @@ classdef ic_OPTtools_data_controller < handle
             obj.on_proj_and_volm_clear;            
             %
             obj.angles = obj.get_angles(full_filename); % temp
-            if isempty(obj.angles), 
+            if isempty(obj.angles)
                 if verbose
                     errordlg('source does not contain angle specs - can not continue'), 
                 end
@@ -328,7 +341,7 @@ classdef ic_OPTtools_data_controller < handle
             imgdata = omedata{1,1};                
             n_planes = length(imgdata(:,1));
                                 
-                for p = 1 : n_planes,                    
+                for p = 1 : n_planes
                     plane = imgdata{p,1};
                     %   
                     if isempty(obj.proj)
@@ -349,7 +362,7 @@ classdef ic_OPTtools_data_controller < handle
                 if ~isempty(hw), delete(hw), drawnow, end;
                 
                 % possibly correcting orientation
-                if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+                if strcmp('Y',obj.swap_XY_dimensions) || (strcmp('AUTO',obj.swap_XY_dimensions) && ~obj.proj_rect_orientation_is_OK) % needs to reload with swapped dims
                     %
                     waitmsg = 'Oops.. swappig dimensions..';
                     if verbose
@@ -358,7 +371,7 @@ classdef ic_OPTtools_data_controller < handle
                     %
                     obj.proj = [];                  
                     %
-                    for p = 1 : n_planes,                    
+                    for p = 1 : n_planes                    
                         plane = rot90(imgdata{p,1});
                         %   
                         if isempty(obj.proj)
@@ -387,7 +400,7 @@ classdef ic_OPTtools_data_controller < handle
                         if verbose
                             hw = waitbar(0,waitmsg);
                         end                                    
-                    for p = 1 : n_planes,                    
+                    for p = 1 : n_planes
                         obj.proj(:,:,p) = medfilt2(obj.proj(:,:,p),'symmetric',[s s]);
                         if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;     
                     end
@@ -418,14 +431,15 @@ classdef ic_OPTtools_data_controller < handle
             %
             obj.clear_memory_mapping;
             %
+            obj.FLIM_proj_load_swap_XY_dimensions = false;
+            %
             obj.proj = [];
             obj.volm = [];            
             obj.on_proj_and_volm_clear; 
-            obj.FLIM_proj_load_swap_XY_dimensions = false;                            
             %
             infostring = [];
             obj.angles = obj.get_angles(full_filename); % temp
-            if isempty(obj.angles), 
+            if isempty(obj.angles) 
                 if verbose
                     errordlg('source does not contain angle specs - can not continue'), 
                 end
@@ -472,7 +486,7 @@ classdef ic_OPTtools_data_controller < handle
                 if strcmp('sum',mode) && ... % sum of all FLIM time gates
                        strcmp(omeMeta.getPixelsDimensionOrder(0).getValue,'XYZCT')
                    
-                        for p = 1 : sizeZ,                    
+                        for p = 1 : sizeZ                    
                             
                             plane = imgdata{p,1};
                             for t = 1:sizeT-1
@@ -496,10 +510,10 @@ classdef ic_OPTtools_data_controller < handle
                         end                                
                         if ~isempty(hw), delete(hw), drawnow, end; 
                         
-                         % possibly correcting orientation
-                        if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+                        % possibly correcting orientation
+                        if strcmp('Y',obj.swap_XY_dimensions) || (strcmp('AUTO',obj.swap_XY_dimensions) && ~obj.proj_rect_orientation_is_OK) % needs to reload with swapped dims
                             %
-                            obj.FLIM_proj_load_swap_XY_dimensions = true;                            
+                            obj.FLIM_proj_load_swap_XY_dimensions = true;
                             %
                             waitmsg = 'Oops.. swappig dimensions..';
                             if verbose
@@ -508,7 +522,7 @@ classdef ic_OPTtools_data_controller < handle
                             %
                             obj.proj = [];                  
                             %
-                            for p = 1 : sizeZ,                    
+                            for p = 1 : sizeZ
                                 plane = rot90(imgdata{p,1});
                                 for t = 1:sizeT-1
                                     tind  = sizeZ*t + p;
@@ -533,7 +547,7 @@ classdef ic_OPTtools_data_controller < handle
                        mode <= sizeT && ... 
                        strcmp(omeMeta.getPixelsDimensionOrder(0).getValue,'XYZCT')
                                                 
-                        for p = 1 : sizeZ,                    
+                        for p = 1 : sizeZ
                             pind =  (mode-1)*sizeZ + p;
                             plane = imgdata{pind,1};
                             %   
@@ -554,7 +568,7 @@ classdef ic_OPTtools_data_controller < handle
                         if ~isempty(hw), delete(hw), drawnow, end; 
                       %
                      % possibly correcting orientation
-                    if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+                    if strcmp('Y',obj.swap_XY_dimensions) || (strcmp('AUTO',obj.swap_XY_dimensions) && ~obj.proj_rect_orientation_is_OK)
                         %
                         obj.FLIM_proj_load_swap_XY_dimensions = true;
                         %
@@ -879,7 +893,7 @@ end
                          proj_r = [];
                          gpu_volm = [];
                          
-                         for r = 1:sizeZ,
+                         for r = 1:sizeZ
                             if isempty(proj_r) 
                                 [szX_r,szY_r] = size(imresize(obj.proj(:,y_min:y_max,r),f));
                                 proj_r = zeros(szX_r,szY_r,sizeZ,'single');
@@ -924,7 +938,7 @@ end
                      else % with downsampling                         
                          
                          proj_r = [];
-                         for r = 1:sizeZ,
+                         for r = 1:sizeZ
                             if isempty(proj_r) 
                                 [szX_r,szY_r] = size(imresize(obj.proj(:,y_min:y_max,r),f));
                                 proj_r = zeros(szX_r,szY_r,sizeZ,'single');
@@ -944,7 +958,7 @@ end
                             %
                             if ~isempty(hw), waitbar(y/szY_r,hw); drawnow, end;
                          end
-%disp('imhere');
+                         
                      end
                                       
                  end                     
@@ -1113,8 +1127,8 @@ end
                 
             n_planes = SizeZ;
                             
-            for p = 1 : SizeZ,
-                    
+            for p = 1 : SizeZ
+                
                     z = p-1;
                     c = 0;
                     t = 0;
@@ -1135,7 +1149,7 @@ end
             if ~isempty(hw), delete(hw), drawnow; end;   
             
                 % possibly correcting orientation
-                if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+                if strcmp('Y',obj.swap_XY_dimensions) || (strcmp('AUTO',obj.swap_XY_dimensions) && ~obj.proj_rect_orientation_is_OK)
                     %
                     waitmsg = 'Oops.. swappig dimensions..';
                     if verbose
@@ -1144,7 +1158,7 @@ end
                     %
                     obj.proj = [];                  
                     %
-                    for p = 1 : SizeZ,
+                    for p = 1 : SizeZ
                             z = p-1;
                             c = 0;
                             t = 0;
@@ -1172,7 +1186,7 @@ end
                         if verbose
                             hw = waitbar(0,waitmsg);
                         end                                    
-                    for p = 1 : n_planes,                    
+                    for p = 1 : n_planes
                         obj.proj(:,:,p) = medfilt2(obj.proj(:,:,p),'symmetric',[s s]);
                         if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;     
                     end
@@ -1654,7 +1668,7 @@ end
                        index = z + (t-1)*sizeZ;
                        plane = memRef(index).plane;
                        
-                       if obj.FLIM_proj_load_swap_XY_dimensions
+                       if strcmp('Y',obj.swap_XY_dimensions) || obj.FLIM_proj_load_swap_XY_dimensions
                            plane = rot90(plane);
                        end
                        
@@ -1911,36 +1925,8 @@ end
             if isempty(D), ext = '*.tiff';D = dir( fullfile(path,ext) ); end;
             if isempty(D), return, end;
             %
-            % try to get angles
-            obj.angles = zeros(1,numel(D));
-            try
-                for k=1:numel(D)
-                    out = parse_string_for_attribute_value(char(D(k).name),{'Rot'});
-                    obj.angles(k)=out{1}.value;
-                end
-            catch
-                obj.angles = [];
-            end
-            % try to get angles
-            %
-            % next attempt if 'Rot' convention fails - simply try to cast
-            % everyhting before extension as numeric
-            if isempty(obj.angles)
-                obj.angles = zeros(1,numel(D));
-                try
-                    for k=1:numel(D)
-                        str = char(D(k).name);
-                        pointpos = strfind(str,'.');
-                        obj.angles(k) = str2num(str(1:pointpos-1));
-                    end
-                catch
-                    obj.angles = [];
-                    return;
-                end                                
-            end
-            %
-            % swapXY = true;
-            swapXY = false;
+            obj.get_angles_from_imstack_filenames(D);
+            if isempty(obj.angles), errordlg('imstack_Set_Src_Single: can not deduce angles, can not continue'); end;            
             %
             n_planes = numel(obj.angles);            
             obj.proj = [];
@@ -1952,7 +1938,14 @@ end
                 %                
                 for k=1:n_planes
                     plane = imread([path filesep char(D(k).name)]);
-                    if swapXY
+                    %
+                    % do median filtration if needed
+                    s = obj.Prefiltering_Size;
+                    if isnumeric(s)
+                        plane = medfilt2(plane,'symmetric',[s s]); 
+                    end
+                    % swap XY dimensions immediately if needed
+                    if strcmp('Y',obj.swap_XY_dimensions)
                         plane = rot90(plane);
                     end
                     if isempty(obj.proj)
@@ -1968,39 +1961,33 @@ end
                     obj.proj = obj.proj - 2^15;    % clear the sign bit which is set by labview
                 end
                 
-%                 % possibly correcting orientation
-%                 if ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
-%                     %
-%                     waitmsg = 'Oops.. swappig dimensions..';
-%                     if verbose
-%                         hw = waitbar(0,waitmsg);
-%                     end
-%                     %
-%                     obj.proj = [];                  
-%                     %
-%                     for p = 1 : n_planes,    
-%                         plane = imread([path filesep char(D(p).name)]);
-%                         plane = rot90(plane);
-%                         %   
-%                         if isempty(obj.proj)
-%                             [sizeX,sizeY] = size(plane);
-%                             obj.proj = zeros(sizeX,sizeY,n_planes,class(plane));
-%                             %
-%                             obj.current_filename = full_filename;
-%                             if isempty(obj.previous_filenames)
-%                                 obj.previous_filenames{1} = obj.current_filename;
-%                             end                                                                                                
-%                         end %  ini - end
-%                         %
-%                         obj.proj(:,:,p) = plane;
-%                         %
-%                         if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;                    
-%                         %
-%                     end                                
-%                     if ~isempty(hw), delete(hw), drawnow, end;                                                                                
-%                     %
-%                 end
-%                 % end orientation correcting...
+                % possibly correcting orientation
+                if strcmp('AUTO',obj.swap_XY_dimensions) && ~obj.proj_rect_orientation_is_OK % needs to reload with swapped dims
+                    %
+                    waitmsg = 'Oops.. swappig dimensions..';
+                    if verbose
+                        hw = waitbar(0,waitmsg);
+                    end
+                    %
+                    obj.proj = [];                  
+                    %
+                    for p = 1 : n_planes    
+                        plane = imread([path filesep char(D(p).name)]);
+                        plane = rot90(plane);
+                        %   
+                        if isempty(obj.proj)
+                            [sizeX,sizeY] = size(plane);
+                            obj.proj = zeros(sizeX,sizeY,n_planes,class(plane));                            
+                        end %  ini - end
+                        %
+                        obj.proj(:,:,p) = plane;
+                        %
+                        if ~isempty(hw), waitbar(p/n_planes,hw); drawnow, end;                                            
+                    end                                
+                    if ~isempty(hw), delete(hw), drawnow, end;                                                                                
+                    %
+                end
+                % end orientation correcting...
                                             
             infostring = path;
             
@@ -2025,7 +2012,68 @@ end
             end
      end
 %-------------------------------------------------------------------------%
-        
+function get_angles_from_imstack_filenames(obj,D,~) % D is an array with imgstack Directory's filenames 
+            %
+            obj.angles = zeros(1,numel(D));
+            
+            % C1 convention - try to read real angle positions
+            if strcmp('C1',obj.imstack_filename_convention_for_angle)
+                try
+                    for k=1:numel(D)
+                        out = parse_string_for_attribute_value(char(D(k).name),{'Rot'});
+                        obj.angles(k)=out{1}.value;
+                    end
+                catch
+                    obj.angles = [];
+                end
+                %
+                % next attempt if 'Rot' convention fails - simply try to cast
+                % everyhting before extension as numeric
+                if isempty(obj.angles)
+                    obj.angles = zeros(1,numel(D));
+                    try
+                        for k=1:numel(D)
+                            str = char(D(k).name);
+                            pointpos = strfind(str,'.');
+                            obj.angles(k) = str2double(str(1:pointpos-1));
+                        end
+                    catch
+                        obj.angles = [];
+                        return;
+                    end                                
+                end
+            % C2 convention - read number of steps
+            elseif strcmp('C2',obj.imstack_filename_convention_for_angle)
+                %
+                % read number of steps form last 5 digits, 
+                % then divide 360 by this number to get a step
+                %
+                nums = zeros(1,numel(D));
+                try
+                    for k=1:numel(D)
+                            str = char(D(k).name);
+                            pointpos = strfind(str,'.');
+                            nums(k) = str2double(str(pointpos - 5:pointpos-1));
+                    end
+                    obj.angles = 360/numel(nums)*nums; % something isn't right here
+                catch
+                    obj.angles = [];                    
+                end
+            end
+            %
+            % maybe this will work?
+            try
+                if isnumeric(obj.imstack_filename_convention_for_angle) && ...
+                    numel(obj.imstack_filename_convention_for_angle) == numel(obj.angles)
+                    obj.angles = obj.imstack_filename_convention_for_angle;
+                end
+            catch
+                obj.angles = [];
+            end
+            %
+            % IF FAILED, ADD MORE METHODS TO GET ANGLES FROM FILNAMES 
+            %
+end
         
     end               
 end
