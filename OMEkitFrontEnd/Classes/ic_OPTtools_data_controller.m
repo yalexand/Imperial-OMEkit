@@ -2089,11 +2089,11 @@ end
         function do_registration(obj,~)
             switch obj.registration_method
                 case 'M1' 
-                    obj.do_registration_M1;
+                    obj.M1_do_registration;
             end
         end        
 %-------------------------------------------------------------------------%
-        function do_registration_M1(obj,~) % by Samuel Davis
+        function M1_do_registration(obj,~) % by Samuel Davis
             %            
              [sizeX,sizeY,n_planes] = size(obj.proj);
              wait_handle = waitbar(0,'Ini proj memmap...');
