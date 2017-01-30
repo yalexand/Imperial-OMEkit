@@ -1632,7 +1632,7 @@ end
             [obj.proj_mapfile_name,obj.memmap_proj] = initialize_memmap([sizeX,sizeY],n_planes,'plane',class(imgdata{1,1}));
 
             if verbose
-                wait_handle=waitbar(0,'Initalising memory mapping...');
+                wait_handle=waitbar(0,'Initalizing memory mapping...');
             end;
             
             for t = 1 : sizeT
@@ -1696,7 +1696,7 @@ end
             [obj.volm_mapfile_name,obj.memmap_volm] = initialize_memmap([sizeX,sizeY],n_planes,'plane',class(obj.volm));                        
 
             if verbose
-                wait_handle=waitbar(0,'Initalising volm memory mapping...');
+                wait_handle=waitbar(0,'Initalizing volm memory mapping...');
                 for z = 1 : sizeZ
                        obj.memmap_volm.Data(z).plane = obj.volm(:,:,z);
                        if verbose, waitbar(z/sizeZ,wait_handle), end;
@@ -1753,7 +1753,7 @@ end
             [obj.proj_mapfile_name,obj.memmap_proj] = initialize_memmap([sizeX,sizeY],n_planes,'plane',class(plane));
 
             if verbose
-                wait_handle=waitbar(0,'Initalising memory mapping...');
+                wait_handle=waitbar(0,'Initalizing memory mapping...');
             end;
             
             for t = 1 : sizeT
@@ -1925,10 +1925,11 @@ end
             if isempty(D), ext = '*.tiff';D = dir( fullfile(path,ext) ); end;
             if isempty(D), return, end;
             %
-            obj.get_angles_from_imstack_filenames(D);
+            obj.get_angles_from_imstack_filenames({D.name});
             if isempty(obj.angles), errordlg('imstack_Set_Src_Single: can not deduce angles, can not continue'); end;            
             %
-            n_planes = numel(obj.angles);            
+            n_planes = numel(obj.angles);
+            %
             obj.proj = [];
             %            
                 if verbose
@@ -1988,6 +1989,11 @@ end
                     %
                 end
                 % end orientation correcting...
+                
+                % do registration if needed
+                if ~strcmp('NONE',obj.registration_method)
+                    obj.do_registration;
+                end                                
                                             
             infostring = path;
             
@@ -2003,16 +2009,16 @@ end
             infostring = [];
         end
 %-------------------------------------------------------------------------%
-     function ret = imstack_get_delays(obj,path,~)            
+        function ret = imstack_get_delays(obj,path,~)            
             ret = [];
                                     
             try
             catch
                 return;
             end
-     end
+        end
 %-------------------------------------------------------------------------%
-function get_angles_from_imstack_filenames(obj,D,~) % D is an array with imgstack Directory's filenames 
+        function get_angles_from_imstack_filenames(obj,D,~) % D is an array with imgstack Directory's filenames 
             %
             obj.angles = zeros(1,numel(D));
             
@@ -2020,7 +2026,7 @@ function get_angles_from_imstack_filenames(obj,D,~) % D is an array with imgstac
             if strcmp('C1',obj.imstack_filename_convention_for_angle)
                 try
                     for k=1:numel(D)
-                        out = parse_string_for_attribute_value(char(D(k).name),{'Rot'});
+                        out = parse_string_for_attribute_value(char(D{k}),{'Rot'});
                         obj.angles(k)=out{1}.value;
                     end
                 catch
@@ -2033,7 +2039,7 @@ function get_angles_from_imstack_filenames(obj,D,~) % D is an array with imgstac
                     obj.angles = zeros(1,numel(D));
                     try
                         for k=1:numel(D)
-                            str = char(D(k).name);
+                            str = char(D{k});
                             pointpos = strfind(str,'.');
                             obj.angles(k) = str2double(str(1:pointpos-1));
                         end
@@ -2051,7 +2057,7 @@ function get_angles_from_imstack_filenames(obj,D,~) % D is an array with imgstac
                 nums = zeros(1,numel(D));
                 try
                     for k=1:numel(D)
-                            str = char(D(k).name);
+                            str = char(D{k});
                             pointpos = strfind(str,'.');
                             nums(k) = str2double(str(pointpos - 5:pointpos-1));
                     end
@@ -2071,9 +2077,198 @@ function get_angles_from_imstack_filenames(obj,D,~) % D is an array with imgstac
                 obj.angles = [];
             end
             %
-            % IF FAILED, ADD MORE METHODS TO GET ANGLES FROM FILNAMES 
             %
+            % IF FAILED, ADD HERE MORE METHODS TO GET ANGLES FROM FILNAMES 
+            %
+            %
+            if sum(isnan(obj.angles)) > 0 || sum(isinf(obj.angles)) > 0
+                obj.angles = [];
+            end
+        end      
+%-------------------------------------------------------------------------%
+        function do_registration(obj,~)
+            switch obj.registration_method
+                case 'M1' 
+                    obj.do_registration_M1;
+            end
+        end        
+%-------------------------------------------------------------------------%
+        function do_registration_M1(obj,~) % by Samuel Davis
+            %            
+             [sizeX,sizeY,n_planes] = size(obj.proj);
+             wait_handle = waitbar(0,'Ini proj memmap...');
+             [mapfile_name_proj,memmap_PROJ] = initialize_memmap([sizeX,sizeY,n_planes],1,'pixels',class(obj.proj),'ini_data',obj.proj);                 
+             close(wait_handle);
+                    
+             obj.proj = [];                
+             
+             PROJ = memmap_PROJ.Data.pixels; % reference
+
+                % select the slices of the image that are bright enough to work with. Using
+                % the first projection, the number of pixels that are at least 25% the 
+                % brightness of the brightest pixel are counted per slice. Then slices 
+                % which have at least 20 of these quite bright pixels are used.
+                %
+                M1_brightness_quantile_threshold = 0.99;
+                M1_max_shift = 20;
+                M1_window = 50;
+                %
+                % "brightEnough" calculation - different from Sam's
+                sample = zeros(1,sizeY);
+                for y=1:sizeY
+                    sino = squeeze(cast(PROJ(:,y,:),'single'));
+                    sample(y) = mean(sino(:));
+                end
+                T = quantile(sample, M1_brightness_quantile_threshold);
+                brightEnough = sample > T;
+
+                % main loop - starts
+                                                                
+                % The shift correction and spearman correlation for individual slices are then
+                % found
+
+                if obj.isGPU
+                    shift = gpuArray(NaN(length(brightEnough),1));
+                    r = gpuArray(NaN(length(brightEnough),1));
+                else
+                    shift = NaN(length(brightEnough),1);
+                    r = NaN(length(brightEnough),1);
+                end
+
+                waitmsg = 'gathering the data to calculate corrections.. please wait..';
+                hw = waitbar(0,waitmsg);
+                for n = 1:length(brightEnough)
+                    if brightEnough(n)
+                        sino = squeeze(cast(PROJ(:,n,:),'single'));
+                        [shift(n),r(n)] = obj.M1_quickMidindex(sino,M1_max_shift,obj.angles,obj.isGPU);
+                        %
+                        if ~isempty(hw), waitbar(n/length(brightEnough),hw); drawnow, end;
+                    end 
+                end
+                if ~isempty(hw), delete(hw), drawnow, end;    
+                                 
+                if obj.isGPU
+                    shift = gather(shift);
+                end
+                %
+                % filter out shifts which imply large image rotation
+                for n = 1:2
+                    delt = abs(shift-nanmean(shift));
+                    shift(delt>9) = NaN;
+                end
+
+                % slice numbers relative to centre of image, filtered, and then cropped
+                ns = (1:length(brightEnough))'-length(brightEnough)/2;
+                ns = ns(~isnan(shift));
+                ns = ns(M1_window/2:end-M1_window/2);
+                shift = shift(~isnan(shift));
+                shift = shift(M1_window/2:end-M1_window/2);
+
+                % fit shift and rotation
+                p = polyfit(ns,shift,1);
+                hshift = round(p(2));
+                rotation = atan(p(1));
+            %
+            %
+            vshift = hshift;
+            hshift = 0;
+            % ?
+            %
+            waitmsg = 'introducing corrections..';
+            hw = waitbar(0,waitmsg);            
+            for k = 1:n_planes
+                I = PROJ(:,:,k);
+                Ishift = obj.M1_imshift(I,hshift,vshift,rotation);
+                    if isempty(obj.proj)
+                        [szx,szy] = size(Ishift);
+                        obj.proj = zeros(szx,szy,n_planes,class(Ishift));
+                    end                
+                obj.proj(:,:,k) = Ishift;
+                if ~isempty(hw), waitbar(k/n_planes,hw); drawnow, end;
+            end
+            if ~isempty(hw), delete(hw), drawnow, end;
+            %
+            clear('memmap_PROJ');
+            delete(mapfile_name_proj);
+                                    
+        end        
+%-------------------------------------------------------------------------%
+function [hshift, r] = M1_quickMidindex(obj,sino,maxshift,angleList,onGPU)
+
+    if onGPU
+        sino = gpuArray(sino);
+    end
+    
+    for i = 1:(maxshift+1)
+        shiftsino = obj.M1_sinoshift(sino',i,maxshift+1,0,0);
+        slice = iradon(shiftsino',angleList,'linear','Hann');
+        %figure
+        %imshow(slice,[])
+        %icy_imshow(slice);
+        spectrum_peak2(i) = sqrt(sum(abs(slice(:).^2)));
+    end
+
+    [sorted2, I2] = sort(spectrum_peak2,'descend');
+
+    diff = abs(I2-I2(1));
+    
+    if onGPU
+        r = corr(gather(diff(:)),gather(sorted2(:)),'type','Spearman');
+    else
+        r = corr(diff(:),sorted2(:),'type','Spearman');
+    end
+    
+    %figure
+    %plot(-maxshift:2:maxshift,spectrum_peak2);
+    %ylabel('Peak Intensity/a.u.')
+    %xlabel('rotation axis shift/pixels')
+    %box off    
+    %drawnow
+    
+    if r < -0.6
+        hshift = maxshift - 2*I2(1) + 2;
+    else
+        hshift = NaN;
+    end
 end
+%-------------------------------------------------------------------------%
+function shiftedSino = M1_sinoshift(obj,sino,n,steps,shift,split)
+        numOfParallelProjections = size(sino,2);
+        numOfAngularProjections = size(sino,1);
         
-    end               
+        if split == 1
+            sino1 = sino(shift:(numOfAngularProjections/2+shift-1),n:(numOfParallelProjections+n-steps));
+            sino2 = fliplr(sino1);
+            shiftedSino = cat(1,sino1,sino2);
+        else
+            shiftedSino = sino(:,n:(numOfParallelProjections+n-steps));
+        end       
 end
+%-------------------------------------------------------------------------%
+function shiftedImage = M1_imshift(obj,img,hShift,vShift,rotation)
+
+        hsize = size(img,2);
+        vsize = size(img,1);
+
+        if hShift < 0
+            img = img(:,(1-hShift):hsize);
+        else
+            img = img(:,1:(hsize-hShift));
+        end
+
+        if vShift < 0
+            img = img((1-vShift):vsize,:);
+        else
+            img = img(1:(vsize-vShift),:);
+        end
+        if nargin > 3
+            if tan(rotation) > 1/min(hsize,vsize)
+                img = imrotate(img,rotation*180/pi,'bicubic');
+            end
+        end
+        shiftedImage = img;
+
+end
+%-------------------------------------------------------------------------%
+    end % methods
+end % class
