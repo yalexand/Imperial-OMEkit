@@ -1906,8 +1906,8 @@ end
                         sizeT = numel(obj.delays);
                         verbose = true;
                         for t = 1 : sizeT
+                                obj.load_proj_from_memmap(t);                            
                                 if strcmp(obj.Reconstruction_Largo,'ON')
-                                    obj.load_proj_from_memmap(t);                                                                
                                     obj.perform_reconstruction_Largo;
                                 else
                                     obj.volm = obj.perform_reconstruction(verbose);
