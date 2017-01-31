@@ -2140,7 +2140,7 @@ end
                 for n = 1:length(brightEnough)
                     if brightEnough(n)
                         sino = squeeze(cast(PROJ(:,n,:),'single'));
-                        [shift(n),r(n)] = obj.M1_quickMidindex(sino,M1_max_shift,obj.angles,obj.isGPU);
+                        [shift(n),r(n)] = obj.M1_quickMidindex(sino,M1_max_shift);
                         %
                         if ~isempty(hw), waitbar(n/length(brightEnough),hw); drawnow, end;
                     end 
@@ -2193,15 +2193,15 @@ end
                                     
         end        
 %-------------------------------------------------------------------------%
-function [hshift, r] = M1_quickMidindex(obj,sino,maxshift,angleList,onGPU)
-
-    if onGPU
+function [hshift, r] = M1_quickMidindex(obj,sino,maxshift)
+    
+    if obj.isGPU
         sino = gpuArray(sino);
     end
     
     for i = 1:(maxshift+1)
         shiftsino = obj.M1_sinoshift(sino',i,maxshift+1,0,0);
-        slice = iradon(shiftsino',angleList,'linear','Hann');
+        slice = iradon(shiftsino',obj.angles,'linear','Hann');
         %figure
         %imshow(slice,[])
         %icy_imshow(slice);
@@ -2212,7 +2212,7 @@ function [hshift, r] = M1_quickMidindex(obj,sino,maxshift,angleList,onGPU)
 
     diff = abs(I2-I2(1));
     
-    if onGPU
+    if obj.isGPU
         r = corr(gather(diff(:)),gather(sorted2(:)),'type','Spearman');
     else
         r = corr(diff(:),sorted2(:),'type','Spearman');
