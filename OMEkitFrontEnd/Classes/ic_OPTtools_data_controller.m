@@ -394,6 +394,11 @@ classdef ic_OPTtools_data_controller < handle
                 end
                 % end orientation correcting...
 
+                % do registration if needed
+                if ~strcmp('NONE',obj.registration_method)
+                    obj.do_registration;
+                end                                
+                                                
                 if isnumeric(obj.Prefiltering_Size)
                     s = obj.Prefiltering_Size;
                         waitmsg = 'Median pre-filtering....';
