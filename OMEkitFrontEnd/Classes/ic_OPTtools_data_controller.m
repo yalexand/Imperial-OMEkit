@@ -440,7 +440,7 @@ classdef ic_OPTtools_data_controller < handle
             %
             obj.proj = [];
             obj.volm = [];            
-            obj.on_proj_and_volm_clear; 
+            obj.on_proj_and_volm_clear;
             %
             infostring = [];
             obj.angles = obj.get_angles(full_filename); % temp
@@ -2109,15 +2109,12 @@ end
              
              PROJ = memmap_PROJ.Data.pixels; % reference
 
-                % select the slices of the image that are bright enough to work with. Using
-                % the first projection, the number of pixels that are at least 25% the 
-                % brightness of the brightest pixel are counted per slice. Then slices 
-                % which have at least 20 of these quite bright pixels are used.
                 %
                 M1_brightness_quantile_threshold = 0.99;
                 M1_max_shift = 20;
                 M1_window = 50;
                 %
+                % select the slices of the image that are bright enough to work with.                
                 % "brightEnough" calculation - different from Sam's
                 sample = zeros(1,sizeY);
                 for y=1:sizeY
@@ -2172,8 +2169,7 @@ end
                 % fit shift and rotation
                 p = polyfit(ns,shift,1);
                 hshift = round(p(2));
-                rotation = atan(p(1));
-            %
+                rotation = atan(p(1));            
             %
             vshift = hshift;
             hshift = 0;
@@ -2238,6 +2234,7 @@ function [hshift, r] = M1_quickMidindex(obj,sino,maxshift)
 end
 %-------------------------------------------------------------------------%
 function shiftedSino = M1_sinoshift(obj,sino,n,steps,shift,split)
+    
         numOfParallelProjections = size(sino,2);
         numOfAngularProjections = size(sino,1);
         
