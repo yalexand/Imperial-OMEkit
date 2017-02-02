@@ -101,7 +101,10 @@ classdef ic_OPTtools_data_controller < handle
         PixelsPhysicalSizeY = [];
         
         FLIM_proj_load_swap_XY_dimensions = false;
-                                
+        M1_hshift = []; % registratin corrections kept for the case of re-usage for FLIM
+        M1_vshift = [];
+        M1_rotation = [];
+                                        
     end    
         
     properties(Transient,Hidden)
@@ -584,7 +587,7 @@ classdef ic_OPTtools_data_controller < handle
                         %
                         obj.proj = [];                  
                         %
-                        for p = 1 : sizeZ,                    
+                        for p = 1 : sizeZ                   
                             pind =  (mode-1)*sizeZ + p;                        
                             plane = rot90(imgdata{pind,1});
                             %   
@@ -609,14 +612,22 @@ classdef ic_OPTtools_data_controller < handle
                         drawnow;
                     end                
                 end
-                
+
+                % do registration if needed
+                obj.M1_hshift = [];
+                obj.M1_vshift = [];
+                obj.M1_rotation = [];                
+                if ~strcmp('NONE',obj.registration_method)
+                    obj.do_registration;
+                end                                
+               
                 if isnumeric(obj.Prefiltering_Size)
                     s = obj.Prefiltering_Size;
                         waitmsg = 'Median pre-filtering....';
                         if verbose
                             hw = waitbar(0,waitmsg);
                         end                                    
-                    for p = 1 : sizeZ,                    
+                    for p = 1 : sizeZ                    
                         obj.proj(:,:,p) = medfilt2(obj.proj(:,:,p),'symmetric',[s s]);
                         if ~isempty(hw), waitbar(p/sizeZ,hw); drawnow, end;     
                     end
@@ -1642,14 +1653,8 @@ end
             
             for t = 1 : sizeT
                 for z = 1 : sizeZ
-                    index = z + (t-1)*sizeZ;
-                    %
-                    s = obj.Prefiltering_Size;
-                    if ~isnumeric(s)
-                        obj.memmap_proj.Data(index).plane = imgdata{index,1};
-                    else
-                        obj.memmap_proj.Data(index).plane = medfilt2(imgdata{index,1},'symmetric',[s s]); 
-                    end
+                    index = z + (t-1)*sizeZ;                    
+                    obj.memmap_proj.Data(index).plane = imgdata{index,1};
                     if verbose, waitbar(index/n_planes,wait_handle), end;
                 end
             end            
@@ -1676,7 +1681,16 @@ end
                        if strcmp('Y',obj.swap_XY_dimensions) || obj.FLIM_proj_load_swap_XY_dimensions
                            plane = rot90(plane);
                        end
+
+                       if ~isempty(obj.M1_vshift)
+                           plane = obj.M1_imshift(plane,obj.M1_hshift,obj.M1_vshift,obj.M1_rotation);
+                       end
                        
+                       s = obj.Prefiltering_Size;
+                       if isnumeric(s)
+                           plane = medfilt2(plane,'symmetric',[s s]); 
+                       end
+                                                                     
                        if isempty(obj.proj)
                            obj.proj = zeros(size(plane,1),size(plane,2),sizeZ,class(plane));
                        end
@@ -2172,12 +2186,15 @@ end
                 rotation = atan(p(1)); 
                 if rotation < sizeY
                     rotation = 0;
-                end
-                
+                end                
             %
             vshift = hshift;
             hshift = 0;
             % ?
+            %
+                obj.M1_hshift = hshift; % keep it for the case of re-usage for FLIM
+                obj.M1_vshift = vshift;
+                obj.M1_rotation = rotation;
             %
             waitmsg = 'introducing corrections..';
             hw = waitbar(0,waitmsg);            
