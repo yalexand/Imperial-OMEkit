@@ -174,6 +174,10 @@ classdef ic_OPTtools_data_controller < handle
                 delete(hw); drawnow;
             end
             
+            %
+            
+            %
+            
             % detect GPU
             try
                 isgpu = gpuDevice();
@@ -2290,7 +2294,6 @@ function shiftedImage = M1_imshift(obj,img,hShift,vShift,rotation)
             end
         end
         shiftedImage = img;
-
 end
 %-------------------------------------------------------------------------%
     end % methods

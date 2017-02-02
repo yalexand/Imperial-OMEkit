@@ -140,7 +140,26 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             set_callbacks(obj);
             
             obj.data_controller.menu_controller = obj;
-                                                                        
+            
+            % automatically start Icy
+            try
+                icy_figure;
+                icy_closeall;
+            catch
+                if ~isempty(obj.data_controller.IcyDirectory)                
+                    if ispc
+                        dos([obj.data_controller.IcyDirectory filesep 'icy']);
+                    elseif ismac                    
+                        unix(['open ' obj.data_controller.IcyDirectory filesep 'icy']); % ?                    
+                    elseif isunix
+                        % ?
+                    end                                
+                else
+                    % msgbox('error - Icy directory was not set up');
+                end 
+            end
+            %  automatically start Icy
+                                                                                                
         end
         %------------------------------------------------------------------
         function set_callbacks(obj)
