@@ -80,6 +80,10 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         
         menu_settings_Zrange;
         
+        menu_settings_Registration;
+        menu_settings_Registration_None;
+        menu_settings_Registration_M1;
+        
         menu_FBP_interp;   
         menu_FBP_interp_nearest;
         menu_FBP_interp_linear;
@@ -621,11 +625,23 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             set(obj.menu_settings_Largo,'Label',['Largo : ' obj.data_controller.Reconstruction_Largo]);
             set(obj.menu_settings_Largo_ON,'Label',state);
         end
+        
          %------------------------------------------------------------------                                
         function menu_settings_TwIST_callback(obj, ~,~)
             TwIST_settings(obj.data_controller);
         end         
-         
+        
+         %------------------------------------------------------------------                                        
+        function menu_settings_Registration_None_callback(obj, ~,~)
+            obj.data_controller.registration_method = 'None';
+            set(obj.menu_settings_Registration,'Label',['On-Load registration : ' obj.data_controller.registration_method]);
+        end
+         %------------------------------------------------------------------                                        
+        function menu_settings_Registration_M1_callback(obj, ~,~)
+            obj.data_controller.registration_method = 'M1';
+            set(obj.menu_settings_Registration,'Label',['On-Load registration : ' obj.data_controller.registration_method]);
+        end
+
     %================================= % Z range                 
          
          %------------------------------------------------------------------                

@@ -64,7 +64,7 @@ classdef ic_OPTtools_data_controller < handle
         % TwIST        
         
         swap_XY_dimensions = 'AUTO'; % 'N' and 'AUTO'
-        registration_method = 'YES'; % this is done on loading
+        registration_method = 'M1'; % this is done on loading
         %
         imstack_filename_convention_for_angle = 'C1';
                 
@@ -398,7 +398,7 @@ classdef ic_OPTtools_data_controller < handle
                 % end orientation correcting...
 
                 % do registration if needed
-                if ~strcmp('NONE',obj.registration_method)
+                if ~strcmp('None',obj.registration_method)
                     obj.do_registration;
                 end                                
                                                 
@@ -617,7 +617,7 @@ classdef ic_OPTtools_data_controller < handle
                 obj.M1_hshift = [];
                 obj.M1_vshift = [];
                 obj.M1_rotation = [];                
-                if ~strcmp('NONE',obj.registration_method)
+                if ~strcmp('None',obj.registration_method)
                     obj.do_registration;
                 end                                
                
@@ -2010,7 +2010,7 @@ end
                 % end orientation correcting...
                 
                 % do registration if needed
-                if ~strcmp('NONE',obj.registration_method)
+                if ~strcmp('None',obj.registration_method)
                     obj.do_registration;
                 end                                
                                             

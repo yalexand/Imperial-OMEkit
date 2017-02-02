@@ -40,6 +40,8 @@ function handles = setup_menu(obj,handles)
     
     settings_Prefiltering_Size = handles.data_controller.Prefiltering_Size;
     
+    settings_Registration = handles.data_controller.registration_method;
+    
     %================================= file
 
     menu_file = uimenu(obj.window,'Label','File');
@@ -91,6 +93,10 @@ function handles = setup_menu(obj,handles)
     %================================= settings
     
     menu_settings = uimenu(obj.window,'Label','Settings');
+    
+    menu_settings_Registration = uimenu(menu_settings,'Label',['On-Load registration : ' settings_Registration],'Separator','On');
+    handles.menu_settings_Registration_None = uimenu(menu_settings_Registration,'Label','None');
+    handles.menu_settings_Registration_M1 = uimenu(menu_settings_Registration,'Label','M1');
         
     menu_settings_Median_Prefiltering = uimenu(menu_settings,'Label',['On-Load Median pre-filtering : ' num2str(settings_Prefiltering_Size)],'Separator','On');
     handles.menu_settings_Median_Prefiltering_Set_Size = uimenu(menu_settings_Median_Prefiltering,'Label','Set size');    
@@ -117,7 +123,7 @@ function handles = setup_menu(obj,handles)
     handles.menu_settings_Zrange = uimenu(menu_settings,'Label','Z range : full','Separator','On'); % oops.. who knows..   
     
     %
-    menu_settings_Method = uimenu(menu_settings,'Label',['Method : ' settings_Method],'Separator','On');    
+    menu_settings_Method = uimenu(menu_settings,'Label',['Reconstruction method : ' settings_Method],'Separator','On');    
         handles.menu_settings_Method_FBP = uimenu(menu_settings_Method,'Label','FBP');
         handles.menu_settings_Method_TwIST = uimenu(menu_settings_Method,'Label','FBP-TwIST');
         %
@@ -151,6 +157,7 @@ function handles = setup_menu(obj,handles)
     handles.menu_settings_Method = menu_settings_Method;
     handles.menu_settings_GPU = menu_settings_GPU;
     handles.menu_settings_Largo = menu_settings_Largo;
+    handles.menu_settings_Registration = menu_settings_Registration;
     %
         
     menu_FBP_interp = uimenu(menu_settings,'Label',['FBP interp : ' FBP_interp],'Separator','On');    
