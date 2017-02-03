@@ -174,10 +174,6 @@ classdef ic_OPTtools_data_controller < handle
                 delete(hw); drawnow;
             end
             
-            %
-            
-            %
-            
             % detect GPU
             try
                 isgpu = gpuDevice();

@@ -1,15 +1,20 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="299805726" file="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\ic_OPTtools_PCWIN64.prj" location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd" name="ic_OPTtools_PCWIN64" preferred-package-location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="3543765399" file="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\ic_OPTtools_PCWIN64.prj" location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd" name="ic_OPTtools_PCWIN64" preferred-package-location="C:\Users\yalexand\Imperial-OMEkit\OMEkitFrontEnd\DeployFiles\ic_OPTtools_PCWIN64\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>ic_OPTtools_PCWIN64</param.appname>
-    <param.icon />
-    <param.icons />
+    <param.icon>${PROJECT_ROOT}\ic_OPTtools_PCWIN64_resources\icon.ico</param.icon>
+    <param.icons>
+      <file>${PROJECT_ROOT}\ic_OPTtools_PCWIN64_resources\icon_48.png</file>
+      <file>${PROJECT_ROOT}\ic_OPTtools_PCWIN64_resources\icon_32.png</file>
+      <file>${PROJECT_ROOT}\ic_OPTtools_PCWIN64_resources\icon_24.png</file>
+      <file>${PROJECT_ROOT}\ic_OPTtools_PCWIN64_resources\icon_16.png</file>
+    </param.icons>
     <param.version>1.0</param.version>
     <param.authnamewatermark>Yuriy Alexandrov</param.authnamewatermark>
     <param.email>yalexand@ic.ac.uk</param.email>
     <param.company>Imperial College London</param.company>
     <param.summary />
     <param.description />
-    <param.screenshot />
+    <param.screenshot>${PROJECT_ROOT}\ic_OPTtools_splash.PNG</param.screenshot>
     <param.guid />
     <param.installpath.string>\Imperial College London\ic_OPTtools_PCWIN64\</param.installpath.string>
     <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
@@ -35,12 +40,9 @@
     <param.create.log>true</param.create.log>
     <param.log.file>ic_OPTtools_PCWIN64_log</param.log.file>
     <unset>
-      <param.icon />
-      <param.icons />
       <param.version />
       <param.summary />
       <param.description />
-      <param.screenshot />
       <param.guid />
       <param.installpath.string />
       <param.logo />
@@ -151,6 +153,9 @@
     </fileset.resources>
     <fileset.package />
     <fileset.depfun>
+      <file>${PROJECT_ROOT}\HelperFunctions\parse_string_for_attribute_value.m</file>
+      <file>${PROJECT_ROOT}\HelperFunctions\uipickfiles.m</file>
+      <file>${PROJECT_ROOT}\ICY_Matlab\matlabxserver\icy_closeall.m</file>
       <file>${PROJECT_ROOT}\TwIST_OPT\hR2.m</file>
       <file>${PROJECT_ROOT}\TwIST_OPT\TVnorm_gpu.m</file>
       <file>${PROJECT_ROOT}\TwIST_OPT\TwIST_gpu.m</file>
