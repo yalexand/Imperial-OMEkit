@@ -62,34 +62,36 @@ end
 
 ##########################
 function bfGetReader(filename)
-  # same as `new ChannelFiller()`
-  # empty tuple `()` here means that constructor doesn't take any args
+
   r = JChannelFiller(())
-
-  # same as new ChannelSeparator(r)
-  # again, first argument - `(JChannelFiller,)` - a tuple of input types
-  # the rest - `r` - is a list of actual arguments
   r = JChannelSeparator((JIFormatReader,), r)
-
-  # same as `new OMEXMLServiceImpl()`
   OMEXMLService = JOMEXMLServiceImpl(())
-
-  # same as `meta = OMEXMLService.createMEXMLMetadata()`
   meta = jcall(OMEXMLService, "createOMEXMLMetadata", JOMEXMLMetadata, ())
-
-  # same as `r.setMetadataStore(meta)`
   jcall(r, "setMetadataStore", Void, (JMetadataStore,), meta)
-
-  # r.setId(full_filename);
   jcall(r, "setId", Void, (JString,), filename)
 
   return r;
 end
 
+##################################
+function bfGetPlane(pixelType,bpp,fp,sgn,little,sizeX,sizeY,plane)
+
+    I = []
+
+    arr = reinterpret(jshort,plane);
+
+    for k=1:length(arr)
+      arr[k]=bswap(arr[k])
+    end
+
+    I = reshape(float(arr),Int64(sizeX),Int64(sizeY))
+
+end
+
 ##########################
 function bfopen(id)
 
-  omeMeta = [];
+  I = []
 
   # % initialize logging - THAT DOESN'T WORK BY SOME REASON
   #
@@ -104,50 +106,29 @@ function bfopen(id)
   sizeC = jcall(r, "getSizeC", jint, ())
   sizeT = jcall(r, "getSizeT", jint, ())
 
-  # for debug
-  display(sizeX)
-  display(sizeY)
-  display(sizeZ)
-  display(sizeC)
-  display(sizeT)
-
   pixelType = jcall(r, "getPixelType", jint, ())
   bpp = jcall(JFormatTools,"getBytesPerPixel",jint, (jint,), pixelType)
   fp = jcall(JFormatTools,"isFloatingPoint",jboolean, (jint,), pixelType)
   sgn = jcall(JFormatTools,"isSigned",jboolean, (jint,), pixelType)
   little = jcall(r, "isLittleEndian", jboolean, ())
 
-  # arr - should be Julia XY image at index=1
-  iPlane = 1;
-  arr = bfGetPlane(pixelType,bpp,fp,sgn,little,
-            jcall(r, "openBytes", Array{jbyte, 1}, (jint,), iPlane))
+  jcall(r, "setSeries", Void, (jint,), 0)
 
-  #
-  # TO IMPLEMENT IMAGE OPEN ...
-  #
+  I = zeros(sizeX,sizeY,sizeZ,sizeC,sizeT)
 
-  return omeMeta;
+  numImages = jcall(r, "getImageCount", jint, ())
 
-end
+    for i = 1:numImages
+        zct = jcall(r,"getZCTCoords", Array{jint, 1}, (jint,), (i - 1))
+        z = zct[1]+1
+        c = zct[2]+1
+        t = zct[3]+1
+        #
+        plane = jcall(r, "openBytes", Array{jbyte, 1}, (jint,), i-1)
+        arr = bfGetPlane(pixelType,bpp,fp,sgn,little,sizeX,sizeY,plane);
+        I[:,:,z,c,t] = arr;
+    end
 
-##################################
-function bfGetPlane(pixelType,bpp,fp,sgn,little, plane)
-
-I = []
-
-#
-# TO IMPLEMENT CONVERSION FROM JAVA BYTE ARRAY TO JULIA IMAGE ...
-#
-
-# if 2==bpp
-#     # I = jcall(JDataTools,"makeDataArray", Array{jchar, 1}, Array{jbyte, 1}, (jint,), (jint,), (jboolean,), plane, bpp, fp, little)
-#     I = jcall(JDataTools,"makeDataArray", Array{jchar, 1},
-#                         Array{jbyte, 1}, plane,
-#                         (jint,), bpp,
-#                         (jint,), fp,
-#                         (jboolean,), little)
-# end
-
-return I
+  return I
 
 end
