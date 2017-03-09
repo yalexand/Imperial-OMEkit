@@ -30,9 +30,9 @@ end
 ###########################################
 function getModulo(r,dim)
 
-func_name = "getModulo"*dim;
+func_name = "getModulo"*dim
 
-ret = [];
+ret = []
 
         modlo = jcall(r, func_name, JModulo, ())
 
@@ -42,7 +42,7 @@ ret = [];
           #
           #
           #           if !isempty(modlo.labels)
-          #               # ret = str2num(modlo.labels)'; %Matlab
+          #               # ret = str2num(modlo.labels)'  %Matlab
           #               # needs an equivalent
           #           end
           #
@@ -70,7 +70,7 @@ function bfGetReader(filename)
   jcall(r, "setMetadataStore", Void, (JMetadataStore,), meta)
   jcall(r, "setId", Void, (JString,), filename)
 
-  return r;
+  return r
 end
 
 ##################################
@@ -78,7 +78,7 @@ function bfGetPlane(pixelType,bpp,fp,sgn,little,sizeX,sizeY,plane)
 
     I = []
 
-    arr = reinterpret(jshort,plane);
+    arr = reinterpret(jshort,plane)
 
     for k=1:length(arr)
       arr[k]=bswap(arr[k])
@@ -95,10 +95,10 @@ function bfopen(id)
 
   # % initialize logging - THAT DOESN'T WORK BY SOME REASON
   #
-  # loci.common.DebugTools.enableLogging('INFO');
+  # loci.common.DebugTools.enableLogging('INFO')
   # jcall(JDebugTools, "enableLogging", Void, (JString,), "INFO")
 
-  r = bfGetReader(id);
+  r = bfGetReader(id)
 
   sizeX = jcall(r, "getSizeX", jint, ())
   sizeY = jcall(r, "getSizeY", jint, ())
@@ -125,9 +125,11 @@ function bfopen(id)
         t = zct[3]+1
         #
         plane = jcall(r, "openBytes", Array{jbyte, 1}, (jint,), i-1)
-        arr = bfGetPlane(pixelType,bpp,fp,sgn,little,sizeX,sizeY,plane);
-        I[:,:,z,c,t] = arr;
+        arr = bfGetPlane(pixelType,bpp,fp,sgn,little,sizeX,sizeY,plane)
+        I[:,:,z,c,t] = arr
     end
+
+  jcall(r, "close", Void, ())
 
   return I
 
