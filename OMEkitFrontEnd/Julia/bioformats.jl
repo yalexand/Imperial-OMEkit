@@ -28,7 +28,7 @@ function Base.isempty(modlo::JavaCall.JavaObject{Symbol("loci.formats.Modulo")})
 end
 
 ###########################################
-function getModulo(r,dim)
+function bfGetModulo(r,dim)
 
 func_name = "getModulo"*dim
 
@@ -89,7 +89,7 @@ function bfGetPlane(pixelType,bpp,fp,sgn,little,sizeX,sizeY,plane)
 end
 
 ##########################
-function bfopen(id)
+function bfGetVolume(r)
 
   I = []
 
@@ -97,8 +97,6 @@ function bfopen(id)
   #
   # loci.common.DebugTools.enableLogging('INFO')
   # jcall(JDebugTools, "enableLogging", Void, (JString,), "INFO")
-
-  r = bfGetReader(id)
 
   sizeX = jcall(r, "getSizeX", jint, ())
   sizeY = jcall(r, "getSizeY", jint, ())
@@ -124,9 +122,8 @@ function bfopen(id)
         c = zct[2]+1
         t = zct[3]+1
         #
-        plane = jcall(r, "openBytes", Array{jbyte, 1}, (jint,), i-1)
-        arr = bfGetPlane(pixelType,bpp,fp,sgn,little,sizeX,sizeY,plane)
-        I[:,:,z,c,t] = arr
+        arr = jcall(r, "openBytes", Array{jbyte, 1}, (jint,), i-1)
+        I[:,:,z,c,t] = bfGetPlane(pixelType,bpp,fp,sgn,little,sizeX,sizeY,arr)
     end
 
   jcall(r, "close", Void, ())
