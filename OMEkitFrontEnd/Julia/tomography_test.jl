@@ -1,9 +1,6 @@
 include("tomography.jl")
 include("utils.jl")
 
-#########################################
-using Images, ImageView
-
 angles = (0:1:359)/360*2*pi; # [rad]
 
 z = shepp_logan(1000; highContrast=true)
