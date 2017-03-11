@@ -1,4 +1,4 @@
-using JavaCall
+using JavaCall, XMLDict
 
 try
     # init JVM wtih bioformats_package.jar on classpath
@@ -18,8 +18,10 @@ const JIObject = @jimport omero.model.IObject
 const JDebugTools = @jimport loci.common.DebugTools
 const JModulo = @jimport loci.formats.Modulo
 const JDataTools = @jimport loci.common.DataTools
-
 const JFormatTools = @jimport loci.formats.FormatTools
+
+# const JBioformatsPlus = @jimport bioformats_plus
+
 
 ###########################################
 function Base.isempty(modlo::JavaCall.JavaObject{Symbol("loci.formats.Modulo")})
@@ -29,35 +31,29 @@ end
 
 ###########################################
 function bfGetModulo(r,dim)
-
-func_name = "getModulo"*dim
-
-ret = []
-
-        modlo = jcall(r, func_name, JModulo, ())
-
+  ret = []
+        modlo = jcall(r, "getModulo"*dim, JModulo, ())
+        #
         if !isempty(modlo)
+          try
+              anno = jcall(modlo,"toXMLAnnotation",JString,())
+              xml = parse_xml(anno)
+              Start = parse(Float64,xml[:Start])
+              End = parse(Float64,xml[:End])
+              Step = parse(Float64,xml[:Step])
+              #
+              if End > Start
+                  nsteps = round((End - Start)/Step)
+                  ret = (0:nsteps)
+                  ret = ret*Step
+                  ret = ret + Start
+              end
+          end
           #
-          # TO IMPLEMENT MODULO DATA ACCORDING TO MATLAB TEMPLATE BELOW ...
+          #  TODO: get data via "labels"
           #
-          #
-          #           if !isempty(modlo.labels)
-          #               # ret = str2num(modlo.labels)'  %Matlab
-          #               # needs an equivalent
-          #           end
-          #
-          #           if !isempty(modlo.start)
-          #             if modlo.end > modlo.start
-          #               nsteps = round((modlo.end - modlo.start)/modlo.step)
-          #               ret = 0:nsteps
-          #               ret = ret*modlo.step
-          #               ret = ret + modlo.start
-          #             end
-          #           end
         end
-
-return ret
-
+  return ret
 end
 
 ##########################
@@ -125,8 +121,6 @@ function bfGetVolume(r)
         arr = jcall(r, "openBytes", Array{jbyte, 1}, (jint,), i-1)
         I[:,:,z,c,t] = bfGetPlane(pixelType,bpp,fp,sgn,little,sizeX,sizeY,arr)
     end
-
-  jcall(r, "close", Void, ())
 
   return I
 
