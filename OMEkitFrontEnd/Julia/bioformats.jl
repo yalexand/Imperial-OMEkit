@@ -31,8 +31,6 @@ function bfGetModulo(r,dim)
         anno = jcall(modlo,"toXMLAnnotation",JString,())
         xml = parse_xml(anno)
 
-        if ! ("other"== xml[:Type])
-
             try
               Start = parse(Float64,xml[:Start])
               End = parse(Float64,xml[:End])
@@ -56,8 +54,24 @@ function bfGetModulo(r,dim)
              end
             end
 
-        end
   return ret
+end
+
+##########################
+function bfGetModuloSpec(r,dim,spec)
+  "nothing"
+  try
+  modlo = jcall(r, "getModulo"*dim, JModulo, ())
+  anno = jcall(modlo,"toXMLAnnotation",JString,())
+  xml = parse_xml(anno)
+      if ("Type"==spec)
+        xml[:Type]
+      elseif ("TypeDescription"==spec)
+        xml[:TypeDescription]
+      elseif ("Unit"==spec)
+        xml[:Unit]
+      end
+  end
 end
 
 ##########################
