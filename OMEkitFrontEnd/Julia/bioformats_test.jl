@@ -12,8 +12,8 @@ I = bfGetVolume(r)
 display_image(I[:,:,140,1,1])
 #
 # reconstruct and display one of z-slices through 3d volume
-angles = bfGetModulo(r,"Z") # [degree]
-z_slice = iradon(I[120,:,:,1,1],angles/360*2*pi) # [rad]
+angles = bfGetModulo(r,"Z")
+z_slice = iradon(I[120,:,:,1,1],angles)
 display_image(z_slice)
 
 jcall(r, "close", Void, ())

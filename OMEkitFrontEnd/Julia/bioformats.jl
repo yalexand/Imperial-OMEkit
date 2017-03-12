@@ -25,6 +25,7 @@ const JFormatTools = @jimport loci.formats.FormatTools
 # TODO: possibly implement via Java by using Modulo set/get functions
 #
 function bfGetModulo(r,dim)
+
   ret = []
         modlo = jcall(r, "getModulo"*dim, JModulo, ())
 
@@ -55,6 +56,7 @@ function bfGetModulo(r,dim)
             end
 
   return ret
+
 end
 
 ##########################
@@ -85,6 +87,7 @@ function bfGetReader(filename)
   jcall(r, "setId", Void, (JString,), filename)
 
   return r
+
 end
 
 ##################################

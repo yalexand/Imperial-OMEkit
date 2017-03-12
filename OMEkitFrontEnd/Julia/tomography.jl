@@ -2,6 +2,7 @@ using Images
 
 ################################################
 function radon(A::AbstractMatrix, angles)
+    angles *= 1/360*2*pi
     w, h = size(A)
     d = floor(Int, sqrt(w*w+h*h)/2)  # half-length of the diagonal
     Nr = 2d+1
@@ -31,7 +32,7 @@ function radon(A::AbstractMatrix, angles)
             sinogram[k,j] = tmp
         end
     end
-    return sinogram;
+    return sinogram
 end
 
 ########################################
@@ -69,30 +70,32 @@ function interior(x0, y0, sinθ, cosθ, w, h, R::Range)
 end
 
 #########################################
-function iradon(A,angles) # input angles [rad]
+function iradon(A,angles) # input angles [degree]
 
-  angles = angles + pi/2;
+  angles *= 1/360*2*pi
 
-  N, nAngles = size(A);
+  angles = angles + pi/2
+
+  N, nAngles = size(A)
 
   I = zeros(N,N); # reconstruction
 
-  x = linspace(-0.5,0.5,N);
+  x = linspace(-0.5,0.5,N)
 
-  filter = abs(linspace(-1, 1, N));
+  filter = abs(linspace(-1, 1, N))
 
   # FT domain filtering
   for t=1:length(angles)
-      fhat = fftshift(fft(slice(A,:,t)));
-      A[:,t] = real(ifft(ifftshift(fhat.*filter)));
+      fhat = fftshift(fft(slice(A,:,t)))
+      A[:,t] = real(ifft(ifftshift(fhat.*filter)))
   end
 
-  XCOS = zeros(N,length(angles));
-  XSIN = zeros(N,length(angles));
+  XCOS = zeros(N,length(angles))
+  XSIN = zeros(N,length(angles))
   for k=1:N
     for a=1:length(angles)
-      XCOS[k,a]=x[k]*cos(angles[a]);
-      XSIN[k,a]=x[k]*sin(angles[a]);
+      XCOS[k,a]=x[k]*cos(angles[a])
+      XSIN[k,a]=x[k]*sin(angles[a])
     end
   end
 
@@ -101,16 +104,16 @@ function iradon(A,angles) # input angles [rad]
               xs = XSIN[n,t]
               for m=1:N
                   r = XCOS[m,t] + xs
-                  index = Int64(round((r/sqrt(2.0) + 0.5)*N)); # sqrt(2) magnified
+                  index = Int64(round((r/sqrt(2.0) + 0.5)*N)) # sqrt(2) magnified
                   if index>0 && index<=N
-                      I[m,n] += A[index,t];
+                      I[m,n] += A[index,t]
                   end
               end
           end
       end
 
-  N_ = Int64(round(N/sqrt(2.)));
-  I = imresize(I,N_,N_);
+  N_ = Int64(round(N/sqrt(2.)))
+  I = imresize(I,N_,N_)
 
-  return I;
+  return I
 end
