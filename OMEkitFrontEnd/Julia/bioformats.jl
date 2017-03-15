@@ -1,4 +1,4 @@
-using JavaCall, XMLDict
+using JavaCall, XMLDict, ProgressMeter
 
 try
     # init JVM wtih bioformats_package.jar on classpath
@@ -19,6 +19,20 @@ const JDebugTools = @jimport loci.common.DebugTools
 const JModulo = @jimport loci.formats.Modulo
 const JDataTools = @jimport loci.common.DataTools
 const JFormatTools = @jimport loci.formats.FormatTools
+
+const JDimensionOrderEnumHandler = @jimport ome.xml.model.enums.handlers.DimensionOrderEnumHandler
+const JPixelTypeEnumHandler = @jimport ome.xml.model.enums.handlers.PixelTypeEnumHandler
+
+const Jenum = @jimport ome.xml.model.enums.Enumeration
+const JPixelType = @jimport ome.xml.model.enums.PixelType
+const JDimensionOrder = @jimport ome.xml.model.enums.DimensionOrder
+const JPositiveInteger = @jimport ome.xml.model.primitives.PositiveInteger
+
+const JImageWriter = @jimport loci.formats.ImageWriter
+const JIFormatWriter = @jimport loci.formats.IFormatWriter
+const JTiffWriter = @jimport loci.formats.out.TiffWriter
+
+
 
 ###########################################
 #
@@ -164,5 +178,150 @@ function bfGetVolume(r)
     end
 
   return I
+
+end
+
+############################
+function createMinimalOMEXMLMetadata(I,savePixeltype::String="UInt16")
+
+    # metadata = OMEXMLService.createOMEXMLMetadata();
+  OMEXMLService = JOMEXMLServiceImpl(())
+  metadata = jcall(OMEXMLService, "createOMEXMLMetadata", JOMEXMLMetadata, ())
+
+    # metadata.createRoot();
+  jcall(metadata,"createRoot",Void,())
+    # metadata.setImageID('Image:0', 0);
+  jcall(metadata,"setImageID",Void,(JString,jint),"Image:0",0)
+    # metadata.setPixelsID('Pixels:0', 0);
+  jcall(metadata,"setPixelsID",Void,(JString,jint),"Pixels:0",0)
+
+  # Matlab: metadata.setPixelsBinDataBigEndian(java.lang.Boolean.TRUE, 0, 0);
+  # TODO: fix
+  # jcall(metadata,"setPixelsBinDataBigEndian",Void,(jboolean,jint,jint),jboolean(true),0,0) # ???
+  # TODO: fix
+
+  # Set dimension order
+  DOEH = JDimensionOrderEnumHandler(())
+  dimensionOrder = jcall(DOEH, "getEnumeration",Jenum,(JString,),"XYZCT")
+  jcall(metadata,"setPixelsDimensionOrder",Void,(JDimensionOrder,jint),dimensionOrder,0)
+
+  # Set pixel type
+  PTEH = JPixelTypeEnumHandler(())
+  if (savePixeltype=="UInt16")
+    pixelsType = jcall(PTEH,"getEnumeration",Jenum,(JString,),"uint16")
+  elseif (savePixeltype=="Float64")
+    pixelsType = jcall(PTEH,"getEnumeration",Jenum,(JString,),"float")
+  end
+  jcall(metadata,"setPixelsType",Void,(JPixelType,jint),pixelsType, 0)
+
+  sizeX,sizeY,sizeZ,sizeC,sizeT = size(I)
+
+  # TODO : fix (start) - this block causes errors related to JPositiveInteger
+  #
+  # pi_sizeX = JPositiveInteger(Int64(sizeX))
+  # pi_sizeY = JPositiveInteger(Int64(sizeY))
+  # pi_sizeZ = JPositiveInteger(Int64(sizeZ))
+  # pi_sizeC = JPositiveInteger(Int64(sizeC))
+  # pi_sizeT = JPositiveInteger(Int64(sizeT))
+  # #
+  # jcall(metadata,"setPixelsSizeX",Void,(JPositiveInteger,jint),pi_sizeX,0)
+  # jcall(metadata,"setPixelsSizeY",Void,(JPositiveInteger,jint),pi_sizeY,0)
+  # jcall(metadata,"setPixelsSizeZ",Void,(JPositiveInteger,jint),pi_sizeZ,0)
+  # jcall(metadata,"setPixelsSizeC",Void,(JPositiveInteger,jint),pi_sizeC,0)
+  # jcall(metadata,"setPixelsSizeT",Void,(JPositiveInteger,jint),pi_sizeT,0)
+  # #
+  # # # Set channels ID and samples per pixel
+  # for i = 1 : sizeC
+  #   jcall(metadata,"setChannelID",Void,(JString,jint,jint),"Channel:0:",0,i-1)
+  #   pi_1 = JPositiveInteger(Int64(1))
+  #   jcall(metadata,"setChannelSamplesPerPixel",Void,(JPositiveInteger,jint,jint),pi_1,0,i-1)
+  # end
+  #
+  # TODO : fix (end)
+
+  return metadata
+
+end
+
+############################
+#
+# to open file and save it using "bfsaveOMEtiff":
+# id = "..\\TestData\\fluor.OME.tiff"
+# r = bfGetReader(id);
+# I = bfGetVolume(r)
+# jcall(r, "close", Void, ())
+# U = Array{UInt16}(size(I)) # not sure how to convert data to UInt16, so empty
+# fill(U,0)
+# bfsaveOMEtiff(U,"..\\result.OME.tiff",[],"UInt16","LZW",true)
+#
+function bfsaveOMEtiff(I,output_fullfilename::String,
+                  metadata,
+                  savePixeltype="UInt16",
+                  compression::String="LZW",
+                  BigTiff::Bool=true)
+
+      if isempty(metadata)
+        metadata = createMinimalOMEXMLMetadata(I,savePixeltype)
+      end
+
+      # % Create ImageWriter
+        # writer = loci.formats.ImageWriter();
+      writer = JTiffWriter(())
+
+        # writer.setWriteSequentially(true);
+      jcall(writer,"setWriteSequentially",Void,(jboolean,),true)
+
+      # Matlab: writer.setMetadataRetrieve(metadata);
+      # TODO: fix
+      # jcall(writer,"setMetadataRetrieve",Void,(JOMEXMLMetadata,),metadata)
+      # TODO: fix
+
+      if !isempty(compression)
+           # writer.setCompression(ip.Results.Compression)
+           try
+             jcall(writer,"setCompression",Void,(JString,),compression)
+           end
+      end
+
+      if BigTiff
+          jcall(writer,"setBigTiff",Void,(jboolean,),BigTiff)
+      end
+
+        # writer.setId(outputPath);
+      jcall(writer,"setId",Void,(JString,),output_fullfilename)
+
+      # TODO: fix
+        # pi_sizeZ = jcall(metadata,"getPixelsSizeZ",JPositiveInteger,(jint,),0)
+        # sizeZ = jall(pi_sizeZ,"getValue",jint,())
+      # ... the same for C,T
+      # TODO: fix
+
+      little = false # little endian?
+      sizeX,sizeY,sizeZ,sizeC,sizeT = size(I)
+      nPlanes = sizeZ*sizeC*sizeT
+      p = Progress(nPlanes, "saving the file..")
+      for index = 1 : nPlanes
+           i, j, k = ind2sub((sizeZ,sizeC,sizeT),index);
+           plane = I[:, :, i, j, k]';
+           #
+           if ("UInt16"==savePixeltype)
+             # TODO : fix
+             # bytes = jcall(JDataTools,"shortsToBytes",Array{jbyte,1},(jshort,jboolean),plane,little)
+             # TODO : fix
+             #
+             # substitute this dummy array - only here because "shortsToBytes" not working
+             bytes = Array{jbyte,1}(2*sizeX*sizeY)
+             #
+             jcall(writer,"saveBytes",Void,(jint,Array{jbyte,1},),index-1,bytes)
+             next!(p)
+           else
+             #
+             # add other types here (aside from UInt16)
+             #
+           end
+      end
+
+      # writer.close();
+      jcall(writer, "close", Void, ())
 
 end
