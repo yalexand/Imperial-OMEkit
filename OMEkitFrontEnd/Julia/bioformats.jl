@@ -1,8 +1,9 @@
 using JavaCall, XMLDict, ProgressMeter
 
 try
-    # init JVM wtih bioformats_package.jar on classpath
-    JavaCall.init(["-ea", "-Xmx1024M", "-Djava.class.path=bioformats_package.jar"])
+    # Windows uses ';' as a delimiter in classpath, *nix systems nornally use ":" instead
+    delimiter = @static is_windows() ? ";" : ":"
+    JavaCall.init(["-ea", "-Xmx1024M", "-Djava.class.path=bioformats_package.jar" * delimiter * "bioformats_plus.jar"])
 end
 
 # import java classes
@@ -14,7 +15,6 @@ const JOMEXMLService = @jimport loci.formats.services.OMEXMLService
 const JMetadataStore = @jimport loci.formats.meta.MetadataStore
 const JFormatReader = @jimport loci.formats.FormatReader
 const JIFormatReader = @jimport loci.formats.IFormatReader
-const JIObject = @jimport omero.model.IObject
 const JDebugTools = @jimport loci.common.DebugTools
 const JModulo = @jimport loci.formats.Modulo
 const JDataTools = @jimport loci.common.DataTools
@@ -32,7 +32,7 @@ const JImageWriter = @jimport loci.formats.ImageWriter
 const JIFormatWriter = @jimport loci.formats.IFormatWriter
 const JTiffWriter = @jimport loci.formats.out.TiffWriter
 
-
+const JGateWay = @jimport JuliaGateway
 
 ###########################################
 #
@@ -147,7 +147,7 @@ function bfGetVolume(r)
   # % initialize logging - THAT DOESN'T WORK BY SOME REASON
   #
   # loci.common.DebugTools.enableLogging('INFO')
-  # jcall(JDebugTools, "enableLogging", Void, (JString,), "INFO")
+  jcall(JGateWay, "enableLogging", Void, (JString,), "INFO")
 
   sizeX = jcall(r, "getSizeX", jint, ())
   sizeY = jcall(r, "getSizeY", jint, ())
@@ -196,9 +196,7 @@ function createMinimalOMEXMLMetadata(I,savePixeltype::String="UInt16")
   jcall(metadata,"setPixelsID",Void,(JString,jint),"Pixels:0",0)
 
   # Matlab: metadata.setPixelsBinDataBigEndian(java.lang.Boolean.TRUE, 0, 0);
-  # TODO: fix
-  # jcall(metadata,"setPixelsBinDataBigEndian",Void,(jboolean,jint,jint),jboolean(true),0,0) # ???
-  # TODO: fix
+  jcall(JGateWay,"setPixelsBinDataBigEndian",Void,(JOMEXMLMetadata,jboolean),metadata,true)
 
   # Set dimension order
   DOEH = JDimensionOrderEnumHandler(())
@@ -214,30 +212,20 @@ function createMinimalOMEXMLMetadata(I,savePixeltype::String="UInt16")
   end
   jcall(metadata,"setPixelsType",Void,(JPixelType,jint),pixelsType, 0)
 
-  sizeX,sizeY,sizeZ,sizeC,sizeT = size(I)
+  # note different convention - not sure if that is true in Julia
+  sizeY,sizeX,sizeZ,sizeC,sizeT = size(I)
 
-  # TODO : fix (start) - this block causes errors related to JPositiveInteger
+  jcall(JGateWay,"setPixelsSizeX",Void,(JOMEXMLMetadata,jint),metadata,sizeX)
+  jcall(JGateWay,"setPixelsSizeY",Void,(JOMEXMLMetadata,jint),metadata,sizeY)
+  jcall(JGateWay,"setPixelsSizeZ",Void,(JOMEXMLMetadata,jint),metadata,sizeZ)
+  jcall(JGateWay,"setPixelsSizeC",Void,(JOMEXMLMetadata,jint),metadata,sizeC)
+  jcall(JGateWay,"setPixelsSizeT",Void,(JOMEXMLMetadata,jint),metadata,sizeT)
   #
-  # pi_sizeX = JPositiveInteger(Int64(sizeX))
-  # pi_sizeY = JPositiveInteger(Int64(sizeY))
-  # pi_sizeZ = JPositiveInteger(Int64(sizeZ))
-  # pi_sizeC = JPositiveInteger(Int64(sizeC))
-  # pi_sizeT = JPositiveInteger(Int64(sizeT))
-  # #
-  # jcall(metadata,"setPixelsSizeX",Void,(JPositiveInteger,jint),pi_sizeX,0)
-  # jcall(metadata,"setPixelsSizeY",Void,(JPositiveInteger,jint),pi_sizeY,0)
-  # jcall(metadata,"setPixelsSizeZ",Void,(JPositiveInteger,jint),pi_sizeZ,0)
-  # jcall(metadata,"setPixelsSizeC",Void,(JPositiveInteger,jint),pi_sizeC,0)
-  # jcall(metadata,"setPixelsSizeT",Void,(JPositiveInteger,jint),pi_sizeT,0)
-  # #
-  # # # Set channels ID and samples per pixel
-  # for i = 1 : sizeC
-  #   jcall(metadata,"setChannelID",Void,(JString,jint,jint),"Channel:0:",0,i-1)
-  #   pi_1 = JPositiveInteger(Int64(1))
-  #   jcall(metadata,"setChannelSamplesPerPixel",Void,(JPositiveInteger,jint,jint),pi_1,0,i-1)
-  # end
-  #
-  # TODO : fix (end)
+  # Set channels ID and samples per pixel
+  for i = 1 : sizeC
+     jcall(metadata,"setChannelID",Void,(JString,jint,jint),"Channel:0:",0,i-1)
+     jcall(JGateWay,"setChannelSamplesPerPixel",Void,(JOMEXMLMetadata,jint,jint),metadata,1,i-1)
+  end
 
   return metadata
 
@@ -245,16 +233,16 @@ end
 
 ############################
 #
-# to open file and save it using "bfsaveOMEtiff":
+# TODO:  fix for other types, - WORKS ONLY FOR Float64 TYPE
+#
+# # to open file and save it using "bfsaveAsOMEtiff":
 # id = "..\\TestData\\fluor.OME.tiff"
 # r = bfGetReader(id);
 # I = bfGetVolume(r)
-# jcall(r, "close", Void, ())
-# U = Array{UInt16}(size(I)) # not sure how to convert data to UInt16, so empty
-# fill(U,0)
-# bfsaveOMEtiff(U,"..\\result.OME.tiff",[],"UInt16","LZW",true)
+# I = I - 2^15 # because of LabView byte
+# bfsaveAsOMEtiff(I,"..\\TestData\\result.OME.tiff",[],"Float64","LZW",true) # last argument - bigTiff
 #
-function bfsaveOMEtiff(I,output_fullfilename::String,
+function bfsaveAsOMEtiff(I,output_fullfilename::String,
                   metadata,
                   savePixeltype="UInt16",
                   compression::String="LZW",
@@ -265,16 +253,14 @@ function bfsaveOMEtiff(I,output_fullfilename::String,
       end
 
       # % Create ImageWriter
-        # writer = loci.formats.ImageWriter();
-      writer = JTiffWriter(())
+      # writer = loci.formats.ImageWriter();
+      writer = JImageWriter(())
 
         # writer.setWriteSequentially(true);
       jcall(writer,"setWriteSequentially",Void,(jboolean,),true)
 
       # Matlab: writer.setMetadataRetrieve(metadata);
-      # TODO: fix
-      # jcall(writer,"setMetadataRetrieve",Void,(JOMEXMLMetadata,),metadata)
-      # TODO: fix
+      jcall(JGateWay,"setMetadataRetrieve",Void,(JImageWriter,JOMEXMLMetadata),writer,metadata)
 
       if !isempty(compression)
            # writer.setCompression(ip.Results.Compression)
@@ -284,20 +270,21 @@ function bfsaveOMEtiff(I,output_fullfilename::String,
       end
 
       if BigTiff
-          jcall(writer,"setBigTiff",Void,(jboolean,),BigTiff)
+        # TODO : fix
+          # jcall(writer,"setBigTiff",Void,(jboolean,),BigTiff)
+        # TODO : fix
       end
 
         # writer.setId(outputPath);
       jcall(writer,"setId",Void,(JString,),output_fullfilename)
 
-      # TODO: fix
-        # pi_sizeZ = jcall(metadata,"getPixelsSizeZ",JPositiveInteger,(jint,),0)
-        # sizeZ = jall(pi_sizeZ,"getValue",jint,())
-      # ... the same for C,T
-      # TODO: fix
+      sizeX = jcall(JGateWay,"getPixelsSizeX",jint,(JOMEXMLMetadata,),metadata)
+      sizeY = jcall(JGateWay,"getPixelsSizeY",jint,(JOMEXMLMetadata,),metadata)
+      sizeZ = jcall(JGateWay,"getPixelsSizeZ",jint,(JOMEXMLMetadata,),metadata)
+      sizeC = jcall(JGateWay,"getPixelsSizeC",jint,(JOMEXMLMetadata,),metadata)
+      sizeT = jcall(JGateWay,"getPixelsSizeT",jint,(JOMEXMLMetadata,),metadata)
 
       little = false # little endian?
-      sizeX,sizeY,sizeZ,sizeC,sizeT = size(I)
       nPlanes = sizeZ*sizeC*sizeT
       p = Progress(nPlanes, "saving the file..")
       for index = 1 : nPlanes
@@ -305,20 +292,16 @@ function bfsaveOMEtiff(I,output_fullfilename::String,
            plane = I[:, :, i, j, k]';
            #
            if ("UInt16"==savePixeltype)
-             # TODO : fix
-             # bytes = jcall(JDataTools,"shortsToBytes",Array{jbyte,1},(jshort,jboolean),plane,little)
-             # TODO : fix
-             #
-             # substitute this dummy array - only here because "shortsToBytes" not working
-             bytes = Array{jbyte,1}(2*sizeX*sizeY)
-             #
-             jcall(writer,"saveBytes",Void,(jint,Array{jbyte,1},),index-1,bytes)
-             next!(p)
+             bytes = jcall(JGateWay,"shortsToBytes",Array{jbyte,1},(Array{jshort,1},jboolean),plane[:],little)
+           elseif ("Float64"==savePixeltype)
+             bytes = jcall(JGateWay,"floatsToBytes",Array{jbyte,1},(Array{jfloat,1},jboolean),plane[:],little)
            else
              #
              # add other types here (aside from UInt16)
              #
            end
+           jcall(writer,"saveBytes",Void,(jint,Array{jbyte,1},),index-1,bytes)
+           next!(p)
       end
 
       # writer.close();
