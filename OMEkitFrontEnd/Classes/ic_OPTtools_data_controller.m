@@ -2153,6 +2153,14 @@ end
                 T = quantile(sample, M1_brightness_quantile_threshold);
                 brightEnough = sample > T;
 
+                % remove most slices to optimise, making sure to have
+                % slices across the length of the sample
+                nRegions = 8;
+                regions = ceil([1,(1:nRegions)*size(sizeCheck,2)/nRegions]);
+                for i = 1:nRegions
+                    [~,dim] = sort(sample(regions(i):regions(i+1)));
+                    brightEnough(dim(1:(end-10))+regions(i)-1) = 0;
+                end                
                 % main loop - starts
                                                                 
                 % The shift correction and spearman correlation for individual slices are then
