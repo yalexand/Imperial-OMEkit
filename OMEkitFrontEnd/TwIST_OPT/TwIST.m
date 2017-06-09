@@ -508,8 +508,7 @@ while cont_outer
                 end
                 break;  % break loop while
             end
-        else
-      
+        else    
             resid = y-A(x);
             f = 0.5*(resid(:)'*resid(:)) + tau*phi_function(x);
             
@@ -565,8 +564,6 @@ while cont_outer
     if iter <= miniter
         cont_outer = 1;
     end
-
-
 
     iter = iter + 1;
     prev_f = f;

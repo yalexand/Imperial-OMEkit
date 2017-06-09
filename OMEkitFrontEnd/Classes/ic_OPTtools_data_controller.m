@@ -110,7 +110,7 @@ classdef ic_OPTtools_data_controller < handle
     properties(Transient,Hidden)
         % Properties that won't be saved to a data_settings_file etc.
         
-        menu_controller;
+        menu_controller = [];
         
         isGPU;
         
@@ -137,8 +137,10 @@ classdef ic_OPTtools_data_controller < handle
         
         function obj = ic_OPTtools_data_controller(varargin)            
             %   
-            handles = args2struct(varargin);
-            assign_handles(obj,handles);            
+            if ~isempty(varargin{1})
+                handles = args2struct(varargin);
+                assign_handles(obj,handles);
+            end
                         
             addlistener(obj,'new_proj_set',@obj.on_new_proj_set);
             addlistener(obj,'new_volm_set',@obj.on_new_volm_set);                        
@@ -1230,23 +1232,33 @@ end
         end        
          %------------------------------------------------------------------        
             function on_new_proj_set(obj, ~,~)
+                if isempty(obj.menu_controller), return, end;
+                %
                 set(obj.menu_controller.proj_label,'ForegroundColor','blue');
                 set(obj.menu_controller.volm_label,'ForegroundColor','red');
             end            
          %------------------------------------------------------------------            
             function on_new_volm_set(obj, ~,~)
+                if isempty(obj.menu_controller), return, end;
+                %                
                 set(obj.menu_controller.volm_label,'ForegroundColor','blue');                
             end
          %------------------------------------------------------------------            
             function on_proj_clear(obj, ~,~)
+                if isempty(obj.menu_controller), return, end;
+                %                
                 set(obj.menu_controller.proj_label,'ForegroundColor','red');                
             end
          %------------------------------------------------------------------            
             function on_volm_clear(obj, ~,~)
+                if isempty(obj.menu_controller), return, end;
+                %                
                 set(obj.menu_controller.volm_label,'ForegroundColor','red');                
             end
          %------------------------------------------------------------------            
             function on_proj_and_volm_clear(obj, ~,~)
+                if isempty(obj.menu_controller), return, end;
+                %                
                 set(obj.menu_controller.volm_label,'ForegroundColor','red');                                
                 set(obj.menu_controller.proj_label,'ForegroundColor','red');                                
             end                        
@@ -1510,9 +1522,12 @@ end
                 errordlg('only 1/1 proj-volm scale, full size, is supported, can not continue');
                 return;                     
             end
-            %                                               
-            s1 = get(obj.menu_controller.menu_OMERO_Working_Data_Info,'Label');
-            s2 = get(obj.menu_controller.menu_Batch_Indicator_Src,'Label');            
+            % 
+            if ~isempty(obj.menu_controller)                            
+                s1 = get(obj.menu_controller.menu_OMERO_Working_Data_Info,'Label');
+                s2 = get(obj.menu_controller.menu_Batch_Indicator_Src,'Label');
+            end;
+            %
             if ( strcmp(s1,s2) || ~isempty(obj.omero_Image_IDs) ) && ~isempty(omero_data_manager.session) % images should be loaded from OMERO
                 %
                 imageList = [];

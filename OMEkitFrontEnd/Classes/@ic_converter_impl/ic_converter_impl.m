@@ -751,7 +751,7 @@ classdef ic_converter_impl < handle
                 if strcmp(type_description,'Gated')
                         modlo.moduloT.type = loci.formats.FormatTools.LIFETIME;
                         modlo.moduloT.unit = obj.Units;
-                        modlo.moduloT.typeDescription = type_description;
+                        modlo.moduloT.typeDescription = type_description
                         modlo.moduloT.labels = javaArray('java.lang.String',length(delays));
                         for i=1:length(delays)
                             modlo.moduloT.labels(i)= java.lang.String(num2str(delays(i)));

@@ -36,7 +36,7 @@ classdef ic_OPTtools_gui
             if nargin < 1
                 wait = false;
             end
-            
+                
             if nargin < 2
                 require_auth = false;
             end
