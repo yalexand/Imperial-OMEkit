@@ -316,7 +316,9 @@ classdef ic_OPTtools_data_controller < handle
             try
             omedata = bfopen(full_filename);
             catch err
-                errordlg(err.message);
+                if verbose
+                    errordlg(err.message);
+                end
                 if ~isempty(hw)
                     delete(hw); 
                     drawnow;
