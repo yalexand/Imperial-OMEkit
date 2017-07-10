@@ -18,4 +18,4 @@ function vers=omeroVersion()
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-vers='5.0.6-ice35-b53';
+vers='5.3.3-ice36-b63';

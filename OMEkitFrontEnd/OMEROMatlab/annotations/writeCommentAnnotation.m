@@ -1,5 +1,5 @@
 function ca = writeCommentAnnotation(session, comment, varargin)
-% WRITECOMMENTANNOTATION Create and upload a comment annotation onto the OMERO server
+% WRITECOMMENTANNOTATION Create and upload a comment annotation onto OMERO
 %
 %    ca = writeCommentAnnotation(session, comment) creates and uploads a
 %    comment annotation owned by the session user.
@@ -10,15 +10,20 @@ function ca = writeCommentAnnotation(session, comment, varargin)
 %    ca = writeCommentAnnotation(session, comment, 'namespace', namespace)
 %    also sets the namespace of the comment annotation.
 %
+%    ca = writeCommentAnnotation(session, comment, 'group', groupid)
+%    sets the group.
+%
 %    Examples:
 %
 %        ca = writeCommentAnnotation(session, comment)
 %        ca = writeCommentAnnotation(session, comment, 'description', description)
 %        ca = writeCommentAnnotation(session, comment, 'namespace', namespace)
 %
-% See also: WRITETEXTANNOTATION
+% See also: WRITEDOUBLEANNOTATION, WRITEFILEANNOTATION,
+% WRITELONGANNOTATION, WRITETAGANNOTATION, WRITETEXTANNOTATION,
+% WRITETIMESTAMPANNOTATION, WRITEXMLANNOTATION
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

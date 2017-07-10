@@ -2,37 +2,37 @@ function datasets = getDatasets(session, varargin)
 % GETDATASETS Retrieve dataset objects from the OMERO server
 %
 %   datasets = getDatasets(session) returns all the datasets owned by the
-%   session user in the context of the session group. By default,
-%   getDatasets loads all the images attached to the datasets. This may
-%   have consequences in terms of loading time depending on the number of
-%   images in the datasets.
+%   session user in the context of the session group.
 %
 %   datasets = getDatasets(session, ids) returns all the datasets
-%   identified by the input ids in the context of the session group.
+%   identified by the input ids independently of the owner across all groups.
 %
-%   datasets = getDatasets(session, ids, loaded) returns all the datasets
-%   identified by the input ids in the context of the session group. If
-%   loaded is False, the images attached to the datasets are not loaded.
+%   datasets = getDatasets(..., loaded) also loads the images attached to the
+%   datasets if loaded is true. Default: false.
 %
-%   datasets = getDatasets(session, 'owner', owner) returns all the
-%   datasets owned by the input owner in the context of the session group.
+%   datasets = getDatasets(..., 'owner', owner) specifies the owner of the
+%   datasets. A value of -1 implies datasets are returned independently of
+%   the owner.
 %
-%   datasets = getDatasets(session, ids, 'owner', owner) returns all the
-%   datasets identified by the input ids owned by the input user in the
-%   context of the session group.
+%   datasets = getDatasets(..., 'group', groupId) specifies the group
+%   context for the datasets. A value of -1 means datasets are returned
+%   across groups.
 %
 %   Examples:
 %
 %      datasets = getDatasets(session);
+%      datasets = getDatasets(session, true);
 %      datasets = getDatasets(session, 'owner', ownerId);
+%      datasets = getDatasets(session, 'group', groupId);
 %      datasets = getDatasets(session, ids);
-%      datasets = getDatasets(session, ids, false);
-%      datasets = getDatasets(session, ids, false, 'owner', ownerId);
+%      datasets = getDatasets(session, ids, true);
+%      datasets = getDatasets(session, ids, 'owner', ownerId);
+%      datasets = getDatasets(session, ids, 'group', groupId);
 %
 % See also: GETOBJECTS, GETPROJECTS, GETIMAGES
 
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -52,7 +52,7 @@ function datasets = getDatasets(session, varargin)
 % Check input
 ip = inputParser;
 ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
-ip.addOptional('loaded', true, @islogical);
+ip.addOptional('loaded', false, @islogical);
 ip.KeepUnmatched = true;
 ip.parse(varargin{:});
 
@@ -61,6 +61,6 @@ parameters = omero.sys.ParametersI();
 if ip.Results.loaded, parameters.leaves(); end
 
 % Delegate unmatched arguments check to getObjects function
-unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
+unmatchedArgs =[fieldnames(ip.Unmatched)'; struct2cell(ip.Unmatched)'];
 datasets = getObjects(session, 'dataset', ip.Results.ids, parameters,...
     unmatchedArgs{:});

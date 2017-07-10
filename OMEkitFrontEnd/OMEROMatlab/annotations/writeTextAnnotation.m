@@ -1,5 +1,5 @@
 function ann = writeTextAnnotation(session, type, text, varargin)
-% WRITETEXTANNOTATION Create and upload a text annotation onto the OMERO server
+% WRITETEXTANNOTATION Create and upload a text annotation onto OMERO
 %
 %    ann = writeTextAnnotation(session, type, text) creates and uploads an
 %    annotation of input type and input test owned by the session user.
@@ -10,6 +10,9 @@ function ann = writeTextAnnotation(session, type, text, varargin)
 %    ann = writeTextAnnotation(session, type, text, 'namespace', namespace)
 %    also sets the namespace of the annotation.
 %
+%    ann = writeTextAnnotation(session, type, text, 'group', groupid)
+%    sets the group.
+%
 %    Examples:
 %
 %        ann = writeTextAnnotation(session, type, text)
@@ -18,9 +21,11 @@ function ann = writeTextAnnotation(session, type, text, varargin)
 %        ann = writeTextAnnotation(session, type, text, 'namespace',
 %        namespace)
 %
-% See also: WRITETAGANNOTATION, WRITECOMMENTANNOTATION, WRITEXMLANNOTATION
+% See also: WRITECOMMENTANNOTATION, WRITEDOUBLEANNOTATION,
+% WRITEFILEANNOTATION, WRITETAGANNOTATION, WRITETIMESTAMPANNOTATION,
+% WRITEXMLANNOTATION
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -46,6 +51,7 @@ ip.addRequired('type', @(x) ischar(x) && ismember(x, annotationNames));
 ip.addRequired('text', @ischar);
 ip.addParamValue('description', '', @ischar);
 ip.addParamValue('namespace', '', @ischar);
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, type, text, varargin{:});
 
 % Create text annotation of input type
@@ -61,4 +67,9 @@ if ~isempty(ip.Results.namespace),
 end
 
 % Upload and return the annotation
-ann = session.getUpdateService().saveAndReturnObject(ann);
+context = java.util.HashMap;
+if ~isempty(ip.Results.group)
+    context.put(...
+        'omero.group', java.lang.String(num2str(ip.Results.group)));
+end
+ann = session.getUpdateService().saveAndReturnObject(ann, context);

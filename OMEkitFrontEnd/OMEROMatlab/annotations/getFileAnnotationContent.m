@@ -38,7 +38,9 @@ isLoadedFA = @(x) isa(x, 'omero.model.FileAnnotationI') && x.isLoaded();
 ip = inputParser;
 ip.addRequired('fileAnnotation', @(x) isLoadedFA(x) || isscalar(x));
 ip.addRequired('path', @ischar);
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(fileAnnotation, path);
+
 
 if ~isa(fileAnnotation, 'omero.model.FileAnnotationI'),
     % Load the file annotation from the server
@@ -48,17 +50,5 @@ if ~isa(fileAnnotation, 'omero.model.FileAnnotationI'),
         'Could not load the file annotation: %u', faID);
 end
 
-% Initialize raw file store
-store = session.createRawFileStore();
+getOriginalFileContent(session, fileAnnotation.getFile(), path);
 
-% Set file annotation id
-file = fileAnnotation.getFile();
-store.setFileId(file.getId().getValue());
-
-% Read data and cast into int8
-fid = fopen(path, 'w');
-fwrite(fid, store.read(0, file.getSize().getValue()), 'int8');
-fclose(fid);
-
-% Close the file store
-store.close()

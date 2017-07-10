@@ -1,4 +1,4 @@
-function cas = getCommentAnnotations(session, ids)
+function cas = getCommentAnnotations(session, ids, varargin)
 % GETCOMMENTANNOTATIONS Retrieve comment annotations from the OMERO server
 %
 %   cas = getCommentAnnotations(session, ids) returns all the comment
@@ -9,10 +9,11 @@ function cas = getCommentAnnotations(session, ids)
 %
 %      cas = getCommentAnnotations(session, ids);
 %
-% See also: GETANNOTATIONTYPES, GETANNOTATIONS, GETTAGANNOTATIONS,
-% GETFILEANNOTATIONS, GETXMLANNOTATIONS
+% See also: GETANNOTATIONTYPES, GETANNOTATIONS, GETDOUBLEANNOTATIONS
+% GETFILEANNOTATIONS, GETLONGANNOTATIONS, GETTAGANNOTATIONS,
+% GETTIMESTAMPANNOTATIONS, GETXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -35,4 +36,4 @@ ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
 % Return comment annotations
-cas = getAnnotations(session, ids, 'comment');
+cas = getAnnotations(session, ids, 'comment', varargin{:});

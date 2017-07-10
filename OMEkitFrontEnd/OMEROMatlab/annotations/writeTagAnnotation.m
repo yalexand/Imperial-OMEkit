@@ -1,5 +1,5 @@
 function ta = writeTagAnnotation(session, tag, varargin)
-% WRITETAGANNOTATION Create and upload a tag annotation onto the OMERO server
+% WRITETAGANNOTATION Create and upload a tag annotation onto OMERO
 %
 %    ta = writeTagAnnotation(session, tag) creates and uploads a tag
 %    annotation owned by the session user.
@@ -10,15 +10,20 @@ function ta = writeTagAnnotation(session, tag, varargin)
 %    ta = writeTagAnnotation(session, tag, 'namespace', namespace)
 %    also sets the namespace of the tag annotation.
 %
+%    ta = writeTagAnnotation(session, tag, 'group', groupid)
+%    sets the group.
+%
 %    Examples:
 %
 %        ta = writeTagAnnotation(session, tag)
 %        ta = writeTagAnnotation(session, tag, 'description', description)
 %        ta = writeTagAnnotation(session, tag, 'namespace', namespace)
 %
-% See also: WRITETEXTANNOTATION
+% See also: WRITECOMMENTANNOTATION, WRITEDOUBLEANNOTATION,
+% WRITEFILEANNOTATION, WRITELONGANNOTATION, WRITETEXTANNOTATION,
+% WRITETIMESTAMPANNOTATION, WRITEXMLANNOTATION
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
