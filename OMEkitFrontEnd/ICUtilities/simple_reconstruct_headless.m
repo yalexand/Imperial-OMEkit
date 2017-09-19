@@ -6,8 +6,12 @@ function simple_reconstruct_headless()
 
     def_filename = 'headless_def.txt';
 
-    thisdir = pwd;
-    fulldeffilename = [thisdir filesep def_filename];
+    try
+        thisdir = pwd;
+        fulldeffilename = [thisdir filesep def_filename];
+    catch
+        disp('error while trying to read "headless_def.txt"');
+    end
     
     fileID = fopen(fulldeffilename);
     C = textscan(fileID,'%s');
@@ -17,6 +21,11 @@ function simple_reconstruct_headless()
     % CONVENTION: FIRST TWO LINE IN THE DEF FILE ARE SRC DST FOLDERS    
     SRC_DIR_NAME = strings{1};
     DST_DIR_NAME = strings{2};    
+    
+    if ~isdir(SRC_DIR_NAME) || ~isdir(DST_DIR_NAME)
+        disp('error - wrong src or dst directory spec');
+        return
+    end
 
     addpath_OMEkit;
     
@@ -26,7 +35,8 @@ function simple_reconstruct_headless()
 
     dc = ic_OPTtools_data_controller([]);
 
-    % SETTINGS    
+    % SETTINGS - this block is not necessary, 
+    % if one simply relies on what is in the settings file
     dc.Prefiltering_Size = 'None';
     dc.swap_XY_dimensions = 'AUTO';
     dc.registration_method = 'None';
@@ -62,14 +72,15 @@ function simple_reconstruct_headless()
     % SETTINGS    
                     
     for k=3:numel(strings)
-        cur_name =char(strings{k});
-        SRC = [SRC_DIR_NAME filesep cur_name];
-            dc.Set_Src_Single(SRC,false);    
-            dc.volm = dc.perform_reconstruction(false);    
-        timestamp = datestr(now,'yyyy-mm-dd_HH-MM-SS');
-        DST = [DST_DIR_NAME filesep timestamp '_REC_' cur_name];
-            dc.save_volume(DST,false);
-    end
-       
+            cur_name = char(strings{k});            
+            SRC = [SRC_DIR_NAME filesep cur_name];
+                dc.Set_Src_Single(SRC,false);    
+                dc.volm = dc.perform_reconstruction(false);    
+            timestamp = datestr(now,'yyyy-mm-dd_HH-MM-SS');
+            DST = [DST_DIR_NAME filesep timestamp '_REC_' cur_name];
+                dc.save_volume(DST,false);
+            disp(SRC);
+    end      
+    
 end
 

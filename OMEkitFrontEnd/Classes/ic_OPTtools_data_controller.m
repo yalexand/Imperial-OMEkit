@@ -1337,7 +1337,7 @@ end
             catch
             end
             
-            obj.FLIM_unit = char(modlo.unit);
+                                                                             obj.FLIM_unit = char(modlo.unit);
             obj.FLIM_typeDescription = char(modlo.typeDescription);
                         
             obj.delays = ret; % mmmm
