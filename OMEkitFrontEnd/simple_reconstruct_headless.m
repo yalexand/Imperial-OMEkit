@@ -3,8 +3,6 @@ function simple_reconstruct_headless()
 % USAGE:
 % matlab -nodisplay -nosplash -nodesktop -r "run('path/to/your/script.m');exit;"
 % matlab -nodisplay -nosplash -nodesktop -r "run('path/to/your/script.m');exit;" | tail -n + 11
-% matlab -nodisplay -nosplash -nodesktop -r "run('/home/alexany/Imperial-OMEkit/OMEkitFrontEnd/simple_reconstruct_headless.m');exit;"
-
 
     def_filename = 'headless_def.txt';
 

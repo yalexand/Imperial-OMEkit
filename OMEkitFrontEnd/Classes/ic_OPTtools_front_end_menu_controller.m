@@ -145,15 +145,13 @@ classdef ic_OPTtools_front_end_menu_controller < handle
             try
                 icy_figure;
                 icy_closeall;
-            catch
-                if ~isempty(obj.data_controller.IcyDirectory)                
-                    if ispc
+            catch                                 
+                if ispc && ~isempty(obj.data_controller.IcyDirectory)
                         dos([obj.data_controller.IcyDirectory filesep 'icy']);
-                    elseif ismac                    
+                    elseif ismac && ~isempty(obj.data_controller.IcyDirectory)                    
                         unix(['open ' obj.data_controller.IcyDirectory filesep 'icy']); % ?                    
                     elseif isunix
-                        % ?
-                    end                                
+                        unix('icy');                                                
                 else
                     % msgbox('error - Icy directory was not set up');
                 end 
@@ -266,7 +264,11 @@ classdef ic_OPTtools_front_end_menu_controller < handle
         end        
          %------------------------------------------------------------------
         function menu_file_set_src_single_callback(obj, ~, ~)
+            try
             [file,path] = uigetfile({'*.OME.tiff','OME.tiff Files'},'Select OPT data file',obj.data_controller.DefaultDirectory);
+            catch
+                [file,path] = uigetfile({'*.OME.tiff','OME.tiff Files'},'Select OPT data file',pwd);
+            end
             if file ~= 0
                 verbose = true;
                 if isempty(obj.data_controller.get_delays([path file]))                    

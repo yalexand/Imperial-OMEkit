@@ -314,7 +314,7 @@ classdef ic_OPTtools_data_controller < handle
             end
                         
             try
-            omedata = bfopen(full_filename);
+            omedata = bfopen_comp_5_10_2017(full_filename);
             catch err
                 if verbose
                     errordlg(err.message);
@@ -465,7 +465,7 @@ classdef ic_OPTtools_data_controller < handle
             end
                         
             try
-            omedata = bfopen(full_filename);
+            omedata = bfopen_comp_5_10_2017(full_filename);
             catch err
                 errordlg(err.message);
                 if ~isempty(hw)

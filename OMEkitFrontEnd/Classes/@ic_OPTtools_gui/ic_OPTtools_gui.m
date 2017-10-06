@@ -25,7 +25,7 @@ classdef ic_OPTtools_gui
    
     properties
         
-        window
+        window = [];
         
     end
     
@@ -126,7 +126,7 @@ classdef ic_OPTtools_gui
             % initialize logging
             loci.common.DebugTools.enableLogging('INFO');
             java.lang.System.setProperty('javax.xml.transform.TransformerFactory', 'com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl');            
-            
+   
             close all;
             
             set(obj.window,'Visible','on');
@@ -151,9 +151,21 @@ classdef ic_OPTtools_gui
         
         function close_request_fcn(obj,~,~)
             
+           if isempty(obj.window)
+               disp('no window..');
+               return;
+           end
+                        
            handles = guidata(obj.window);
-           client = handles.omero_data_manager.client;
-            
+           
+           if isempty(handles)
+               disp('close_request_fcn: hadles empty');
+               delete(obj.window);
+               return;
+           end
+           
+           try
+           client = handles.omero_data_manager.client;            
             if ~isempty(client)                
                 %
                 disp('Closing OMERO session');
@@ -162,7 +174,11 @@ classdef ic_OPTtools_gui
                  handles.omero_data_manager.session = [];
                  handles.omero_data_manager.client = [];
             end
+           catch
+               disp('not closing Omero..');
+           end
             
+           try
             % Make sure we clean up all the left over classes
             names = fieldnames(handles);
                       
@@ -173,6 +189,9 @@ classdef ic_OPTtools_gui
                     delete(handles.(names{i}));
                 end
             end
+           catch
+               disp('not deleting handles..');
+           end
             
             % Finally actually close window
             delete(handles.window);

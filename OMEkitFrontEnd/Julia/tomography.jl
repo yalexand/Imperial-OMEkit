@@ -86,7 +86,8 @@ function iradon(A,angles) # input angles [degree]
 
   # FT domain filtering
   for t=1:length(angles)
-      fhat = fftshift(fft(slice(A,:,t)))
+      #fhat = fftshift(fft(slice(A,:,t)))
+      fhat = fftshift(fft(A[:,t]))
       A[:,t] = real(ifft(ifftshift(fhat.*filter)))
   end
 

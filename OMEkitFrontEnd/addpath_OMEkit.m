@@ -54,26 +54,9 @@ function addpath_OMEkit()
                 [thisdir filesep 'OMEROMatlab' filesep 'roi']);
                 
             addpath( ...
-                [thisdir filesep 'ICY_Matlab' filesep 'matlabcommunicator'],... 
-                [thisdir filesep 'ICY_Matlab' filesep 'matlabxserver']);                                                
-            
-        % Test genops
-        genops(1);
-
-        a = ones(10,10);
-        b = ones(10,1);
-
-        try 
-            c = a.*b;
-            if ~all(size(c)==[10,10])
-                makegenops;
-                genops(1);    
-            end
-        catch
-            makegenops;
-            genops(1);
-        end
+                [thisdir filesep 'icy_matlab' filesep 'matlabcommunicator'],... 
+                [thisdir filesep 'icy_matlab' filesep 'matlabxserver']);                                                            
                         
     end
-
+    
 end
