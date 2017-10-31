@@ -153,7 +153,7 @@ classdef ic_OPTtools_data_controller < handle
             catch
             end
             
-            if isempty(obj.IcyDirectory)
+            if (ispc || ismac) && isempty(obj.IcyDirectory)
                 hw = waitbar(0,'looking for Icy directory..');
                 waitbar(0.1,hw);                
                 if ispc
@@ -2139,35 +2139,47 @@ end
              obj.proj = [];                
              
              PROJ = memmap_PROJ.Data.pixels; % reference
+             offset = min(PROJ(:));
+             PROJ = PROJ-offset;
 
                 %
                 M1_brightness_quantile_threshold = 0.8;
                 M1_max_shift = 20;
                 %M1_window = 50;
-                %
-                % select the slices of the image that are bright enough to work with.                
-                % "brightEnough" calculation - different from Sam's
-                sample = zeros(1,sizeY);
-                for y=1:sizeY
-                    sino = squeeze(cast(PROJ(:,y,:),'single'));
+
+                waitmsg = 'gathering the data to calculate corrections.. please wait..';                
+                hw = waitbar(0,waitmsg);
+            hshift = 0;
+            rotation = 0;
+            finished = 0;
+
+            while ~finished
+
+                sizeCheck = size(obj.M1_imshift(PROJ(:,:,1),0,hshift,-rotation));
+                newproj = zeros(sizeCheck(1),sizeCheck(2),size(PROJ,3));
+                for i = 1:size(newproj,3)
+                    newproj(:,:,i) = obj.M1_imshift(PROJ(:,:,i),0,hshift,-rotation);
+                end 
+                projBrightness = squeeze(mean(mean(newproj,1),2));
+
+                sample = zeros(size(PROJ,2),1);
+                for y=1:size(PROJ,2)
+                    sino = squeeze(cast(newproj(:,y,:),'single'));
                     sample(y) = mean(sino(:));
                 end
                 T = quantile(sample, M1_brightness_quantile_threshold);
                 brightEnough = sample > T;
 
-%                 % remove most slices to optimise, making sure to have
-%                 % slices across the length of the sample
-%                 nRegions = 8;
-%                 regions = ceil([1,(1:nRegions)*size(sizeCheck,2)/nRegions]);
-%                 for i = 1:nRegions
-%                     [~,dim] = sort(sample(regions(i):regions(i+1)));
-%                     brightEnough(dim(1:(end-10))+regions(i)-1) = 0;
-%                 end                
-                % main loop - starts
-                                                                
+                %nRegions = 16;
+                %regions = ceil([1,(1:nRegions)*size(sizeCheck,2)/nRegions]);
+                %for i = 1:nRegions
+                %    [~,dim] = sort(sample(regions(i):regions(i+1)));
+                %    brightEnough(dim(1:(end-10))+regions(i)-1) = 0;
+                %end
+
                 % The shift correction and spearman correlation for individual slices are then
                 % found
-
+                
                 if obj.isGPU
                     shift = gpuArray(NaN(length(brightEnough),1));
                     r = gpuArray(NaN(length(brightEnough),1));
@@ -2176,22 +2188,18 @@ end
                     r = NaN(length(brightEnough),1);
                 end
 
-                waitmsg = 'gathering the data to calculate corrections.. please wait..';
-                hw = waitbar(0,waitmsg);
                 for n = 1:length(brightEnough)
                     if brightEnough(n)
-                        sino = squeeze(cast(PROJ(:,n,:),'single'));
-                        [shift(n),r(n)] = obj.M1_quickMidindex(sino,M1_max_shift);
-                        %
-                        if ~isempty(hw), waitbar(n/length(brightEnough),hw); drawnow, end;
-                    end 
+                        sino = squeeze(newproj(:,n,:));
+                        %[shift(n), r(n)] = obj.M1_quickMidindex(sino,20,2);
+                        [shift(n), r(n)] = obj.M1_quickMidindex(sino,M1_max_shift);
+                    end    
                 end
-                if ~isempty(hw), delete(hw), drawnow, end;    
-                                 
+
                 if obj.isGPU
                     shift = gather(shift);
                 end
-                %
+
                 % filter out shifts which imply large image rotation
                 for n = 1:2
                     delt = abs(shift-nanmean(shift));
@@ -2201,21 +2209,21 @@ end
                 % slice numbers relative to centre of image, filtered, and then cropped
                 ns = (1:length(brightEnough))'-length(brightEnough)/2;
                 ns = ns(~isnan(shift));
-                %ns = ns(M1_window/2:end-M1_window/2);
                 shift = shift(~isnan(shift));
-                %shift = shift(M1_window/2:end-M1_window/2);
+                %figure(2); histogram2(ns,shift,'YBinEdges',-21:2:21,'DisplayStyle','tile','ShowEmptyBins','on');
+                %drawnow;
 
-                % fit shift and rotation
-                p = polyfit(ns,shift,1);
-                hshift = round(p(2));
-                rotation = atan(p(1)); 
-                if rotation < sizeY
-                    rotation = 0;
-                end                
-            %
-            vshift = hshift;
-            hshift = 0;
-            % ?
+                fitobject = fit(ns,shift,'poly1','Robust','on');
+                newshift = round(fitobject.p2);
+                newrotation = fitobject.p1;
+                if (abs(tan(newrotation)) < 1/size(newproj,2)) && (abs(newshift) < 1) 
+                    finished = 1;
+                else
+                    hshift = hshift + newshift;
+                    rotation = rotation + newrotation/2;
+                end
+            end                
+                                
             %
                 obj.M1_hshift = hshift; % keep it for the case of re-usage for FLIM
                 obj.M1_vshift = vshift;
@@ -2225,7 +2233,7 @@ end
             hw = waitbar(0,waitmsg);            
             for k = 1:n_planes
                 I = PROJ(:,:,k);
-                Ishift = obj.M1_imshift(I,hshift,vshift,rotation);
+                Ishift = obj.M1_imshift(I,hshift,vshift,-rotation);
                     if isempty(obj.proj)
                         [szx,szy] = size(Ishift);
                         obj.proj = zeros(szx,szy,n_planes,class(Ishift));
